@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 public class ViperSlides {
     public enum Target {
         GROUND(0),
-        LOW(900),
-        MEDIUM(1400),
+        LOW(1400),
+        MEDIUM(1900),
         HIGH(2950),
         LEVEL1(1000);
 

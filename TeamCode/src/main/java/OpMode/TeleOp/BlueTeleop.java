@@ -15,10 +15,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.GamePieceDetection;
 import OpMode.Subsystems.ClawServo;
-import OpMode.Subsystems.ExtendoServos;
+import OpMode.Subsystems.ExtendoMotor; // Use the new ExtendoMotor class
 import OpMode.Subsystems.IntakeMotor;
-import OpMode.Subsystems.ViperSlides;
 import OpMode.Subsystems.IntakeServos;
+import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
@@ -45,14 +45,10 @@ public class BlueTeleop extends OpMode {
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
     private IntakeServos intakeServos; // Intake subsystem instance
-    private Servo extendoServoRight;
-    private Servo extendoServoLeft;
-    private ExtendoServos extendoServos;
     private ClawServo clawServo;
     private Servo bucketServoRight;
     private Servo bucketServoLeft;
     private BucketServos bucketServos;
-
 
     // Intake Motor and Color Sensor
     private DcMotor intakemotor;
@@ -64,7 +60,10 @@ public class BlueTeleop extends OpMode {
     // Loop Timer
     private ElapsedTime loopTimer;
 
-    // Declare the timer for the extendo servo retraction
+    // Declare the ExtendoMotor instance
+    private ExtendoMotor extendoMotor; // Use ExtendoMotor instead of ExtendoServos
+
+    // Declare the timer for the extendo motor retraction
     private ElapsedTime retractTimer = new ElapsedTime();
     private boolean isRetracting = false;
 
@@ -109,26 +108,22 @@ public class BlueTeleop extends OpMode {
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
 
-        // Initialize extendo servos
-        extendoServoRight = hardwareMap.get(Servo.class, "ExtendoServoRight");
-        extendoServoLeft = hardwareMap.get(Servo.class, "ExtendoServoLeft");
-        extendoServos = new ExtendoServos(extendoServoRight, extendoServoLeft);
+        // Initialize ExtendoMotor (modified constructor)
+        extendoMotor = new ExtendoMotor(
+                hardwareMap.get(DcMotorEx.class, "extendoMotor"),
+                p, i, d  // Pass PID constants
+        );
 
         // Initialize claw servo
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
-
-        // Set extendo servos to retracted position
-        extendoServos.retract();
-
-        // Set intake servos to transfer position
-        intakeServos.transferPosition();
 
         // Initialize Bucket Servo
         bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
         bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
 
-
+        // Initialize retract timer
+        retractTimer = new ElapsedTime();
     }
 
     @Override
@@ -194,18 +189,16 @@ public class BlueTeleop extends OpMode {
             bucketServos.transferPosition();       // If the slide position is not less than 1950, set bucket to 1
         }
 
-
-
         // Servo Control with 700ms Timer for Retraction
         if (gamepad1.dpad_right) {
-            if (extendoServos.isExtended()) {
+            if (extendoMotor.isExtended()) {
                 intakeServos.intakePosition();
             } else {
-                telemetry.addData("Warning", "Cannot move intake servos to intaking position while extendo servos are retracted!");
+                telemetry.addData("Warning", "Cannot move intake servos to intaking position while extendo motors are retracted!");
             }
 
         } else if (gamepad1.dpad_left) {
-            // Move intake servos to transfer position without retracting extendo servos
+            // Move intake servos to transfer position without retracting extendo motors
             intakeServos.transferPosition();
 
         } else if (gamepad1.dpad_down) {
@@ -216,13 +209,13 @@ public class BlueTeleop extends OpMode {
             }
         } else if (gamepad1.dpad_up) {
             if (!isRetracting) {
-                extendoServos.extend();
+                extendoMotor.setTarget(ExtendoMotor.Target.EXTENDED); // Use ExtendoMotor for extension
             }
         }
 
         // Manage the 700ms delay
         if (isRetracting && retractTimer.milliseconds() > 700) {
-            extendoServos.retract();  // Ensure servos are fully retracted after 700ms
+            extendoMotor.setTarget(ExtendoMotor.Target.RETRACTED);  // Ensure motors are fully retracted after 700ms
             isRetracting = false;    // Reset the state
         }
 
@@ -269,7 +262,6 @@ public class BlueTeleop extends OpMode {
             Pose newPose = new Pose(currentPose.getX(), currentPose.getY(), 0); // Set heading to 0
             follower.setStartingPose(newPose);
         }
-
 
         // Telemetry for debugging and visualization
         telemetry.addData("Loop Time (ms)", loopTime);  // Show the loop time in ms

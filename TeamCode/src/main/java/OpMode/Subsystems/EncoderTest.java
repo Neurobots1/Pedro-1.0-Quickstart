@@ -1,13 +1,12 @@
-package OpMode;
+package OpMode.Subsystems;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Measure Encoder Ticks with Button", group = "Test")
-public class MeasureEncoderTicksWithButton extends OpMode {
+public class EncoderTest extends OpMode {
     
     private DcMotorEx motor;
     private int initialTicks = 0;
