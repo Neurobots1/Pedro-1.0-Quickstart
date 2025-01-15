@@ -12,17 +12,17 @@ public class BucketServos {
         this.bucketServoLeft = leftServo;
 
         // Scale the servos' range during initialization
-        bucketServoRight.scaleRange(0, 0.8);  // Adjust range for right servo
+        bucketServoRight.scaleRange(0.2, 0.8);  // Adjust range for right servo
         //bucketServoLeft.scaleRange(0, 1);   // Adjust range for left servo
     }
 
     public void transferPosition() {
-        bucketServoRight.setPosition(0);   // Transfer position for right servo
+        bucketServoRight.setPosition(1);   // Transfer position for right servo
         //bucketServoLeft.setPosition(1);    // Transfer position for left servo
     }
 
     public void depositPosition() {
-        bucketServoRight.setPosition(1);   // Deposit position for right servo
+        bucketServoRight.setPosition(0);   // Deposit position for right servo
         //bucketServoLeft.setPosition(0);    // Deposit position for left servo
     }
 

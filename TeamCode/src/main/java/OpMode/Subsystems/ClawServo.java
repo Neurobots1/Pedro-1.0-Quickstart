@@ -11,7 +11,7 @@ public class ClawServo {
         this.ClawServo = clawServo;
 
         // Scale the servos' range during initialization
-        ClawServo.scaleRange(0, 1);  // Scale for ClawServo (change this for adjustments)
+        ClawServo.scaleRange(0.35, 0.74);  // Scale for ClawServo (change this for adjustments)
     }
 
     // Method to move both servos to the Transfer Position

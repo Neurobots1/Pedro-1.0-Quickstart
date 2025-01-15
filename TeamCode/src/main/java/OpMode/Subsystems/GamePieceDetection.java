@@ -30,7 +30,7 @@ public class GamePieceDetection {
     private final double NO_GAME_PROPORTION_R_FAR = 0.200, NO_GAME_PROPORTION_G_FAR = 0.460, NO_GAME_PROPORTION_B_FAR = 0.340;
 
     // Proportional matching threshold (tweak as needed)
-    private final double THRESHOLD = 0.05; // Allowable difference in proportions
+    private final double THRESHOLD = 0.04; // Allowable difference in proportions
 
     // Variable to store the detected color
     private String detectedColor = "None"; // Default to "None" initially

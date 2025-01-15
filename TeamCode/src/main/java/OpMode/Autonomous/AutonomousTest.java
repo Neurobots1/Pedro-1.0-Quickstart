@@ -26,8 +26,8 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
-@Autonomous(name = "Autonomous 0 + 4", group = "Autonomous")
-public class Autonomous04 extends OpMode {
+@Autonomous(name = "AutonomousTest", group = "Autonomous")
+public class AutonomousTest extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -552,6 +552,8 @@ public class Autonomous04 extends OpMode {
         telemetry.addData("Extendo State", extendoServos.isExtended() ? "Extended" : "Retracted");
 
 
+        follower.update();
+        autonomousPathUpdate();
         telemetry.addData("Path State", pathState);
         telemetry.addData("Position", follower.getPose().toString());
         telemetry.update();
