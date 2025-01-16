@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 public class LinkageController {
 
     public enum Position {
-        RETRACTED(0),
+        RETRACTED(100),
         EXTENDED(1300);
 
         private final int targetPosition;
@@ -35,7 +35,7 @@ public class LinkageController {
     private double i = 0.0; // Integral gain
     private double d = 0.0; // Derivative gain
 
-    private static final double AMPERAGE_THRESHOLD = 3.0; // Amperage threshold for spike detection (adjust as needed)
+    private static final double AMPERAGE_THRESHOLD = 2; // Amperage threshold for spike detection (adjust as needed)
     private static final double DRIVE_PAST_RETRACTED_POSITION = -0.5; // Power to drive past retracted position (negative to retract)
     private boolean isZeroing = false; // Flag for zeroing process
     private boolean hasZeroed = false; // Flag to track if zeroing is complete
@@ -100,7 +100,7 @@ public class LinkageController {
     // Check if the motor is at the target position
     public boolean isAtTarget() {
         int currentPos = getCurrentPosition();
-        return Math.abs(currentPos - targetPosition) < 10; // Tolerance for small errors
+        return Math.abs(currentPos - targetPosition) < 100; // Tolerance for small errors
     }
 
     // Reset the encoder to zero
@@ -136,4 +136,15 @@ public class LinkageController {
             }
         }
     }
+
+    // Check if the motor is in the EXTENDED position
+    public boolean isExtended() {
+        return Math.abs(getCurrentPosition() - Position.EXTENDED.getTargetPosition()) < 10; // Tolerance for small errors
+    }
+
+    // Check if the motor is in the RETRACTED position
+    public boolean isRetracted() {
+        return Math.abs(getCurrentPosition() - Position.RETRACTED.getTargetPosition()) < 10; // Tolerance for small errors
+    }
+
 }

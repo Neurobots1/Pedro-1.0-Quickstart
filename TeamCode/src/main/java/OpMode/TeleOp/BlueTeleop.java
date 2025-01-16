@@ -15,10 +15,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.GamePieceDetection;
 import OpMode.Subsystems.ClawServo;
-import OpMode.Subsystems.ExtendoMotor; // Use the new ExtendoMotor class
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
 import OpMode.Subsystems.ViperSlides;
+import OpMode.Subsystems.LinkageController;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
@@ -60,17 +60,17 @@ public class BlueTeleop extends OpMode {
     // Loop Timer
     private ElapsedTime loopTimer;
 
-    // Declare the ExtendoMotor instance
-    private ExtendoMotor extendoMotor; // Use ExtendoMotor instead of ExtendoServos
+    // Declare the LinkageController instance
+    private LinkageController linkageController;
 
-    // Declare the timer for the extendo motor retraction
+    // Declare the timer for the linkage retraction
     private ElapsedTime retractTimer = new ElapsedTime();
     private boolean isRetracting = false;
 
     // Variables for Left Trigger Rising Edge Detection
     private boolean previousLeftTriggerState = false;
     private boolean currentLeftTriggerState = false;
-    private boolean isClawOpen = false;
+    private boolean isClawOpen = true;
 
     @Override
     public void init() {
@@ -107,12 +107,14 @@ public class BlueTeleop extends OpMode {
         intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
+        intakeServos.transferPosition(); // Set intake servos to transfer position
 
-        // Initialize ExtendoMotor (modified constructor)
-        extendoMotor = new ExtendoMotor(
-                hardwareMap.get(DcMotorEx.class, "extendoMotor"),
-                p, i, d  // Pass PID constants
-        );
+        //Initialize linkage motor
+        linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
+        telemetry.addData("Status", "Initialized");
+
+        // Start the zeroing process
+        linkageController.zeroMotor();
 
         // Initialize claw servo
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
@@ -135,7 +137,7 @@ public class BlueTeleop extends OpMode {
     @Override
     public void loop() {
         // Measure the time elapsed since the last loop iteration
-        double loopTime = loopTimer.seconds() * 1000;  // Convert seconds to milliseconds
+        double loopTime = loopTimer.milliseconds();
         loopTimer.reset();  // Reset the timer for the next loop iteration
 
         // TeleOp movement
@@ -179,45 +181,42 @@ public class BlueTeleop extends OpMode {
         previousLeftTriggerState = currentLeftTriggerState;  // Update the previous state
 
         // Bucket Servo Control Based on Slide Position and Right Trigger
-        if (viperSlides.getSlidePositionLeft() > 1950) {
-            if (gamepad1.right_trigger > 0.3) {
-                bucketServos.depositPosition(); // Move bucket to deposit position if right trigger is pressed and slides are up
+        if (viperSlides.getSlidePositionRight() < 1950) {
+            if (gamepad1.right_trigger > 0.1) {
+                bucketServos.depositPosition(); // Move bucket to deposit position if right trigger is pressed and slides are down
             } else {
                 bucketServos.transferPosition();   // Otherwise, set bucket transfer position
             }
         } else {
-            bucketServos.transferPosition();       // If the slide position is not less than 1950, set bucket to 1
+            bucketServos.transferPosition();       // If the slide position is not less than -1950, set bucket to transfer position
         }
 
-        // Servo Control with 700ms Timer for Retraction
-        if (gamepad1.dpad_right) {
-            if (extendoMotor.isExtended()) {
-                intakeServos.intakePosition();
-            } else {
-                telemetry.addData("Warning", "Cannot move intake servos to intaking position while extendo motors are retracted!");
-            }
-
-        } else if (gamepad1.dpad_left) {
-            // Move intake servos to transfer position without retracting extendo motors
-            intakeServos.transferPosition();
-
+        // Servo Control for Linkage and Intake Servos
+        if (gamepad1.dpad_up) {
+            // Extend the linkage
+            linkageController.setPosition(LinkageController.Position.EXTENDED);
+            isRetracting = false; // Reset the retracting flag
         } else if (gamepad1.dpad_down) {
-            if (!isRetracting) {
-                intakeServos.transferPosition();  // Move intake servos to transfer position
-                retractTimer.reset();
-                isRetracting = true;  // Start the retraction process
+            // Attempt to retract the linkage
+            if (intakeServos.isTransferPosition()) {
+                // Only proceed with retraction if intake servos are in transfer position
+                linkageController.setPosition(LinkageController.Position.RETRACTED);
+                isRetracting = false; // Reset the retracting flag
+            } else {
+                telemetry.addData("Warning", "Cannot retract linkage until intake servos are in transfer position!");
             }
-        } else if (gamepad1.dpad_up) {
-            if (!isRetracting) {
-                extendoMotor.setTarget(ExtendoMotor.Target.EXTENDED); // Use ExtendoMotor for extension
+        } else if (gamepad1.dpad_right) {
+            // Attempt to move intake servos to the intake position
+            if (linkageController.isExtended()) {
+                intakeServos.intakePosition(); // Only allow if linkage is extended
+            } else {
+                telemetry.addData("Warning", "Cannot move intake servos to intake position while linkage is retracted!");
             }
+        } else if (gamepad1.dpad_left) {
+            // Move intake servos to transfer position
+            intakeServos.transferPosition();
         }
 
-        // Manage the 700ms delay
-        if (isRetracting && retractTimer.milliseconds() > 700) {
-            extendoMotor.setTarget(ExtendoMotor.Target.RETRACTED);  // Ensure motors are fully retracted after 700ms
-            isRetracting = false;    // Reset the state
-        }
 
         // Viper Slide Control (Predefined Targets)
         viperSlides.update();
@@ -235,7 +234,7 @@ public class BlueTeleop extends OpMode {
             viperSlides.setTarget(ViperSlides.Target.MEDIUM);
         }
 
-        // Check if Controller 1's A button is pressed to reset the Viper slides
+        // Home Slides
         if (gamepad1.options) {
             // Disable PID control temporarily
             viperSlides.setPIDEnabled(false);  // Disable PID control
