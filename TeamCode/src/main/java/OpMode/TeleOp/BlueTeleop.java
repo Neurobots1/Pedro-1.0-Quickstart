@@ -231,10 +231,10 @@ public class BlueTeleop extends OpMode {
         if (gamepad1.a) {
             viperSlides.setTarget(ViperSlides.Target.GROUND);
         }
-        if (gamepad1.x) {
+        if (gamepad1.b) {
             viperSlides.setTarget(ViperSlides.Target.LOW);
         }
-        if (gamepad1.b) {
+        if (gamepad1.x) {
             viperSlides.setTarget(ViperSlides.Target.MEDIUM);
         }
 
