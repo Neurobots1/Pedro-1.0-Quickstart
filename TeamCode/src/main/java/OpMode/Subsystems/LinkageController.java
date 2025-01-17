@@ -75,7 +75,7 @@ public class LinkageController {
             double pid = pidController.calculate(currentPos, targetPosition);
             double ff = Math.cos(Math.toRadians(targetPosition / ticksPerDegree)) * f;
             double power = pid + ff;
-
+            power *= 0.3; // Scale the power to 50% of its calculated value
             extendoMotor.setPower(power);
         } else {
             extendoMotor.setPower(0); // Stop motor when PID is disabled or zeroing is not complete
@@ -139,12 +139,12 @@ public class LinkageController {
 
     // Check if the motor is in the EXTENDED position
     public boolean isExtended() {
-        return Math.abs(getCurrentPosition() - Position.EXTENDED.getTargetPosition()) < 10; // Tolerance for small errors
+        return Math.abs(getCurrentPosition() - Position.EXTENDED.getTargetPosition()) < 100; // Tolerance for small errors
     }
 
     // Check if the motor is in the RETRACTED position
     public boolean isRetracted() {
-        return Math.abs(getCurrentPosition() - Position.RETRACTED.getTargetPosition()) < 10; // Tolerance for small errors
+        return Math.abs(getCurrentPosition() - Position.RETRACTED.getTargetPosition()) < 100; // Tolerance for small errors
     }
 
 }

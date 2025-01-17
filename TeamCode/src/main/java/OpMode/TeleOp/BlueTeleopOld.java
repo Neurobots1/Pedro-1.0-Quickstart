@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import OpMode.Subsystems.GamePieceDetection;
 import OpMode.Subsystems.ClawServo;
-import OpMode.Subsystems.ExtendoServos;
+import Unused.ExtendoServos;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;

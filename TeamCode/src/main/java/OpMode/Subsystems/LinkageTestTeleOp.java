@@ -34,6 +34,8 @@ public class LinkageTestTeleOp extends OpMode {
         telemetry.addData("Current Position", linkageController.getCurrentPosition());
         telemetry.addData("Target Position", linkageController.getTargetPosition());
         telemetry.addData("At Target", linkageController.isAtTarget());
+        telemetry.addData("Is Extended", linkageController.isExtended());
+        telemetry.addData("Is Retracted", linkageController.isRetracted());
         telemetry.update();
     }
 }

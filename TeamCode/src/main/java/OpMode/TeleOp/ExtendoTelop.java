@@ -3,7 +3,7 @@ package OpMode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import OpMode.Subsystems.ExtendoMotor;
+import Unused.ExtendoMotor;
 
 @TeleOp
 public class ExtendoTelop extends OpMode {

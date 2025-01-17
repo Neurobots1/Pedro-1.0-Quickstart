@@ -64,8 +64,8 @@ public class BlueTeleop extends OpMode {
     private LinkageController linkageController;
 
     // Declare the timer for the linkage retraction
-    private ElapsedTime retractTimer = new ElapsedTime();
-    private boolean isRetracting = false;
+
+
 
     // Variables for Left Trigger Rising Edge Detection
     private boolean previousLeftTriggerState = false;
@@ -108,13 +108,18 @@ public class BlueTeleop extends OpMode {
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
         intakeServos.transferPosition(); // Set intake servos to transfer position
-
-        //Initialize linkage motor
+        //Linkage
         linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
         telemetry.addData("Status", "Initialized");
 
-        // Start the zeroing process
+
         linkageController.zeroMotor();
+
+        while (!linkageController.isAtTarget()) {
+            linkageController.checkForAmperageSpike();
+            telemetry.addData("Zeroing...", "Current Position: %d", linkageController.getCurrentPosition());
+            telemetry.update();
+        }
 
         // Initialize claw servo
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
@@ -123,9 +128,6 @@ public class BlueTeleop extends OpMode {
         bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
         bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
-
-        // Initialize retract timer
-        retractTimer = new ElapsedTime();
     }
 
     @Override
@@ -181,7 +183,7 @@ public class BlueTeleop extends OpMode {
         previousLeftTriggerState = currentLeftTriggerState;  // Update the previous state
 
         // Bucket Servo Control Based on Slide Position and Right Trigger
-        if (viperSlides.getSlidePositionRight() < 1950) {
+        if (viperSlides.getSlidePositionRight() > 1950) {
             if (gamepad1.right_trigger > 0.1) {
                 bucketServos.depositPosition(); // Move bucket to deposit position if right trigger is pressed and slides are down
             } else {
@@ -192,16 +194,17 @@ public class BlueTeleop extends OpMode {
         }
 
         // Servo Control for Linkage and Intake Servos
+
+        linkageController.checkForAmperageSpike();
+
         if (gamepad1.dpad_up) {
             // Extend the linkage
             linkageController.setPosition(LinkageController.Position.EXTENDED);
-            isRetracting = false; // Reset the retracting flag
         } else if (gamepad1.dpad_down) {
             // Attempt to retract the linkage
             if (intakeServos.isTransferPosition()) {
                 // Only proceed with retraction if intake servos are in transfer position
                 linkageController.setPosition(LinkageController.Position.RETRACTED);
-                isRetracting = false; // Reset the retracting flag
             } else {
                 telemetry.addData("Warning", "Cannot retract linkage until intake servos are in transfer position!");
             }
@@ -217,6 +220,7 @@ public class BlueTeleop extends OpMode {
             intakeServos.transferPosition();
         }
 
+        linkageController.update();
 
         // Viper Slide Control (Predefined Targets)
         viperSlides.update();
@@ -268,6 +272,12 @@ public class BlueTeleop extends OpMode {
         telemetry.addData("Slide Position Right", viperSlides.getSlidePositionRight());
         telemetry.addData("Slide Target", viperSlides.getTarget());
         telemetry.addData("Detected Color", detectedColor);
+        //
+        telemetry.addData("Current Position", linkageController.getCurrentPosition());
+        telemetry.addData("Target Position", linkageController.getTargetPosition());
+        telemetry.addData("At Target", linkageController.isAtTarget());
+        telemetry.addData("Is Extended", linkageController.isExtended());
+        telemetry.addData("Is Retracted", linkageController.isRetracted());
         /* Telemetry Outputs of our Follower */
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());

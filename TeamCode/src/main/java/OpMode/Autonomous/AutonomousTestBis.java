@@ -26,8 +26,8 @@ public class AutonomousTestBis extends OpMode {
      * It is used by the pathUpdate method. */
     private int pathState;
 
-    private final Pose startPose = new Pose(8, 80, Math.toRadians(270));
-    private final Pose scorePose = new Pose(14, 129, Math.toRadians(315));
+    private final Pose startPose = new Pose(8, 90, Math.toRadians(270));
+    private final Pose scorePose = new Pose(14, 128, Math.toRadians(315));
     private final Pose pickup1Pose = new Pose(28, 121, Math.toRadians(0));
     private final Pose pickup2Pose = new Pose(35, 130, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(30, 130, Math.toRadians(35));

@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
-import OpMode.Subsystems.ExtendoServos;
+import Unused.ExtendoServos;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
 import OpMode.Subsystems.ViperSlides;
