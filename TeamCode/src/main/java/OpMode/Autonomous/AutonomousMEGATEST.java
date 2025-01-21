@@ -5,6 +5,7 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
+
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
@@ -29,16 +30,14 @@ public class AutonomousMEGATEST extends OpMode {
     private final Pose startPose = new Pose(8, 90, Math.toRadians(270));
     private final Pose scorePose = new Pose(15, 125, Math.toRadians(315));
     private final Pose pickup1Pose = new Pose(35, 120, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(15, 125, Math.toRadians(315));
     private final Pose pickup3Pose = new Pose(35, 132, Math.toRadians(0));
-    private final Pose pickup4pose = new Pose(15, 125, Math.toRadians(315));
     private final Pose parkPose = new Pose(62, 96, Math.toRadians(90));
     //Control Points
     private final Pose parkControlPose = new Pose(64, 134);
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload, park;
-    private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, scorePickup4;
+    private PathChain pathChain,pathChain1, pathChain2, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, scorePickup4;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -59,57 +58,31 @@ public class AutonomousMEGATEST extends OpMode {
          * PathChains hold Path(s) within it and are able to hold their end point, meaning that they will holdPoint until another path is followed.
          * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
 
-        /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
 
-        /* Here is an example for Constant Interpolation
-        scorePreload.setConstantInterpolation(startPose.getHeading()); */
-
-        /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        grabPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
+          pathChain = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(startPose), new Point(scorePose))) // First path
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierCurve(new Point(scorePose), new Point(pickup1Pose))) // Second path
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
+                .setPathEndTimeoutConstraint(5.0) // Timeout for the entire chain
                 .build();
 
-        /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        scorePickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup1Pose), new Point(scorePose)))
+
+         pathChain1 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(pickup1Pose), new Point(scorePose))) // First path
                 .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
-                .build();
-
-        /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        grabPickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose), new Point(pickup2Pose)))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
-                .build();
-
-        /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        scorePickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup2Pose), new Point(scorePose)))
-                .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
-                .build();
-
-        /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        grabPickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose), new Point(pickup3Pose)))
+                .addPath(new BezierCurve(new Point(scorePose), new Point(pickup3Pose))) // Second path
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
+                .setPathEndTimeoutConstraint(5.0) // Timeout for the entire chain
                 .build();
 
-        /* This is our scorePickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        scorePickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup3Pose), new Point(scorePose)))
+        pathChain2 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(pickup3Pose), new Point(scorePose))) // First path
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierCurve(new Point(scorePose),/*controle point*/ new Point(parkControlPose), new Point(parkPose))) // Second path
+                .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
+                .setPathEndTimeoutConstraint(5.0) // Timeout for the entire chain
                 .build();
-
-        scorePickup4 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup4pose), new Point(scorePose)))
-                .setLinearHeadingInterpolation(pickup4pose.getHeading(), scorePose.getHeading())
-                .build();
-
-        /* This is our park path. We are using a BezierCurve with 3 points, which is a curved line that is curved based off of the control point */
-        park = new Path(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(parkPose)));
-        park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
     }
 
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
@@ -118,9 +91,10 @@ public class AutonomousMEGATEST extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(scorePreload);
+                follower.followPath(pathChain,true);
                 setPathState(1);
                 break;
+
             case 1:
 
                 /* You could check for
@@ -134,18 +108,19 @@ public class AutonomousMEGATEST extends OpMode {
                     /* Score Preload */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(grabPickup1,true);
+                    follower.followPath(pathChain1,true);
                     setPathState(2);
                 }
                 break;
+
             case 2:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
                 if(!follower.isBusy()) {
                     /* Grab Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(scorePickup1,true);
-                    setPathState(3);
+                    follower.followPath(pathChain2,true);
+                    setPathState(-1);
                 }
                 break;
             case 3:
