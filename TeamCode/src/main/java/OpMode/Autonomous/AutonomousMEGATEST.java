@@ -1,7 +1,9 @@
 package OpMode.Autonomous;
 
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
@@ -9,10 +11,17 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
+import com.pedropathing.util.DashboardPoseTracker;
+import com.pedropathing.util.Drawing;
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
+
+import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
@@ -20,7 +29,31 @@ import pedroPathing.constants.LConstants;
 @Autonomous(name = "AutonomousMEGATEST", group = "Autonomous")
 public class AutonomousMEGATEST extends OpMode {
 
+    public void setMaxPower(double set)
+
     private Follower follower;
+    private PoseUpdater poseUpdater;
+    private DashboardPoseTracker dashboardPoseTracker;
+
+
+    // Viper Slide Variables
+    /*public static double p = 0.01, i = 0, d = 0.0;
+    public static double f = 0.1;
+    private ViperSlides viperSlides;
+    private FtcDashboard dashboard;
+
+    // REV Touch Sensor (Limit Switch)
+    private TouchSensor limitSwitch;
+
+    viperSlides = new ViperSlides(
+            hardwareMap.get(DcMotorEx.class, "slidemotorleft"),
+                hardwareMap.get(DcMotorEx.class, "slidemotorright"),
+            hardwareMap.get(TouchSensor.class, "limitSwitch"),
+    p, i, d
+        );*/
+
+
+
     private Timer pathTimer, actionTimer, opmodeTimer;
 
     /** This is the variable where we store the state of our auto.
@@ -62,18 +95,18 @@ public class AutonomousMEGATEST extends OpMode {
           pathChain = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose))) // First path
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
-                .addPath(new BezierCurve(new Point(scorePose), new Point(pickup1Pose))) // Second path
+                .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose))) // Second path
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
-                .setPathEndTimeoutConstraint(5.0) // Timeout for the entire chain
+                .setPathEndTimeoutConstraint(10.0) // Timeout for the entire chain
                 .build();
 
 
          pathChain1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(pickup1Pose), new Point(scorePose))) // First path
                 .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
-                .addPath(new BezierCurve(new Point(scorePose), new Point(pickup3Pose))) // Second path
+                .addPath(new BezierLine(new Point(scorePose), new Point(pickup3Pose))) // Second path
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
-                .setPathEndTimeoutConstraint(5.0) // Timeout for the entire chain
+                .setPathEndTimeoutConstraint(10.0) // Timeout for the entire chain
                 .build();
 
         pathChain2 = follower.pathBuilder()
@@ -81,7 +114,7 @@ public class AutonomousMEGATEST extends OpMode {
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .addPath(new BezierCurve(new Point(scorePose),/*controle point*/ new Point(parkControlPose), new Point(parkPose))) // Second path
                 .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
-                .setPathEndTimeoutConstraint(5.0) // Timeout for the entire chain
+                .setPathEndTimeoutConstraint(10.0) // Timeout for the entire chain
                 .build();
     }
 
@@ -104,7 +137,7 @@ public class AutonomousMEGATEST extends OpMode {
                 */
 
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
+                if(pathTimer.getElapsedTimeSeconds()>4) {
                     /* Score Preload */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
@@ -115,7 +148,7 @@ public class AutonomousMEGATEST extends OpMode {
 
             case 2:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
-                if(!follower.isBusy()) {
+                if(pathTimer.getElapsedTimeSeconds()>4) {
                     /* Grab Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
@@ -201,6 +234,8 @@ public class AutonomousMEGATEST extends OpMode {
     /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
     @Override
     public void loop() {
+        poseUpdater.update();
+        dashboardPoseTracker.update();
 
         // These loop the movements of the robot
         follower.update();
@@ -208,10 +243,16 @@ public class AutonomousMEGATEST extends OpMode {
 
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("x", poseUpdater.getPose().getX());
+        telemetry.addData("y", poseUpdater.getPose().getY());
+        telemetry.addData("heading", poseUpdater.getPose().getHeading());
+        telemetry.addData("total heading", poseUpdater.getTotalHeading());
         telemetry.update();
+
+
+        Drawing.drawPoseHistory(dashboardPoseTracker, "#4CAF50");
+        Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
+        Drawing.sendPacket();
     }
 
     /** This method is called once at the init of the OpMode. **/
@@ -221,10 +262,17 @@ public class AutonomousMEGATEST extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
+        poseUpdater = new PoseUpdater(hardwareMap);
+
+        dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
+
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         buildPaths();
+
+        Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
+        Drawing.sendPacket();
     }
 
     /** This method is called continuously after Init while waiting for "play". **/

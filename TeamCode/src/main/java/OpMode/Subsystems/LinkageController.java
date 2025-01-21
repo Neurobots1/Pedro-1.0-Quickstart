@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 public class LinkageController {
 
     public enum Position {
-        RETRACTED(100),
+        RETRACTED(50),
         EXTENDED(1300);
 
         private final int targetPosition;
@@ -35,7 +35,7 @@ public class LinkageController {
     private double i = 0.0; // Integral gain
     private double d = 0.0; // Derivative gain
 
-    private static final double AMPERAGE_THRESHOLD = 2; // Amperage threshold for spike detection (adjust as needed)
+    private static final double AMPERAGE_THRESHOLD = 1.5; // Amperage threshold for spike detection (adjust as needed)
     private static final double DRIVE_PAST_RETRACTED_POSITION = -0.5; // Power to drive past retracted position (negative to retract)
     private boolean isZeroing = false; // Flag for zeroing process
     private boolean hasZeroed = false; // Flag to track if zeroing is complete
