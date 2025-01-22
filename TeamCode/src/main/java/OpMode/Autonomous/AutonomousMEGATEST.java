@@ -29,8 +29,6 @@ import pedroPathing.constants.LConstants;
 @Autonomous(name = "AutonomousMEGATEST", group = "Autonomous")
 public class AutonomousMEGATEST extends OpMode {
 
-    public void setMaxPower(double set)
-
     private Follower follower;
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;
@@ -124,7 +122,7 @@ public class AutonomousMEGATEST extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(pathChain,true);
+                follower.followPath(pathChain, true);
                 setPathState(1);
                 break;
 
