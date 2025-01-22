@@ -74,6 +74,8 @@ public class AutonomousMEGATEST extends OpMode {
      * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
 
+         // follower.setMaxPower(0.85);
+
         /* There are two major types of paths components: BezierCurves and BezierLines.
          *    * BezierCurves are curved, and require >= 3 points. There are the start and end points, and the control points.
          *    - Control points manipulate the curve between the start and end points.
@@ -122,7 +124,7 @@ public class AutonomousMEGATEST extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(pathChain, true);
+                follower.followPath(pathChain, 0.85, true);
                 setPathState(1);
                 break;
 
