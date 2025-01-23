@@ -40,6 +40,7 @@ public class BlueTeleop extends OpMode {
 
     // REV Touch Sensor (Limit Switch)
     private TouchSensor limitSwitch;
+    private boolean wasLimitSwitchPressed = false;
 
     // Servos
     private Servo intakeServoRight;
@@ -183,7 +184,7 @@ public class BlueTeleop extends OpMode {
         previousLeftTriggerState = currentLeftTriggerState;  // Update the previous state
 
         // Bucket Servo Control Based on Slide Position and Right Trigger
-        if (viperSlides.getSlidePositionRight() > 1950) {
+        if (viperSlides.getSlidePositionRight() > 1300) {
             if (gamepad1.right_trigger > 0.1) {
                 bucketServos.depositPosition(); // Move bucket to deposit position if right trigger is pressed and slides are down
             } else {
@@ -197,9 +198,11 @@ public class BlueTeleop extends OpMode {
 
         linkageController.checkForAmperageSpike();
 
+
         if (gamepad1.dpad_up) {
             // Extend the linkage
             linkageController.setPosition(LinkageController.Position.EXTENDED);
+            intakeServos.neutralPosition();
         } else if (gamepad1.dpad_down) {
             // Attempt to retract the linkage
             if (intakeServos.isTransferPosition()) {
@@ -224,6 +227,14 @@ public class BlueTeleop extends OpMode {
 
         // Viper Slide Control (Predefined Targets)
         viperSlides.update();
+
+        if (viperSlides.isLimitSwitchPressed() && !wasLimitSwitchPressed) {
+            // Limit switch is pressed, and it wasn't pressed in the previous loop iteration
+            viperSlides.resetPosition();
+        }
+
+        // Update the previous state of the limit switch
+        wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
 
         if (gamepad1.y) {
             viperSlides.setTarget(ViperSlides.Target.HIGH);
@@ -263,7 +274,7 @@ public class BlueTeleop extends OpMode {
             // Reset the heading to zero
             Pose currentPose = follower.getPose();
             Pose newPose = new Pose(currentPose.getX(), currentPose.getY(), 0); // Set heading to 0
-            follower.setStartingPose(newPose);
+            follower.setPose(newPose);
         }
 
         // Telemetry for debugging and visualization

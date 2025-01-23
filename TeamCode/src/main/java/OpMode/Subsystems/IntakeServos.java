@@ -13,35 +13,40 @@ public class IntakeServos {
         this.IntakeServoLeft = leftServo;
 
         // Scale the servos' range during initialization
-        //IntakeServoRight.scaleRange(0, 1);  // Scale for ExtendoServoRight (reversed) ( change this for adjustments )
-        IntakeServoLeft.scaleRange(0, 1);   // Scale for ExtendoServoLeft (non-reversed) ( change this for adjustments )
+        IntakeServoRight.scaleRange(0, 1);  // Scale for ExtendoServoRight (reversed) ( change this for adjustments )
+        //IntakeServoLeft.scaleRange(0, 1);   // Scale for ExtendoServoLeft (non-reversed) ( change this for adjustments )
     }
 
     // Method to move both servos to the Transfer Position
     public void intakePosition() {
-        //IntakeServoRight.setPosition(0.1);  // Set to maximum after scaling
-        IntakeServoLeft.setPosition(0.9);   // Set to maximum after scaling
+        IntakeServoRight.setPosition(0.3);  // Set to maximum after scaling
+        //IntakeServoLeft.setPosition(0.9);   // Set to maximum after scaling
     }
 
     // Method to move both servos to the Intake Position
     public void transferPosition() {
-        //IntakeServoRight.setPosition(1);  // Set to minimum after scaling
-        IntakeServoLeft.setPosition(0.0);   // Set to minimum after scaling
+        IntakeServoRight.setPosition(1);  // Set to minimum after scaling
+        //IntakeServoLeft.setPosition(0.0);   // Set to minimum after scaling
+    }
+
+    public void neutralPosition() {
+        IntakeServoRight.setPosition(0.7);  // Set to minimum after scaling
+        //IntakeServoLeft.setPosition(0.0);   // Set to minimum after scaling
     }
 
     // Method to check if the servos are in the Intake Position
     public boolean isIntakePosition() {
         double tolerance = 0.2;
-        //boolean rightIntake = Math.abs(IntakeServoRight.getPosition() - 0.1) < tolerance;
-        boolean leftIntake = Math.abs(IntakeServoLeft.getPosition() - 0.9) < tolerance;
-        return /*rightIntake &&*/ leftIntake;
+        boolean rightIntake = Math.abs(IntakeServoRight.getPosition() - 0.1) < tolerance;
+        //boolean leftIntake = Math.abs(IntakeServoLeft.getPosition() - 0.9) < tolerance;
+        return rightIntake /*&& leftIntake*/;
     }
 
     // Method to check if the servos are in the Transfer Position
     public boolean isTransferPosition() {
         double tolerance = 0.2;
-        //boolean rightTransfer = Math.abs(IntakeServoRight.getPosition() - 1.0) < tolerance;
-        boolean leftTransfer = Math.abs(IntakeServoLeft.getPosition() - 0.0) < tolerance;
-        return /*rightTransfer &&*/ leftTransfer;
+        boolean rightTransfer = Math.abs(IntakeServoRight.getPosition() - 1.0) < tolerance;
+        //boolean leftTransfer = Math.abs(IntakeServoLeft.getPosition() - 0.0) < tolerance;
+        return rightTransfer /*&& leftTransfer*/;
     }
 }

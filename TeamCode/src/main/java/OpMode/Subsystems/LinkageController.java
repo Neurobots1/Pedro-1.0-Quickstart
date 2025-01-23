@@ -11,7 +11,7 @@ public class LinkageController {
 
     public enum Position {
         RETRACTED(50),
-        EXTENDED(1300);
+        EXTENDED(1100);
 
         private final int targetPosition;
 

@@ -33,42 +33,24 @@ public class AutonomousMEGATEST extends OpMode {
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;
 
-
-    // Viper Slide Variables
-    /*public static double p = 0.01, i = 0, d = 0.0;
-    public static double f = 0.1;
-    private ViperSlides viperSlides;
-    private FtcDashboard dashboard;
-
-    // REV Touch Sensor (Limit Switch)
-    private TouchSensor limitSwitch;
-
-    viperSlides = new ViperSlides(
-            hardwareMap.get(DcMotorEx.class, "slidemotorleft"),
-                hardwareMap.get(DcMotorEx.class, "slidemotorright"),
-            hardwareMap.get(TouchSensor.class, "limitSwitch"),
-    p, i, d
-        );*/
-
-
-
     private Timer pathTimer, actionTimer, opmodeTimer;
 
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
     private int pathState;
 
-    private final Pose startPose = new Pose(8, 90, Math.toRadians(270));
+    private final Pose startPose = new Pose(8, 80, Math.toRadians(270));
     private final Pose scorePose = new Pose(15, 125, Math.toRadians(315));
-    private final Pose pickup1Pose = new Pose(35, 120, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(35, 132, Math.toRadians(0));
     private final Pose parkPose = new Pose(62, 96, Math.toRadians(90));
+    private final Pose pickup1Pose = new Pose(32, 121, Math.toRadians(0));
+
+
     //Control Points
     private final Pose parkControlPose = new Pose(64, 134);
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload, park;
-    private PathChain pathChain,pathChain1, pathChain2, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, scorePickup4;
+    private PathChain startChain,block1Chain,parkChain;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -92,30 +74,16 @@ public class AutonomousMEGATEST extends OpMode {
          * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
 
 
-          pathChain = follower.pathBuilder()
+          startChain = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose))) // First path
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose))) // Second path
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
-                .setPathEndTimeoutConstraint(10.0) // Timeout for the entire chain
+                  .addPath(new BezierLine(new Point(pickup1Pose), new Point(scorePose)))
+                  .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
+                .setPathEndTimeoutConstraint(20) // Timeout for the entire chain
                 .build();
 
-
-         pathChain1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup1Pose), new Point(scorePose))) // First path
-                .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
-                .addPath(new BezierLine(new Point(scorePose), new Point(pickup3Pose))) // Second path
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
-                .setPathEndTimeoutConstraint(10.0) // Timeout for the entire chain
-                .build();
-
-        pathChain2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup3Pose), new Point(scorePose))) // First path
-                .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
-                .addPath(new BezierCurve(new Point(scorePose),/*controle point*/ new Point(parkControlPose), new Point(parkPose))) // Second path
-                .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
-                .setPathEndTimeoutConstraint(10.0) // Timeout for the entire chain
-                .build();
     }
 
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
@@ -124,103 +92,10 @@ public class AutonomousMEGATEST extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(pathChain, 0.85, true);
-                setPathState(1);
+                follower.followPath(startChain, 0.85, true);
+                setPathState(-1);
                 break;
 
-            case 1:
-
-                /* You could check for
-                - Follower State: "if(!follower.isBusy() {}"
-                - Time: "if(pathTimer.getElapsedTimeSeconds() > 1) {}"
-                - Robot Position: "if(follower.getPose().getX() > 36) {}"
-                */
-
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(pathTimer.getElapsedTimeSeconds()>4) {
-                    /* Score Preload */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(pathChain1,true);
-                    setPathState(2);
-                }
-                break;
-
-            case 2:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
-                if(pathTimer.getElapsedTimeSeconds()>4) {
-                    /* Grab Sample */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(pathChain2,true);
-                    setPathState(-1);
-                }
-                break;
-            case 3:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
-                    /* Score Sample */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(grabPickup2,true);
-                    setPathState(4);
-                }
-                break;
-            case 4:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
-                if(!follower.isBusy()) {
-                    /* Grab Sample */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(scorePickup2,true);
-                    setPathState(5);
-                }
-                break;
-            case 5:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
-                    /* Score Sample */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(grabPickup3,true);
-                    setPathState(6);
-                }
-                break;
-            case 6:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup3Pose's position */
-                if(!follower.isBusy()) {
-                    /* Grab Sample */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(scorePickup3, true);
-                    setPathState(7);
-                }
-                break;
-            case 7:
-                if(!follower.isBusy()){
-                    follower.followPath(scorePickup4,true);
-                    setPathState(8);
-                }
-                break;
-            case 8:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
-                    /* Score Sample */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(park,true);
-                    setPathState(9);
-                }
-                break;
-            case 9:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
-                    /* Level 1 Ascent */
-
-                    /* Set the state to a Case we won't use or define, so it just stops running an new paths */
-                    setPathState(-1);
-                }
-                break;
         }
     }
 

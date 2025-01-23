@@ -10,13 +10,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class LConstants {
     static {
-        OTOSConstants.useCorrectedOTOSClass = false;
+        OTOSConstants.useCorrectedOTOSClass = true;
         OTOSConstants.hardwareMapName = "sensor_otos";
         OTOSConstants.linearUnit = DistanceUnit.INCH;
         OTOSConstants.angleUnit = AngleUnit.RADIANS;
-        OTOSConstants.offset = new SparkFunOTOS.Pose2D(1.9081, 5.7525, 0);
-        OTOSConstants.linearScalar = 1.01;
-        OTOSConstants.angularScalar = 0.993;
+        OTOSConstants.offset = new SparkFunOTOS.Pose2D(1.9081, 6.5635, 0);
+        OTOSConstants.linearScalar = 1.0766;
+        OTOSConstants.angularScalar = 0.9956;
     }
 }
 
