@@ -116,11 +116,11 @@ public class BlueTeleop extends OpMode {
 
         linkageController.zeroMotor();
 
-        while (!linkageController.isAtTarget()) {
+        /* while (!linkageController.isAtTarget()) {
             linkageController.checkForAmperageSpike();
             telemetry.addData("Zeroing...", "Current Position: %d", linkageController.getCurrentPosition());
             telemetry.update();
-        }
+        } */
 
         // Initialize claw servo
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
@@ -129,6 +129,17 @@ public class BlueTeleop extends OpMode {
         bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
         bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
+    }
+
+    @Override
+    public void init_loop() {
+
+        while (linkageController.isZeroing) {
+            linkageController.checkForAmperageSpike();
+            telemetry.addData("Zeroing...", "Current Position: %d", linkageController.getCurrentPosition());
+            telemetry.update();
+        }
+
     }
 
     @Override
@@ -196,7 +207,7 @@ public class BlueTeleop extends OpMode {
 
         // Servo Control for Linkage and Intake Servos
 
-        linkageController.checkForAmperageSpike();
+        //linkageController.checkForAmperageSpike();
 
 
         if (gamepad1.dpad_up) {

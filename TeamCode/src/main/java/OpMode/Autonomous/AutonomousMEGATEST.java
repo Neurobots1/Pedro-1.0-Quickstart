@@ -92,7 +92,7 @@ public class AutonomousMEGATEST extends OpMode {
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
-
+        // Start pose to first score pose
         pathChain1 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(8.000, 56.000),
@@ -100,7 +100,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
-
+        // First score pose curve to first block
         pathChain2 = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         new Point(37.949, 73.300),
@@ -110,7 +110,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
-
+        // Push first block to zone
         pathChain3 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(58.917, 25.000),
@@ -118,7 +118,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
-
+        // Curve behind second block
         pathChain4 = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         new Point(14.000, 25.000),
@@ -127,7 +127,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
-
+        // Push second block to zone
         pathChain5 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(60.000, 15.000),
@@ -135,7 +135,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
-
+        // Short path to get the clip on wall
         pathChain6 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(14.000, 15.000),
@@ -143,7 +143,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
-
+        // Wall to score pose 2
         pathChain7 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(10.917, 24.606),
@@ -151,7 +151,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
-
+        // Score pose 2 to wall
         pathChain8 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(37.603, 68.621),
@@ -159,7 +159,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
-
+        // Wall to score pose 3
         pathChain9 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(11.090, 24.780),
@@ -167,7 +167,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
-
+        // Score pose 3 to wall
         pathChain10 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(37.256, 64.635),
@@ -175,7 +175,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
-
+        // Wall to Score pose 4
         pathChain11 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(10.917, 24.260),
@@ -183,7 +183,7 @@ public class AutonomousMEGATEST extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
-
+        // Score pose 4 to park
         pathChain12 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(37.430, 61.170),
@@ -206,7 +206,7 @@ public class AutonomousMEGATEST extends OpMode {
      * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
     public void autonomousPathUpdate() {
         switch (pathState) {
-            case 0: // Move from start to scoring position
+            case 0: // Do actions , then Move from start to scoring position 1
                 //Actions
                 viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                 //
@@ -214,77 +214,82 @@ public class AutonomousMEGATEST extends OpMode {
                 setPathState(1);
                 break;
 
-            case 1: // Wait until the robot is near the scoring position
+            case 1: // Wait until the robot is near the scoring position , then curve to first block
                 if (!follower.isBusy()) {
+                    viperSlides.setTarget(ViperSlides.Target.LOW);
+                    //Wait for slides to go to low position
+                    clawServo.openPosition();
+                    // wait for claw to open
                     follower.followPath(pathChain2, true);
+                    viperSlides.setTarget(ViperSlides.Target.GROUND);
                     setPathState(2);
                 }
                 break;
 
-            case 2: // Wait until the robot is near the first sample pickup position
+            case 2: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain3, true);
                     setPathState(3);
                 }
                 break;
 
-            case 3: // Wait until the robot returns to the scoring position
+            case 3: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain4, true);
                     setPathState(4);
                 }
                 break;
 
-            case 4: // Wait until the robot is near the second sample pickup position
+            case 4: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain5, true);
                     setPathState(5);
                 }
                 break;
 
-            case 5: // Wait until the robot returns to the scoring position
+            case 5: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain6, true);
                     setPathState(6);
                 }
                 break;
 
-            case 6: // Wait until the robot is near the third sample pickup position
+            case 6: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain7, true);
                     setPathState(7);
                 }
                 break;
 
-            case 7: // Wait until the robot returns to the scoring position
+            case 7: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain8, true);
                     setPathState(8);
                 }
                 break;
 
-            case 8: // Wait until the robot is near the parking position
+            case 8: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain9, true);
                     setPathState(9);
                 }
                 break;
 
-            case 9: // Wait until the robot reaches the parking position
+            case 9: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain10, true);
                     setPathState(10);
                 }
                 break;
 
-            case 10: // Wait until the robot finishes parking
+            case 10: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain11, true);
                     setPathState(11);
                 }
                 break;
 
-            case 11: // Wait until the robot finishes final task
+            case 11: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain12, true);
                     setPathState(-1); // End the autonomous routine
@@ -318,12 +323,29 @@ public class AutonomousMEGATEST extends OpMode {
                 hardwareMap.get(TouchSensor.class, "limitSwitch"),
                 p, i, d
         );
+
+        intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
+        intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
+        intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
+        intakeServos.transferPosition(); // Set intake servos to transfer position
+        //Linkage
+        linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
+        telemetry.addData("Status", "Initialized");
+
+
+        linkageController.zeroMotor();
     }
 
 
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
-    public void init_loop() {}
+    public void init_loop() {
+        while (linkageController.isZeroing) {
+            linkageController.checkForAmperageSpike();
+            telemetry.addData("Zeroing...", "Current Position: %d", linkageController.getCurrentPosition());
+            telemetry.update();
+        }
+    }
 
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/
@@ -342,9 +364,15 @@ public class AutonomousMEGATEST extends OpMode {
         telemetry.addData("Position", follower.getPose().toString());
         telemetry.update();
         viperSlides.update();
-    }
 
-    /** This method is called once at the init of the OpMode. **/
+        if (viperSlides.isLimitSwitchPressed() && !wasLimitSwitchPressed) {
+            // Limit switch is pressed, and it wasn't pressed in the previous loop iteration
+            viperSlides.resetPosition();
+        }
+
+        // Update the previous state of the limit switch
+        wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
+    }
 
 
     /** We do not use this because everything should automatically disable **/

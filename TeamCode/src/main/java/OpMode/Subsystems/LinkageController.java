@@ -37,7 +37,7 @@ public class LinkageController {
 
     private static final double AMPERAGE_THRESHOLD = 1.5; // Amperage threshold for spike detection (adjust as needed)
     private static final double DRIVE_PAST_RETRACTED_POSITION = -0.5; // Power to drive past retracted position (negative to retract)
-    private boolean isZeroing = false; // Flag for zeroing process
+    public boolean isZeroing = false; // Flag for zeroing process
     private boolean hasZeroed = false; // Flag to track if zeroing is complete
 
     public LinkageController(HardwareMap hardwareMap, String motorName, double p, double i, double d) {
