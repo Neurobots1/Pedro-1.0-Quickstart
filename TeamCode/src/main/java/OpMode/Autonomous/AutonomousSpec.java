@@ -1,24 +1,17 @@
 package OpMode.Autonomous;
 
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
-import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -27,7 +20,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
-import OpMode.Subsystems.GamePieceDetection;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
 import OpMode.Subsystems.LinkageController;
@@ -35,8 +27,8 @@ import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "AutonomousMEGATEST", group = "Autonomous")
-public class AutonomousMEGATEST extends OpMode {
+@Autonomous(name = "AutonomousSpec", group = "Autonomous")
+public class AutonomousSpec extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -77,9 +69,17 @@ public class AutonomousMEGATEST extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(8, 80, Math.toRadians(270));
-    private final Pose clipPose = new Pose(15, 125, Math.toRadians(315));
-    private final Pose parkPose = new Pose(62, 96, Math.toRadians(90));
-    private final Pose pickup1Pose = new Pose(32, 121, Math.toRadians(0));
+    private final Pose scorePose1 = new Pose(8, 80, Math.toRadians(270));
+    private final Pose blockPose1 = new Pose(8, 80, Math.toRadians(270));
+    private final Pose blockPush1 = new Pose(8, 80, Math.toRadians(270));
+    private final Pose blockPose2 = new Pose(8, 80, Math.toRadians(270));
+    private final Pose blockPush2 = new Pose(8, 80, Math.toRadians(270));
+    private final Pose wallPose = new Pose(8, 80, Math.toRadians(270));
+    private final Pose scorePose2 = new Pose(8, 80, Math.toRadians(270));
+    private final Pose scorePose3 = new Pose(8, 80, Math.toRadians(270));
+    private final Pose scorePose4 = new Pose(8, 80, Math.toRadians(270));
+    private final Pose parkPose = new Pose(8, 80, Math.toRadians(270));
+
 
 
     //Control Points
@@ -96,17 +96,17 @@ public class AutonomousMEGATEST extends OpMode {
         pathChain1 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(8.000, 56.000),
-                        new Point(37.949, 73.300)
+                        new Point(38, 78)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
         // First score pose curve to first block
         pathChain2 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(37.949, 73.300),
+                        new Point(38, 78),
                         new Point(18.368, 14.903),
                         new Point(70.700, 48.347),
-                        new Point(58.917, 25.000)
+                        new Point(59, 25.000)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
@@ -139,55 +139,55 @@ public class AutonomousMEGATEST extends OpMode {
         pathChain6 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(14.000, 15.000),
-                        new Point(10.917, 24.606)
+                        new Point(11, 24)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         // Wall to score pose 2
         pathChain7 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(10.917, 24.606),
-                        new Point(37.603, 68.621)
+                        new Point(11, 24),
+                        new Point(38, 68.621)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         // Score pose 2 to wall
         pathChain8 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(37.603, 68.621),
-                        new Point(11.090, 24.780)
+                        new Point(38, 68.621),
+                        new Point(11, 24)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
         // Wall to score pose 3
         pathChain9 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(11.090, 24.780),
-                        new Point(37.256, 64.635)
+                        new Point(11, 24),
+                        new Point(38, 64.635)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         // Score pose 3 to wall
         pathChain10 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(37.256, 64.635),
-                        new Point(10.917, 24.260)
+                        new Point(38, 64.635),
+                        new Point(11, 24)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
         // Wall to Score pose 4
         pathChain11 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(10.917, 24.260),
-                        new Point(37.430, 61.170)
+                        new Point(11, 24),
+                        new Point(38, 61.170)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         // Score pose 4 to park
         pathChain12 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(37.430, 61.170),
-                        new Point(10.051, 20.968)
+                        new Point(38, 61.170),
+                        new Point(10, 21)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
@@ -211,17 +211,24 @@ public class AutonomousMEGATEST extends OpMode {
                 viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                 //
                 follower.followPath(pathChain1, true);
+                pathTimer.resetTimer();
                 setPathState(1);
                 break;
 
             case 1: // Wait until the robot is near the scoring position , then curve to first block
                 if (!follower.isBusy()) {
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
-                    //Wait for slides to go to low position
-                    clawServo.openPosition();
-                    // wait for claw to open
-                    follower.followPath(pathChain2, true);
-                    viperSlides.setTarget(ViperSlides.Target.GROUND);
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 1.5) {
+                        viperSlides.setTarget(ViperSlides.Target.LOW);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && pathTimer.getElapsedTimeSeconds() < 2) {
+                        clawServo.openPosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 3) {
+                        follower.followPath(pathChain2, true);
+                        viperSlides.setTarget(ViperSlides.Target.GROUND);
+
+                    }
+                    pathTimer.resetTimer();
                     setPathState(2);
                 }
                 break;
@@ -229,6 +236,7 @@ public class AutonomousMEGATEST extends OpMode {
             case 2: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain3, true);
+                    pathTimer.resetTimer();
                     setPathState(3);
                 }
                 break;
@@ -236,6 +244,7 @@ public class AutonomousMEGATEST extends OpMode {
             case 3: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain4, true);
+                    pathTimer.resetTimer();
                     setPathState(4);
                 }
                 break;
@@ -243,6 +252,7 @@ public class AutonomousMEGATEST extends OpMode {
             case 4: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain5, true);
+                    pathTimer.resetTimer();
                     setPathState(5);
                 }
                 break;
@@ -250,48 +260,104 @@ public class AutonomousMEGATEST extends OpMode {
             case 5: //
                 if (!follower.isBusy()) {
                     follower.followPath(pathChain6, true);
+                    pathTimer.resetTimer();
                     setPathState(6);
                 }
                 break;
 
             case 6: //
                 if (!follower.isBusy()) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.5) {
+                        clawServo.closedPosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 1.5) {
+                        viperSlides.setTarget(ViperSlides.Target.MEDIUM);
+                    }
+
                     follower.followPath(pathChain7, true);
+                    pathTimer.resetTimer();
                     setPathState(7);
                 }
                 break;
 
             case 7: //
                 if (!follower.isBusy()) {
-                    follower.followPath(pathChain8, true);
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 1.5) {
+                        viperSlides.setTarget(ViperSlides.Target.LOW);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && pathTimer.getElapsedTimeSeconds() < 2) {
+                        clawServo.openPosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 3) {
+                        follower.followPath(pathChain8, true);
+                        viperSlides.setTarget(ViperSlides.Target.GROUND);
+
+                    }
+                    pathTimer.resetTimer();
                     setPathState(8);
                 }
                 break;
 
             case 8: //
                 if (!follower.isBusy()) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.5) {
+                        clawServo.closedPosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 1.5) {
+                        viperSlides.setTarget(ViperSlides.Target.MEDIUM);
+                    }
                     follower.followPath(pathChain9, true);
+                    pathTimer.resetTimer();
                     setPathState(9);
                 }
                 break;
 
             case 9: //
                 if (!follower.isBusy()) {
-                    follower.followPath(pathChain10, true);
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 1.5) {
+                        viperSlides.setTarget(ViperSlides.Target.LOW);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && pathTimer.getElapsedTimeSeconds() < 2) {
+                        clawServo.openPosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 3) {
+                        follower.followPath(pathChain10, true);
+                        viperSlides.setTarget(ViperSlides.Target.GROUND);
+
+                    }
+                    pathTimer.resetTimer();
                     setPathState(10);
                 }
                 break;
 
             case 10: //
                 if (!follower.isBusy()) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.5) {
+                        clawServo.closedPosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 1.5) {
+                        viperSlides.setTarget(ViperSlides.Target.MEDIUM);
+                    }
                     follower.followPath(pathChain11, true);
+                    pathTimer.resetTimer();
                     setPathState(11);
                 }
                 break;
 
             case 11: //
                 if (!follower.isBusy()) {
-                    follower.followPath(pathChain12, true);
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 1.5) {
+                        viperSlides.setTarget(ViperSlides.Target.LOW);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && pathTimer.getElapsedTimeSeconds() < 2) {
+                        clawServo.openPosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 3) {
+                        follower.followPath(pathChain12, true);
+                        viperSlides.setTarget(ViperSlides.Target.GROUND);
+
+                    }
+                    pathTimer.resetTimer();
                     setPathState(-1); // End the autonomous routine
                 }
                 break;

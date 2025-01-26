@@ -65,6 +65,8 @@ public class BlueTeleop extends OpMode {
     private LinkageController linkageController;
 
     // Declare the timer for the linkage retraction
+    boolean waitingForExtension = false;
+
 
 
 
@@ -146,6 +148,7 @@ public class BlueTeleop extends OpMode {
     public void start() {
         // Ensure the follower starts TeleOp drive
         follower.startTeleopDrive();
+        linkageController.setPosition(LinkageController.Position.RETRACTED);
     }
 
     @Override
@@ -211,10 +214,11 @@ public class BlueTeleop extends OpMode {
 
 
         if (gamepad1.dpad_up) {
-            // Extend the linkage
+            // Command the linkage to extend
             linkageController.setPosition(LinkageController.Position.EXTENDED);
-            intakeServos.neutralPosition();
-        } else if (gamepad1.dpad_down) {
+            waitingForExtension = true; // Start waiting
+        }
+        else if (gamepad1.dpad_down) {
             // Attempt to retract the linkage
             if (intakeServos.isTransferPosition()) {
                 // Only proceed with retraction if intake servos are in transfer position
@@ -233,6 +237,17 @@ public class BlueTeleop extends OpMode {
             // Move intake servos to transfer position
             intakeServos.transferPosition();
         }
+
+        if (waitingForExtension) {
+            if (linkageController.isExtended()) {
+                // When fully extended, set intake servos to neutral
+                intakeServos.neutralPosition();
+                waitingForExtension = false; // Reset the flag
+            }
+        }
+
+
+
 
         linkageController.update();
 
