@@ -68,7 +68,7 @@ public class AutonomousSpec extends OpMode {
      * It is used by the pathUpdate method. */
     private int pathState;
 
-    private final Pose startPose = new Pose(8, 80, Math.toRadians(270));
+    private final Pose startPose = new Pose(8, 56, Math.toRadians(180));
     private final Pose scorePose1 = new Pose(8, 80, Math.toRadians(270));
     private final Pose blockPose1 = new Pose(8, 80, Math.toRadians(270));
     private final Pose blockPush1 = new Pose(8, 80, Math.toRadians(270));
@@ -96,14 +96,14 @@ public class AutonomousSpec extends OpMode {
         pathChain1 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(8.000, 56.000),
-                        new Point(38, 78)
+                        new Point(30, 78)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
         // First score pose curve to first block
         pathChain2 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(38, 78),
+                        new Point(30, 78),
                         new Point(18.368, 14.903),
                         new Point(70.700, 48.347),
                         new Point(59, 25.000)
@@ -147,14 +147,14 @@ public class AutonomousSpec extends OpMode {
         pathChain7 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(11, 24),
-                        new Point(38, 68.621)
+                        new Point(30, 68.621)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         // Score pose 2 to wall
         pathChain8 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(38, 68.621),
+                        new Point(30, 68.621),
                         new Point(11, 24)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
@@ -163,14 +163,14 @@ public class AutonomousSpec extends OpMode {
         pathChain9 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(11, 24),
-                        new Point(38, 64.635)
+                        new Point(30, 64.635)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         // Score pose 3 to wall
         pathChain10 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(38, 64.635),
+                        new Point(30, 64.635),
                         new Point(11, 24)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
@@ -179,14 +179,14 @@ public class AutonomousSpec extends OpMode {
         pathChain11 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(11, 24),
-                        new Point(38, 61.170)
+                        new Point(30, 61.170)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         // Score pose 4 to park
         pathChain12 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(38, 61.170),
+                        new Point(30, 61.170),
                         new Point(10, 21)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
@@ -378,6 +378,8 @@ public class AutonomousSpec extends OpMode {
     @Override
     public void init() {
         pathTimer = new Timer();
+        actionTimer = new Timer();
+        opmodeTimer = new Timer();
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
@@ -397,6 +399,16 @@ public class AutonomousSpec extends OpMode {
         //Linkage
         linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
         telemetry.addData("Status", "Initialized");
+
+        bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
+        bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
+        bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
+
+        clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
+
+        bucketServos.transferPosition();
+        clawServo.closedPosition();
+
 
 
         linkageController.zeroMotor();
@@ -418,6 +430,7 @@ public class AutonomousSpec extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
+        pathTimer.resetTimer();
         setPathState(0);
     }
 
@@ -431,10 +444,10 @@ public class AutonomousSpec extends OpMode {
         telemetry.update();
         viperSlides.update();
 
-        if (viperSlides.isLimitSwitchPressed() && !wasLimitSwitchPressed) {
+        /* if (viperSlides.isLimitSwitchPressed() && !wasLimitSwitchPressed) {
             // Limit switch is pressed, and it wasn't pressed in the previous loop iteration
             viperSlides.resetPosition();
-        }
+        } */
 
         // Update the previous state of the limit switch
         wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
