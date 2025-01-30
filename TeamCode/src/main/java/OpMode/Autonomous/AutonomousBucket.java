@@ -11,7 +11,7 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -27,8 +27,8 @@ import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "AutonomousSpec", group = "Autonomous")
-public class AutonomousSpec extends OpMode {
+@Autonomous(name = "AutonomousBucket", group = "Autonomous")
+public class AutonomousBucket extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -68,22 +68,22 @@ public class AutonomousSpec extends OpMode {
      * It is used by the pathUpdate method. */
     private int pathState;
 
-    private final Pose startPose = new Pose(8, 56, Math.toRadians(180));
-    private final Pose scorePose1 = new Pose(8, 80, Math.toRadians(270));
-    private final Pose blockPose1 = new Pose(8, 80, Math.toRadians(270));
-    private final Pose blockPush1 = new Pose(8, 80, Math.toRadians(270));
-    private final Pose blockPose2 = new Pose(8, 80, Math.toRadians(270));
-    private final Pose blockPush2 = new Pose(8, 80, Math.toRadians(270));
-    private final Pose wallPose = new Pose(8, 80, Math.toRadians(270));
-    private final Pose scorePose2 = new Pose(8, 80, Math.toRadians(270));
-    private final Pose scorePose3 = new Pose(8, 80, Math.toRadians(270));
-    private final Pose scorePose4 = new Pose(8, 80, Math.toRadians(270));
-    private final Pose parkPose = new Pose(8, 80, Math.toRadians(270));
+    private final Pose startPose = new Pose(7, 104, Math.toRadians(315));
+    private final Pose BucketPose = new Pose(18, 126, Math.toRadians(-90));
+    private final Pose blockPose1 = new Pose(8, 80, Math.toRadians(-45));
+    private final Pose BucketPose1 = new Pose(8, 80, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(8, 80, Math.toRadians(-45));
+    private final Pose BucketPose2 = new Pose(8, 80, Math.toRadians(0));
+    private final Pose blockpose3 = new Pose(8, 80, Math.toRadians(-45));
+    private final Pose BucketPose3 = new Pose(8, 80, Math.toRadians(-90));
+    private final Pose endPose = new Pose(8, 80, Math.toRadians(-45));
+    //private final Pose scorePose4 = new Pose(8, 80, Math.toRadians(270));
+    //private final Pose parkPose = new Pose(8, 80, Math.toRadians(270));
 
 
 
     //Control Points
-    private final Pose parkControlPose = new Pose(64, 134);
+    private final Pose controlPoint1 = new Pose(40, 72);
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload, park;
@@ -96,101 +96,97 @@ public class AutonomousSpec extends OpMode {
         // Start pose to first score pose
         pathChain1 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(8.000, 56.000),
-                        new Point(37, 76)
+                        new Point(7.000, 104.000),
+                        new Point(18, 126)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-45))
                 .build();
         // First score pose curve to first block
         pathChain2 = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Point(37, 76),
-                        new Point(15, 10),
-                        new Point(70.700, 48.347),
-                        new Point(59, 25.000)
+                .addPath(new BezierLine(
+                        new Point(18, 126.000),
+                        new Point(32, 121)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(0))
                 .build();
         // Push first block to zone
         pathChain3 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(59, 25.000),
-                        new Point(18, 25.000)
+                        new Point(32, 121.000),
+                        new Point(18, 126.000)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
                 .build();
         // Curve behind second block
         pathChain4 = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Point(18, 25.000),
-                        new Point(61.690, 33.617),
-                        new Point(60.000, 15.000)
+                .addPath(new BezierLine(
+                        new Point(18.000, 126.000),
+                        new Point(32, 121)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(90))
                 .build();
         // Push second block to zone
         pathChain5 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(60.000, 15.000),
-                        new Point(18.000, 15.000)
+                        new Point(32.000, 131.000),
+                        new Point(18.000, 126.000)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         // Short path to get the clip on wall
         pathChain6 = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Point(18.000, 15.000),
-                        new Point(32,21),
-                        new Point(9, 24)
+                .addPath(new BezierLine(
+                        new Point(18.000, 126.000),
+                        new Point(45.000, 129.000)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         // Wall to score pose 2
         pathChain7 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(9, 24),
-                        new Point(37, 75)
+                        new Point(45, 129),
+                        new Point(18, 126)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         // Score pose 2 to wall
         pathChain8 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(37, 75),
-                        new Point(28 ,19),
-                        new Point(10, 24)
+                        new Point(18
+                                , 126),
+                        new Point(56, 101),
+                        new Point(60, 123)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
         // Wall to score pose 3
         pathChain9 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(10, 24),
-                        new Point(37, 74)
+                        new Point(11, 24),
+                        new Point(36, 76)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         // Score pose 3 to wall
         pathChain10 = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Point(37, 74),
-                        new Point(28 ,19),
-                        new Point(10, 24)
+                .addPath(new BezierLine(
+                        new Point(36, 76),
+                        new Point(11, 24)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
         // Wall to Score pose 4
         pathChain11 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(10, 24),
-                        new Point(37, 73)
+                        new Point(11, 24),
+                        new Point(36, 75)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         // Score pose 4 to park
         pathChain12 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(37, 73),
+                        new Point(36, 75),
                         new Point(12, 21)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
@@ -211,7 +207,7 @@ public class AutonomousSpec extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0: // Do actions , then Move from start to scoring position 1
-                viperSlides.setTarget(ViperSlides.Target.MEDIUM);
+                viperSlides.setTarget(ViperSlides.Target.HIGH);
                 follower.followPath(pathChain1,0.7 , true);
                 pathTimer.resetTimer();
                 setPathState(1);
@@ -221,13 +217,11 @@ public class AutonomousSpec extends OpMode {
 
                 if (!follower.isBusy()) {
 
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
-
-                    if (pathTimer.getElapsedTimeSeconds() > 2.7 && pathTimer.getElapsedTimeSeconds() < 4) {
-                        clawServo.openPosition();
+                    if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 3.5) {
+                        bucketServoRight.setPosition(1);
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2.9 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 5) {
                         setPathState(2);
 
 
@@ -237,21 +231,30 @@ public class AutonomousSpec extends OpMode {
                 break;
 
             case 2:
-
+                if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.6) {
                     follower.followPath(pathChain2,0.85, true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
-                    pathTimer.resetTimer();
+                    linkageController.setPosition(LinkageController.Position.EXTENDED);
+                    intakeServos.intakePosition();
+                    intakeMotor.intake();
+
+
+                }
+
+
+                  if (pathTimer.getElapsedTimeSeconds() > 6 && pathTimer.getElapsedTimeSeconds() < 8) {
+                      pathTimer.resetTimer();
                       setPathState(3);
 
+                }
 
-
-
+                // setPathState(3);
 
                 break;
 
             case 3: //
                 if (!follower.isBusy()) {
-                    follower.followPath(pathChain3,0.6, true);
+                    follower.followPath(pathChain3,0.7, true);
                     pathTimer.resetTimer();
                     setPathState(4);
 
@@ -270,7 +273,7 @@ public class AutonomousSpec extends OpMode {
 
             case 5: //
                 if (!follower.isBusy()) {
-                    follower.followPath(pathChain5, 0.6,true);
+                    follower.followPath(pathChain5, 0.7,true);
                     pathTimer.resetTimer();
                     setPathState(6);
                 }
@@ -286,10 +289,10 @@ public class AutonomousSpec extends OpMode {
 
             case 7: //
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.closedPosition();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 6) {
                         viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                         setPathState(8);
                     }
@@ -301,26 +304,25 @@ public class AutonomousSpec extends OpMode {
                 }
                 break;
 
-            case 8:
+            case 8: if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 8) {
 
                 follower.followPath(pathChain7, 0.85, true);
                 pathTimer.resetTimer();
                 setPathState(9);
+            }
 
                 break;
 
             case 9: //
                 if (!follower.isBusy()) {
 
-                        viperSlides.setTarget(ViperSlides.Target.LOW);
+                    viperSlides.setTarget(ViperSlides.Target.LOW);
 
-
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.openPosition();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
                         setPathState(10);
 
 
@@ -330,22 +332,28 @@ public class AutonomousSpec extends OpMode {
                 break;
 
             case 10:
-
+                if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 3) {
                     follower.followPath(pathChain8,0.85, true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
+
+
+                }
+
+
+                if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
                     pathTimer.resetTimer();
                     setPathState(11);
 
-
+                }
 
                 break;
 
             case 11: //
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.closedPosition();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 6) {
                         viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                         setPathState(12);
                     }
@@ -357,11 +365,12 @@ public class AutonomousSpec extends OpMode {
                 }
                 break;
 
-            case 12:
+            case 12: if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 8) {
 
                 follower.followPath(pathChain9, 0.85, true);
                 pathTimer.resetTimer();
                 setPathState(13);
+            }
 
                 break;
 
@@ -370,11 +379,11 @@ public class AutonomousSpec extends OpMode {
 
                     viperSlides.setTarget(ViperSlides.Target.LOW);
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 3.5) {
                         clawServo.openPosition();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
                         setPathState(14);
 
 
@@ -384,22 +393,28 @@ public class AutonomousSpec extends OpMode {
                 break;
 
             case 14:
-
+                if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 3) {
                     follower.followPath(pathChain10,0.85, true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
+
+
+                }
+
+
+                if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
                     pathTimer.resetTimer();
                     setPathState(15);
 
-
+                }
 
                 break;
 
             case 15: //
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.closedPosition();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 6) {
+                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 6) {
                         viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                         setPathState(16);
                     }
@@ -411,12 +426,12 @@ public class AutonomousSpec extends OpMode {
                 }
                 break;
 
-            case 16:
+            case 16: if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 8) {
 
                 follower.followPath(pathChain11, 0.85, true);
                 pathTimer.resetTimer();
                 setPathState(17);
-
+            }
 
                 break;
 
@@ -425,11 +440,11 @@ public class AutonomousSpec extends OpMode {
 
                     viperSlides.setTarget(ViperSlides.Target.LOW);
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 3.5) {
                         clawServo.openPosition();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
                         setPathState(18);
 
 
@@ -439,13 +454,19 @@ public class AutonomousSpec extends OpMode {
                 break;
 
             case 18:
-
+                if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 3) {
                     follower.followPath(pathChain12,0.85, true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
+
+
+                }
+
+
+                if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
                     pathTimer.resetTimer();
                     setPathState(-1);
 
-
+                }
 
                 break;
 
@@ -484,12 +505,6 @@ public class AutonomousSpec extends OpMode {
 
         viperSlides.resetPosition();
 
-        //Linkage
-        linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
-        telemetry.addData("Status", "Initialized");
-
-        linkageController.zeroMotor();
-
 
 
 
@@ -497,6 +512,9 @@ public class AutonomousSpec extends OpMode {
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
         intakeServos.transferPosition(); // Set intake servos to transfer position
+        //Linkage
+        linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
+        telemetry.addData("Status", "Initialized");
 
         bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
@@ -506,6 +524,19 @@ public class AutonomousSpec extends OpMode {
 
         bucketServos.transferPosition();
         clawServo.closedPosition();
+
+        linkageController.resetEncoder();
+
+        linkageController.setPosition(LinkageController.Position.RETRACTED);
+
+        /* linkageController.zeroMotor();
+
+        while (!linkageController.isAtTarget()) {
+            linkageController.checkForAmperageSpike();
+            telemetry.addData("Zeroing...", "Current Position: %d", linkageController.getCurrentPosition());
+            telemetry.update();
+        } */
+
 
 
 
@@ -525,6 +556,7 @@ public class AutonomousSpec extends OpMode {
         opmodeTimer.resetTimer();
         pathTimer.resetTimer();
         viperSlides.setPIDEnabled(true);
+        // linkageController.setPosition(LinkageController.Position.RETRACTED);
         setPathState(0);
     }
 
@@ -538,8 +570,8 @@ public class AutonomousSpec extends OpMode {
         telemetry.addData("Path Timer", pathTimer.getElapsedTimeSeconds());
         telemetry.update();
         viperSlides.update();
-
-        linkageController.checkForAmperageSpike();
+        linkageController.setPosition(LinkageController.Position.RETRACTED);
+        //linkageController.checkForAmperageSpike();
         linkageController.update();
 
 

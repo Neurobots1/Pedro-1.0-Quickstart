@@ -116,11 +116,11 @@ public class NeutralTeleop extends OpMode {
 
         linkageController.zeroMotor();
 
-        while (!linkageController.isAtTarget()) {
+         /*while (!linkageController.isAtTarget()) {
             linkageController.checkForAmperageSpike();
             telemetry.addData("Zeroing...", "Current Position: %d", linkageController.getCurrentPosition());
             telemetry.update();
-        }
+        } */
 
         // Initialize claw servo
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));

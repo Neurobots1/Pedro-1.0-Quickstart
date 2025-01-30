@@ -25,6 +25,8 @@ import pedroPathing.constants.LConstants;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 @Config
 @TeleOp(name = "BlueTeleop", group = "Active")
 public class BlueTeleop extends OpMode {
@@ -54,6 +56,7 @@ public class BlueTeleop extends OpMode {
     // Intake Motor and Color Sensor
     private DcMotor intakemotor;
     private IntakeMotor intakeMotor;
+    private DcMotor extendoMotor;
     private ColorSensor colorSensor;
     private GamePieceDetection gamePieceDetection;
     private boolean hasRumbled = false;
@@ -115,14 +118,14 @@ public class BlueTeleop extends OpMode {
         linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
         telemetry.addData("Status", "Initialized");
 
-
         linkageController.zeroMotor();
 
-        /* while (!linkageController.isAtTarget()) {
-            linkageController.checkForAmperageSpike();
-            telemetry.addData("Zeroing...", "Current Position: %d", linkageController.getCurrentPosition());
-            telemetry.update();
-        } */
+
+
+
+
+
+
 
         // Initialize claw servo
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
@@ -135,20 +138,14 @@ public class BlueTeleop extends OpMode {
 
     @Override
     public void init_loop() {
-
-        while (linkageController.isZeroing) {
-            linkageController.checkForAmperageSpike();
-            telemetry.addData("Zeroing...", "Current Position: %d", linkageController.getCurrentPosition());
-            telemetry.update();
-        }
-
     }
 
     @Override
     public void start() {
         // Ensure the follower starts TeleOp drive
         follower.startTeleopDrive();
-        linkageController.setPosition(LinkageController.Position.RETRACTED);
+        linkageController.zeroMotor();
+        //linkageController.setPosition(LinkageController.Position.RETRACTED);
     }
 
     @Override
@@ -184,7 +181,7 @@ public class BlueTeleop extends OpMode {
         }
 
         // Rising edge detection for left trigger to toggle claw
-        currentLeftTriggerState = gamepad1.left_trigger > 0.3;  // Detect if the left trigger is pressed
+        currentLeftTriggerState = gamepad1.left_trigger > 0.5;  // Detect if the left trigger is pressed
         if (currentLeftTriggerState && !previousLeftTriggerState) {  // Rising edge
             // Toggle claw position on rising edge
             if (isClawOpen) {
@@ -236,6 +233,9 @@ public class BlueTeleop extends OpMode {
         } else if (gamepad1.dpad_left) {
             // Move intake servos to transfer position
             intakeServos.transferPosition();
+        } else if (gamepad1.right_stick_button) {
+            intakeServos.neutralPosition();
+
         }
 
         if (waitingForExtension) {
@@ -248,7 +248,7 @@ public class BlueTeleop extends OpMode {
 
 
 
-
+        linkageController.checkForAmperageSpike();
         linkageController.update();
 
         // Viper Slide Control (Predefined Targets)
