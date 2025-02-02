@@ -58,7 +58,7 @@ public class ViperSlides {
             int slidePosLeft = slidemotorLeft.getCurrentPosition();
             int slidePosRight = slidemotorRight.getCurrentPosition();
             double pidLeft = controller.calculate(slidePosLeft, target);
-            double pidRight = controller.calculate(slidePosRight, target);
+            double pidRight = controller.calculate(slidePosRight, target-35);
             double ff = Math.cos(Math.toRadians(target / ticksInDegree)) * f;
             double powerLeft = pidLeft + ff;
             double powerRight = pidRight + ff;

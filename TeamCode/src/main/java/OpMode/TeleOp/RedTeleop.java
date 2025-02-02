@@ -25,6 +25,8 @@ import pedroPathing.constants.LConstants;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 @Config
 @TeleOp(name = "RedTeleop", group = "Active")
 public class RedTeleop extends OpMode {
@@ -35,7 +37,7 @@ public class RedTeleop extends OpMode {
     private ViperSlides viperSlides;
     // PedroPathing Teleop
     private Follower follower;
-    private final Pose startPose = new Pose(0, 0, 0);
+    private final Pose startPose = new Pose(0, 0, 90);
     private FtcDashboard dashboard;
 
     // REV Touch Sensor (Limit Switch)
@@ -54,6 +56,7 @@ public class RedTeleop extends OpMode {
     // Intake Motor and Color Sensor
     private DcMotor intakemotor;
     private IntakeMotor intakeMotor;
+    private DcMotor extendoMotor;
     private ColorSensor colorSensor;
     private GamePieceDetection gamePieceDetection;
     private boolean hasRumbled = false;
@@ -65,6 +68,8 @@ public class RedTeleop extends OpMode {
     private LinkageController linkageController;
 
     // Declare the timer for the linkage retraction
+    boolean waitingForExtension = false;
+
 
 
 
@@ -113,14 +118,14 @@ public class RedTeleop extends OpMode {
         linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
         telemetry.addData("Status", "Initialized");
 
-
         linkageController.zeroMotor();
 
-        while (!linkageController.isAtTarget()) {
-            linkageController.checkForAmperageSpike();
-            telemetry.addData("Zeroing...", "Current Position: %d", linkageController.getCurrentPosition());
-            telemetry.update();
-        }
+
+
+
+
+
+
 
         // Initialize claw servo
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
@@ -132,9 +137,15 @@ public class RedTeleop extends OpMode {
     }
 
     @Override
+    public void init_loop() {
+    }
+
+    @Override
     public void start() {
         // Ensure the follower starts TeleOp drive
         follower.startTeleopDrive();
+        linkageController.zeroMotor();
+        //linkageController.setPosition(LinkageController.Position.RETRACTED);
     }
 
     @Override
@@ -158,7 +169,7 @@ public class RedTeleop extends OpMode {
             hasRumbled = false;
         }
 
-        // Opponent Color Detection (e.g., Red)
+        // Opponent Color Detection (e.g., Blue)
         if (detectedColor.equals("Blue")) {
             intakeMotor.outtake();  // Outtake at low power
         } else if (gamepad1.left_bumper) {
@@ -170,7 +181,7 @@ public class RedTeleop extends OpMode {
         }
 
         // Rising edge detection for left trigger to toggle claw
-        currentLeftTriggerState = gamepad1.left_trigger > 0.3;  // Detect if the left trigger is pressed
+        currentLeftTriggerState = gamepad1.left_trigger > 0.5;  // Detect if the left trigger is pressed
         if (currentLeftTriggerState && !previousLeftTriggerState) {  // Rising edge
             // Toggle claw position on rising edge
             if (isClawOpen) {
@@ -196,12 +207,15 @@ public class RedTeleop extends OpMode {
 
         // Servo Control for Linkage and Intake Servos
 
-        linkageController.checkForAmperageSpike();
+        //linkageController.checkForAmperageSpike();
+
 
         if (gamepad1.dpad_up) {
-            // Extend the linkage
+            // Command the linkage to extend
             linkageController.setPosition(LinkageController.Position.EXTENDED);
-        } else if (gamepad1.dpad_down) {
+            waitingForExtension = true; // Start waiting
+        }
+        else if (gamepad1.dpad_down) {
             // Attempt to retract the linkage
             if (intakeServos.isTransferPosition()) {
                 // Only proceed with retraction if intake servos are in transfer position
@@ -219,8 +233,22 @@ public class RedTeleop extends OpMode {
         } else if (gamepad1.dpad_left) {
             // Move intake servos to transfer position
             intakeServos.transferPosition();
+        } else if (gamepad1.right_stick_button) {
+            intakeServos.neutralPosition();
+
         }
 
+        if (waitingForExtension) {
+            if (linkageController.isExtended()) {
+                // When fully extended, set intake servos to neutral
+                intakeServos.neutralPosition();
+                waitingForExtension = false; // Reset the flag
+            }
+        }
+
+
+
+        linkageController.checkForAmperageSpike();
         linkageController.update();
 
         // Viper Slide Control (Predefined Targets)

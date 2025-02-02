@@ -41,6 +41,8 @@ public class AutonomousSpec extends OpMode {
     private TouchSensor limitSwitch;
     private boolean wasLimitSwitchPressed = false;
 
+
+
     // Servos
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
@@ -54,11 +56,14 @@ public class AutonomousSpec extends OpMode {
     private DcMotor intakemotor;
     private IntakeMotor intakeMotor;
 
+
     // Loop Timer
     private ElapsedTime loopTimer;
 
     // Declare the LinkageController instance
     private LinkageController linkageController;
+
+
 
 
 
@@ -212,7 +217,7 @@ public class AutonomousSpec extends OpMode {
         switch (pathState) {
             case 0: // Do actions , then Move from start to scoring position 1
                 viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-                follower.followPath(pathChain1,0.7 , true);
+                follower.followPath(pathChain1,0.85 , true);
                 pathTimer.resetTimer();
                 setPathState(1);
                 break;
@@ -238,7 +243,7 @@ public class AutonomousSpec extends OpMode {
 
             case 2:
 
-                    follower.followPath(pathChain2,0.85, true);
+                    follower.followPath(pathChain2,1, true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     pathTimer.resetTimer();
                       setPathState(3);
@@ -261,7 +266,7 @@ public class AutonomousSpec extends OpMode {
               case 4: //
                 if (!follower.isBusy()) {
 
-                    follower.followPath(pathChain4,0.85, true);
+                    follower.followPath(pathChain4,1, true);
                     pathTimer.resetTimer();
                     setPathState(5);
 
@@ -342,10 +347,10 @@ public class AutonomousSpec extends OpMode {
 
             case 11: //
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.closedPosition();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 4 && pathTimer.getElapsedTimeSeconds() < 4.1) {
                         viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                         setPathState(12);
                     }
@@ -396,10 +401,10 @@ public class AutonomousSpec extends OpMode {
 
             case 15: //
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.closedPosition();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 6) {
+                    if (pathTimer.getElapsedTimeSeconds() > 4 && pathTimer.getElapsedTimeSeconds() < 4.2) {
                         viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                         setPathState(16);
                     }

@@ -37,7 +37,7 @@ public class BlueTeleop extends OpMode {
     private ViperSlides viperSlides;
     // PedroPathing Teleop
     private Follower follower;
-    private final Pose startPose = new Pose(0, 0, 0);
+    private final Pose startPose = new Pose(0, 0, 90);
     private FtcDashboard dashboard;
 
     // REV Touch Sensor (Limit Switch)

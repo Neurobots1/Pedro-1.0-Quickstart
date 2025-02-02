@@ -46,6 +46,8 @@ public class AutonomousBucket extends OpMode {
     private Servo intakeServoLeft;
     private IntakeServos intakeServos; // Intake subsystem instance
     private ClawServo clawServo;
+
+
     private Servo bucketServoRight;
     private Servo bucketServoLeft;
     private BucketServos bucketServos;
@@ -68,17 +70,13 @@ public class AutonomousBucket extends OpMode {
      * It is used by the pathUpdate method. */
     private int pathState;
 
-    private final Pose startPose = new Pose(7, 104, Math.toRadians(315));
-    private final Pose BucketPose = new Pose(18, 126, Math.toRadians(-90));
-    private final Pose blockPose1 = new Pose(8, 80, Math.toRadians(-45));
-    private final Pose BucketPose1 = new Pose(8, 80, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(8, 80, Math.toRadians(-45));
-    private final Pose BucketPose2 = new Pose(8, 80, Math.toRadians(0));
-    private final Pose blockpose3 = new Pose(8, 80, Math.toRadians(-45));
-    private final Pose BucketPose3 = new Pose(8, 80, Math.toRadians(-90));
-    private final Pose endPose = new Pose(8, 80, Math.toRadians(-45));
-    //private final Pose scorePose4 = new Pose(8, 80, Math.toRadians(270));
-    //private final Pose parkPose = new Pose(8, 80, Math.toRadians(270));
+    private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
+    private final Pose bucketPose = new Pose(18, 126, Math.toRadians(315));
+    private final Pose blockPose1 = new Pose(27, 121, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(27, 131, Math.toRadians(0));
+    private final Pose blockpose3 = new Pose(45, 128, Math.toRadians(90));
+    private final Pose endPose = new Pose(60, 96, Math.toRadians(90));
+    private final Pose endPoseControlPoint = new Pose(60,124);
 
 
 
@@ -96,98 +94,65 @@ public class AutonomousBucket extends OpMode {
         // Start pose to first score pose
         pathChain1 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(7.000, 104.000),
-                        new Point(18, 126)
+                        new Point(startPose),
+                        new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-45))
                 .build();
         // First score pose curve to first block
         pathChain2 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(18, 126.000),
-                        new Point(32, 121)
+                        new Point(bucketPose),
+                        new Point(blockPose1)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(0))
                 .build();
         // Push first block to zone
         pathChain3 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(32, 121.000),
-                        new Point(18, 126.000)
+                        new Point(blockPose1),
+                        new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
                 .build();
         // Curve behind second block
         pathChain4 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(18.000, 126.000),
-                        new Point(32, 121)
+                        new Point(bucketPose),
+                        new Point(blockPose2)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(90))
                 .build();
         // Push second block to zone
         pathChain5 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(32.000, 131.000),
-                        new Point(18.000, 126.000)
+                        new Point(blockPose2),
+                        new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         // Short path to get the clip on wall
         pathChain6 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(18.000, 126.000),
-                        new Point(45.000, 129.000)
+                        new Point(bucketPose),
+                        new Point(blockpose3)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         // Wall to score pose 2
         pathChain7 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(45, 129),
-                        new Point(18, 126)
+                        new Point(blockpose3),
+                        new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         // Score pose 2 to wall
         pathChain8 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(18
-                                , 126),
-                        new Point(56, 101),
-                        new Point(60, 123)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
-                .build();
-        // Wall to score pose 3
-        pathChain9 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(11, 24),
-                        new Point(36, 76)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
-                .build();
-        // Score pose 3 to wall
-        pathChain10 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(36, 76),
-                        new Point(11, 24)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
-                .build();
-        // Wall to Score pose 4
-        pathChain11 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(11, 24),
-                        new Point(36, 75)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
-                .build();
-        // Score pose 4 to park
-        pathChain12 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(36, 75),
-                        new Point(12, 21)
+                        new Point(bucketPose),
+                        new Point(endPose),
+                        new Point(endPoseControlPoint)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
@@ -223,6 +188,7 @@ public class AutonomousBucket extends OpMode {
 
                     if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 5) {
                         setPathState(2);
+                        pathTimer.resetTimer();
 
 
                     }
@@ -232,19 +198,36 @@ public class AutonomousBucket extends OpMode {
 
             case 2:
                 if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.6) {
-                    follower.followPath(pathChain2,0.85, true);
+                    follower.followPath(pathChain2,0.6, true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
+
+
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 2.6 && pathTimer.getElapsedTimeSeconds() < 2.7){
                     intakeServos.intakePosition();
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 2.8 && pathTimer.getElapsedTimeSeconds() < 6 ){
                     intakeMotor.intake();
 
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 6.1 && pathTimer.getElapsedTimeSeconds() < 6.2 ){
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    intakeServos.transferPosition();
+
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 6.5 && pathTimer.getElapsedTimeSeconds() < 8 ){
+                    intakeMotor.outtake();
 
                 }
 
 
-                  if (pathTimer.getElapsedTimeSeconds() > 6 && pathTimer.getElapsedTimeSeconds() < 8) {
-                      pathTimer.resetTimer();
+                  if (pathTimer.getElapsedTimeSeconds() > 8 && pathTimer.getElapsedTimeSeconds() < 8.2) {
                       setPathState(3);
+                      pathTimer.resetTimer();
 
                 }
 
@@ -254,9 +237,20 @@ public class AutonomousBucket extends OpMode {
 
             case 3: //
                 if (!follower.isBusy()) {
-                    follower.followPath(pathChain3,0.7, true);
-                    pathTimer.resetTimer();
-                    setPathState(4);
+                    follower.followPath(pathChain3,0.6, true);
+
+                    if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.6) {
+                        viperSlides.setTarget(ViperSlides.Target.HIGH);
+                    }
+
+
+                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 5.8){
+                        bucketServoRight.setPosition(1);
+                    }
+                     if (pathTimer.getElapsedTimeSeconds() > 5.8 && pathTimer.getElapsedTimeSeconds() < 6){
+                         setPathState(4);
+                         pathTimer.resetTimer();
+                    }
 
                 }
                 break;
@@ -264,49 +258,106 @@ public class AutonomousBucket extends OpMode {
               case 4: //
                 if (!follower.isBusy()) {
 
-                    follower.followPath(pathChain4,0.85, true);
-                    pathTimer.resetTimer();
-                    setPathState(5);
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2){
+                        bucketServoRight.setPosition(0);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.2){
+                        viperSlides.setTarget(ViperSlides.Target.GROUND);
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() >2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
+                        follower.followPath(pathChain4, 0.6, true);
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() >4 && pathTimer.getElapsedTimeSeconds() < 5){
+                        setPathState(5);
+                        pathTimer.resetTimer();
+                    }
 
                 }
                 break;
 
             case 5: //
-                if (!follower.isBusy()) {
-                    follower.followPath(pathChain5, 0.7,true);
-                    pathTimer.resetTimer();
+                if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.6) {
+                    follower.followPath(pathChain5,0.6, true);
+                    viperSlides.setTarget(ViperSlides.Target.GROUND);
+                    linkageController.setPosition(LinkageController.Position.EXTENDED);
+
+
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 2.6 && pathTimer.getElapsedTimeSeconds() < 2.7){
+                    intakeServos.intakePosition();
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 2.8 && pathTimer.getElapsedTimeSeconds() < 6 ){
+                    intakeMotor.intake();
+
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 6.1 && pathTimer.getElapsedTimeSeconds() < 6.2 ){
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    intakeServos.transferPosition();
+
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 6.5 && pathTimer.getElapsedTimeSeconds() < 8 ){
+                    intakeMotor.outtake();
+
+                }
+
+
+                if (pathTimer.getElapsedTimeSeconds() > 8 && pathTimer.getElapsedTimeSeconds() < 8.2) {
                     setPathState(6);
+                    pathTimer.resetTimer();
+
                 }
                 break;
 
             case 6: //
                 if (!follower.isBusy()) {
-                    follower.followPath(pathChain6,0.5, true);
-                    pathTimer.resetTimer();
-                    setPathState(7);
+                    follower.followPath(pathChain6,0.6, true);
+
+                    if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.6) {
+                        viperSlides.setTarget(ViperSlides.Target.HIGH);
+                    }
+
+
+                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 5.8){
+                        bucketServoRight.setPosition(1);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 5.8 && pathTimer.getElapsedTimeSeconds() < 6){
+                        setPathState(7);
+                        pathTimer.resetTimer();
+                    }
+
                 }
                 break;
 
             case 7: //
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 4) {
-                        clawServo.closedPosition();
+
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2){
+                        bucketServoRight.setPosition(0);
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 6) {
-                        viperSlides.setTarget(ViperSlides.Target.MEDIUM);
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.2){
+                        viperSlides.setTarget(ViperSlides.Target.GROUND);
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() >2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
+                        follower.followPath(pathChain7, 0.6, true);
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() >4 && pathTimer.getElapsedTimeSeconds() < 5){
                         setPathState(8);
+                        pathTimer.resetTimer();
                     }
-
-
-
-
 
                 }
                 break;
 
             case 8: if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 8) {
 
-                follower.followPath(pathChain7, 0.85, true);
+                follower.followPath(pathChain7, 0.6, true);
                 pathTimer.resetTimer();
                 setPathState(9);
             }
@@ -319,7 +370,6 @@ public class AutonomousBucket extends OpMode {
                     viperSlides.setTarget(ViperSlides.Target.LOW);
 
                     if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
-                        clawServo.openPosition();
                     }
 
                     if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
@@ -342,133 +392,13 @@ public class AutonomousBucket extends OpMode {
 
                 if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
                     pathTimer.resetTimer();
-                    setPathState(11);
-
-                }
-
-                break;
-
-            case 11: //
-                if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 4) {
-                        clawServo.closedPosition();
-                    }
-                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 6) {
-                        viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-                        setPathState(12);
-                    }
-
-
-
-
-
-                }
-                break;
-
-            case 12: if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 8) {
-
-                follower.followPath(pathChain9, 0.85, true);
-                pathTimer.resetTimer();
-                setPathState(13);
-            }
-
-                break;
-
-            case 13: //
-                if (!follower.isBusy()) {
-
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 3.5) {
-                        clawServo.openPosition();
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
-                        setPathState(14);
-
-
-                    }
-
-                }
-                break;
-
-            case 14:
-                if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 3) {
-                    follower.followPath(pathChain10,0.85, true);
-                    viperSlides.setTarget(ViperSlides.Target.GROUND);
-
-
-                }
-
-
-                if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
-                    pathTimer.resetTimer();
-                    setPathState(15);
-
-                }
-
-                break;
-
-            case 15: //
-                if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 4) {
-                        clawServo.closedPosition();
-                    }
-                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 6) {
-                        viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-                        setPathState(16);
-                    }
-
-
-
-
-
-                }
-                break;
-
-            case 16: if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 8) {
-
-                follower.followPath(pathChain11, 0.85, true);
-                pathTimer.resetTimer();
-                setPathState(17);
-            }
-
-                break;
-
-            case 17: //
-                if (!follower.isBusy()) {
-
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 3.5) {
-                        clawServo.openPosition();
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
-                        setPathState(18);
-
-
-                    }
-
-                }
-                break;
-
-            case 18:
-                if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 3) {
-                    follower.followPath(pathChain12,0.85, true);
-                    viperSlides.setTarget(ViperSlides.Target.GROUND);
-
-
-                }
-
-
-                if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
-                    pathTimer.resetTimer();
                     setPathState(-1);
 
                 }
 
                 break;
+
+
 
 
         }
@@ -511,6 +441,7 @@ public class AutonomousBucket extends OpMode {
         intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
+        intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
         intakeServos.transferPosition(); // Set intake servos to transfer position
         //Linkage
         linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
@@ -523,7 +454,7 @@ public class AutonomousBucket extends OpMode {
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
 
         bucketServos.transferPosition();
-        clawServo.closedPosition();
+        clawServo.openPosition();
 
         linkageController.resetEncoder();
 
