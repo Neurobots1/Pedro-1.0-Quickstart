@@ -37,7 +37,7 @@ public class RedTeleop extends OpMode {
     private ViperSlides viperSlides;
     // PedroPathing Teleop
     private Follower follower;
-    private final Pose startPose = new Pose(0, 0, 90);
+    private final Pose startPose = new Pose(0, 0, 0);
     private FtcDashboard dashboard;
 
     // REV Touch Sensor (Limit Switch)
@@ -120,13 +120,6 @@ public class RedTeleop extends OpMode {
 
         linkageController.zeroMotor();
 
-
-
-
-
-
-
-
         // Initialize claw servo
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
 
@@ -134,6 +127,8 @@ public class RedTeleop extends OpMode {
         bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
         bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
+
+        bucketServos.transferPosition();
     }
 
     @Override
@@ -169,7 +164,7 @@ public class RedTeleop extends OpMode {
             hasRumbled = false;
         }
 
-        // Opponent Color Detection (e.g., Blue)
+        // Opponent Color Detection (e.g., Red)
         if (detectedColor.equals("Blue")) {
             intakeMotor.outtake();  // Outtake at low power
         } else if (gamepad1.left_bumper) {
@@ -265,13 +260,13 @@ public class RedTeleop extends OpMode {
         if (gamepad1.y) {
             viperSlides.setTarget(ViperSlides.Target.HIGH);
         }
-        if (gamepad1.a) {
+        if (gamepad1.a && bucketServos.isTransferPosition()) {
             viperSlides.setTarget(ViperSlides.Target.GROUND);
         }
-        if (gamepad1.b) {
+        if (gamepad1.b && bucketServos.isTransferPosition()) {
             viperSlides.setTarget(ViperSlides.Target.LOW);
         }
-        if (gamepad1.x) {
+        if (gamepad1.x && bucketServos.isTransferPosition()) {
             viperSlides.setTarget(ViperSlides.Target.MEDIUM);
         }
 

@@ -18,16 +18,11 @@ public class GamePieceDetection {
     private double averageRed = 0, averageGreen = 0, averageBlue = 0;
 
     // Proportions for when the game piece is closest
-    private final double RED_PROPORTION_R_CLOSE = 0.561, RED_PROPORTION_G_CLOSE = 0.296, RED_PROPORTION_B_CLOSE = 0.143;
-    private final double BLUE_PROPORTION_R_CLOSE = 0.144, BLUE_PROPORTION_G_CLOSE = 0.284, BLUE_PROPORTION_B_CLOSE = 0.571;
-    private final double YELLOW_PROPORTION_R_CLOSE = 0.392, YELLOW_PROPORTION_G_CLOSE = 0.497, YELLOW_PROPORTION_B_CLOSE = 0.111;
-    private final double NO_GAME_PROPORTION_R_CLOSE = 0.244, NO_GAME_PROPORTION_G_CLOSE = 0.423, NO_GAME_PROPORTION_B_CLOSE = 0.333;
+    private final double RED_PROPORTION_R_CLOSE = 0.583, RED_PROPORTION_G_CLOSE = 0.294, RED_PROPORTION_B_CLOSE = 0.123;
+    private final double BLUE_PROPORTION_R_CLOSE = 0.119, BLUE_PROPORTION_G_CLOSE = 0.266, BLUE_PROPORTION_B_CLOSE = 0.615;
+    private final double YELLOW_PROPORTION_R_CLOSE = 0.396, YELLOW_PROPORTION_G_CLOSE = 0.510, YELLOW_PROPORTION_B_CLOSE = 0.095;
+    private final double NO_GAME_PROPORTION_R_CLOSE = 0.233, NO_GAME_PROPORTION_G_CLOSE = 0.459, NO_GAME_PROPORTION_B_CLOSE = 0.308;
 
-    // Proportions for when the game piece is farthest
-    private final double RED_PROPORTION_R_FAR = 0.370, RED_PROPORTION_G_FAR = 0.430, RED_PROPORTION_B_FAR = 0.200;
-    private final double BLUE_PROPORTION_R_FAR = 0.060, BLUE_PROPORTION_G_FAR = 0.170, BLUE_PROPORTION_B_FAR = 0.770;
-    private final double YELLOW_PROPORTION_R_FAR = 0.280, YELLOW_PROPORTION_G_FAR = 0.500, YELLOW_PROPORTION_B_FAR = 0.220;
-    private final double NO_GAME_PROPORTION_R_FAR = 0.200, NO_GAME_PROPORTION_G_FAR = 0.460, NO_GAME_PROPORTION_B_FAR = 0.340;
 
     // Proportional matching threshold (tweak as needed)
     private final double THRESHOLD = 0.04; // Allowable difference in proportions
@@ -90,20 +85,8 @@ public class GamePieceDetection {
             detectedColor = "Yellow"; // Yellow game piece
         } else if (isProportionalMatch(normRed, normGreen, normBlue, NO_GAME_PROPORTION_R_CLOSE, NO_GAME_PROPORTION_G_CLOSE, NO_GAME_PROPORTION_B_CLOSE)) {
             detectedColor = "None"; // No game piece detected
-        } else {
-            // If no match found for the closest proportions, check for the farthest proportions
-            if (isProportionalMatch(normRed, normGreen, normBlue, RED_PROPORTION_R_FAR, RED_PROPORTION_G_FAR, RED_PROPORTION_B_FAR)) {
-                detectedColor = "Red"; // Red game piece
-            } else if (isProportionalMatch(normRed, normGreen, normBlue, BLUE_PROPORTION_R_FAR, BLUE_PROPORTION_G_FAR, BLUE_PROPORTION_B_FAR)) {
-                detectedColor = "Blue"; // Blue game piece
-            } else if (isProportionalMatch(normRed, normGreen, normBlue, YELLOW_PROPORTION_R_FAR, YELLOW_PROPORTION_G_FAR, YELLOW_PROPORTION_B_FAR)) {
-                detectedColor = "Yellow"; // Yellow game piece
-            } else if (isProportionalMatch(normRed, normGreen, normBlue, NO_GAME_PROPORTION_R_FAR, NO_GAME_PROPORTION_G_FAR, NO_GAME_PROPORTION_B_FAR)) {
-                detectedColor = "None"; // No game piece detected
-            } else {
-                detectedColor = "Unknown"; // Unknown or not matching any predefined color
-            }
         }
+
     }
 
     // Get the detected color

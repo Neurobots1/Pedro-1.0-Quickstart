@@ -71,10 +71,10 @@ public class AutonomousBucket extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
-    private final Pose bucketPose = new Pose(18, 126, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(27, 121, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(27, 131, Math.toRadians(0));
-    private final Pose blockpose3 = new Pose(45, 128, Math.toRadians(90));
+    private final Pose bucketPose = new Pose(11, 128, Math.toRadians(315));
+    private final Pose blockPose1 = new Pose(22, 121, Math.toRadians(-5));
+    private final Pose blockPose2 = new Pose(22, 131, Math.toRadians(0));
+    private final Pose blockpose3 = new Pose(30, 125, Math.toRadians(45));
     private final Pose endPose = new Pose(60, 96, Math.toRadians(90));
     private final Pose endPoseControlPoint = new Pose(60,124);
 
@@ -105,7 +105,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(bucketPose),
                         new Point(blockPose1)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(-5))
                 .build();
         // Push first block to zone
         pathChain3 = follower.pathBuilder()
@@ -113,7 +113,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(blockPose1),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
+                .setLinearHeadingInterpolation(Math.toRadians(-5), Math.toRadians(-45))
                 .build();
         // Curve behind second block
         pathChain4 = follower.pathBuilder()
@@ -137,7 +137,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(bucketPose),
                         new Point(blockpose3)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
                 .build();
         // Wall to score pose 2
         pathChain7 = follower.pathBuilder()
@@ -145,7 +145,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(blockpose3),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(180))
                 .build();
         // Score pose 2 to wall
         pathChain8 = follower.pathBuilder()
@@ -183,73 +183,96 @@ public class AutonomousBucket extends OpMode {
                 if (!follower.isBusy()) {
 
                     if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 3.5) {
-                        bucketServoRight.setPosition(1);
+                        bucketServos.depositPosition();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 5) {
-                        setPathState(2);
+                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4.5) {
+                        bucketServos.transferPosition();
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 5.5) {
+                        setPathState(18);
                         pathTimer.resetTimer();
 
 
+
                     }
 
                 }
                 break;
 
-            case 2:
-                if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.6) {
-                    follower.followPath(pathChain2,0.6, true);
+            case 18 :
+                if (!follower.isBusy()) {
+                    follower.followPath(pathChain2,0.6 , true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
-
-
+                    pathTimer.resetTimer();
+                    setPathState(2);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 2.6 && pathTimer.getElapsedTimeSeconds() < 2.7){
-                    intakeServos.intakePosition();
+            case 24 :
+
+
+
+            case 2:
+                if (!follower.isBusy()) {
+
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() <2) {
+                        intakeServos.intakePosition();
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 3) {
+                        intakeMotor.intake();
+
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() > 4 && pathTimer.getElapsedTimeSeconds() < 5.5) {
+                        intakeServos.transferPosition();
+
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 5.5 && pathTimer.getElapsedTimeSeconds() < 6.7) {
+                        linkageController.setPosition(LinkageController.Position.RETRACTED);
+
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() > 7 && pathTimer.getElapsedTimeSeconds() < 7.5) {
+                        intakeMotor.outtake();
+
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 7.5 && pathTimer.getElapsedTimeSeconds() < 7.8) {
+                        intakeMotor.stop();
+
+                    }
+
+
+                    if (pathTimer.getElapsedTimeSeconds() > 8 && pathTimer.getElapsedTimeSeconds() < 9) {
+                        pathTimer.resetTimer();
+                        setPathState(19);
+
+                    }
                 }
 
-                if (pathTimer.getElapsedTimeSeconds() > 2.8 && pathTimer.getElapsedTimeSeconds() < 6 ){
-                    intakeMotor.intake();
 
-                }
-
-                if (pathTimer.getElapsedTimeSeconds() > 6.1 && pathTimer.getElapsedTimeSeconds() < 6.2 ){
-                    linkageController.setPosition(LinkageController.Position.RETRACTED);
-                    intakeServos.transferPosition();
-
-                }
-
-                if (pathTimer.getElapsedTimeSeconds() > 6.5 && pathTimer.getElapsedTimeSeconds() < 8 ){
-                    intakeMotor.outtake();
-
-                }
-
-
-                  if (pathTimer.getElapsedTimeSeconds() > 8 && pathTimer.getElapsedTimeSeconds() < 8.2) {
-                      setPathState(3);
-                      pathTimer.resetTimer();
-
-                }
-
-                // setPathState(3);
 
                 break;
+
+            case 19:
+                if (!follower.isBusy()) {
+                    follower.followPath(pathChain3,0.6 , true);
+                    viperSlides.setTarget(ViperSlides.Target.HIGH);
+                    pathTimer.resetTimer();
+                    setPathState(3);
+                }
+
 
             case 3: //
                 if (!follower.isBusy()) {
-                    follower.followPath(pathChain3,0.6, true);
-
-                    if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.6) {
-                        viperSlides.setTarget(ViperSlides.Target.HIGH);
+                    if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 3){
+                        bucketServos.depositPosition();
                     }
-
-
-                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 5.8){
-                        bucketServoRight.setPosition(1);
-                    }
-                     if (pathTimer.getElapsedTimeSeconds() > 5.8 && pathTimer.getElapsedTimeSeconds() < 6){
-                         setPathState(4);
+                     if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4){
                          pathTimer.resetTimer();
+                         setPathState(4);
+
                     }
 
                 }
@@ -259,13 +282,13 @@ public class AutonomousBucket extends OpMode {
                 if (!follower.isBusy()) {
 
                     if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2){
-                        bucketServoRight.setPosition(0);
+                        bucketServos.transferPosition();
                     }
                     if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.2){
                         viperSlides.setTarget(ViperSlides.Target.GROUND);
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() >2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() >1.8 && pathTimer.getElapsedTimeSeconds() < 4) {
                         follower.followPath(pathChain4, 0.6, true);
                     }
 
@@ -278,31 +301,34 @@ public class AutonomousBucket extends OpMode {
                 break;
 
             case 5: //
-                if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.6) {
-                    follower.followPath(pathChain5,0.6, true);
+                if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
 
 
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 2.6 && pathTimer.getElapsedTimeSeconds() < 2.7){
+                if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 0.6){
                     intakeServos.intakePosition();
                 }
 
-                if (pathTimer.getElapsedTimeSeconds() > 2.8 && pathTimer.getElapsedTimeSeconds() < 6 ){
+                if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 3 ){
                     intakeMotor.intake();
 
                 }
 
-                if (pathTimer.getElapsedTimeSeconds() > 6.1 && pathTimer.getElapsedTimeSeconds() < 6.2 ){
+                if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 3.2 ){
                     linkageController.setPosition(LinkageController.Position.RETRACTED);
                     intakeServos.transferPosition();
 
                 }
 
-                if (pathTimer.getElapsedTimeSeconds() > 6.5 && pathTimer.getElapsedTimeSeconds() < 8 ){
+                if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4.5 ){
                     intakeMotor.outtake();
 
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 4.5 && pathTimer.getElapsedTimeSeconds() < 6.5){
+                    follower.followPath(pathChain5,0.6, true);
                 }
 
 
@@ -315,17 +341,16 @@ public class AutonomousBucket extends OpMode {
 
             case 6: //
                 if (!follower.isBusy()) {
-                    follower.followPath(pathChain6,0.6, true);
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.6) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
                         viperSlides.setTarget(ViperSlides.Target.HIGH);
                     }
 
 
-                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 5.8){
-                        bucketServoRight.setPosition(1);
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 3.5){
+                        bucketServos.depositPosition();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 5.8 && pathTimer.getElapsedTimeSeconds() < 6){
+                    if (pathTimer.getElapsedTimeSeconds() > 5 && pathTimer.getElapsedTimeSeconds() < 5.1){
                         setPathState(7);
                         pathTimer.resetTimer();
                     }
@@ -337,14 +362,14 @@ public class AutonomousBucket extends OpMode {
                 if (!follower.isBusy()) {
 
                     if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2){
-                        bucketServoRight.setPosition(0);
+                        bucketServos.transferPosition();
                     }
                     if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.2){
                         viperSlides.setTarget(ViperSlides.Target.GROUND);
                     }
 
                     if (pathTimer.getElapsedTimeSeconds() >2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
-                        follower.followPath(pathChain7, 0.6, true);
+                        follower.followPath(pathChain6, 0.6, true);
                     }
 
                     if (pathTimer.getElapsedTimeSeconds() >4 && pathTimer.getElapsedTimeSeconds() < 5){
@@ -355,44 +380,82 @@ public class AutonomousBucket extends OpMode {
                 }
                 break;
 
-            case 8: if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 8) {
+            case 8:
+                if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
+                    viperSlides.setTarget(ViperSlides.Target.GROUND);
+                    linkageController.setPosition(LinkageController.Position.EXTENDED);
 
-                follower.followPath(pathChain7, 0.6, true);
-                pathTimer.resetTimer();
-                setPathState(9);
-            }
+
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 0.6){
+                    intakeServos.intakePosition();
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 3 ){
+                    intakeMotor.intake();
+
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 3.2 ){
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    intakeServos.transferPosition();
+
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4.5 ){
+                    intakeMotor.outtake();
+
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 4.5 && pathTimer.getElapsedTimeSeconds() < 6.5){
+                    follower.followPath(pathChain7,0.6, true);
+                }
+
+
+                if (pathTimer.getElapsedTimeSeconds() > 8 && pathTimer.getElapsedTimeSeconds() < 8.2) {
+                    setPathState(9);
+                    pathTimer.resetTimer();
+                }
 
                 break;
 
             case 9: //
                 if (!follower.isBusy()) {
 
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
+                        viperSlides.setTarget(ViperSlides.Target.HIGH);
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
+
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 3.5){
+                        bucketServos.depositPosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 4.5 && pathTimer.getElapsedTimeSeconds() < 4.6){
                         setPathState(10);
-
-
+                        pathTimer.resetTimer();
                     }
 
                 }
                 break;
 
             case 10:
-                if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 3) {
-                    follower.followPath(pathChain8,0.85, true);
-                    viperSlides.setTarget(ViperSlides.Target.GROUND);
+                if (!follower.isBusy()) {
 
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2){
+                        bucketServos.transferPosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.2){
+                        viperSlides.setTarget(ViperSlides.Target.GROUND);
+                    }
 
-                }
+                    if (pathTimer.getElapsedTimeSeconds() >2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
+                        follower.followPath(pathChain8, 0.6, true);
+                    }
 
-
-                if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
-                    pathTimer.resetTimer();
-                    setPathState(-1);
+                    if (pathTimer.getElapsedTimeSeconds() >4 && pathTimer.getElapsedTimeSeconds() < 5){
+                        setPathState(-1);
+                        pathTimer.resetTimer();
+                    }
 
                 }
 
@@ -456,17 +519,7 @@ public class AutonomousBucket extends OpMode {
         bucketServos.transferPosition();
         clawServo.openPosition();
 
-        linkageController.resetEncoder();
-
-        linkageController.setPosition(LinkageController.Position.RETRACTED);
-
-        /* linkageController.zeroMotor();
-
-        while (!linkageController.isAtTarget()) {
-            linkageController.checkForAmperageSpike();
-            telemetry.addData("Zeroing...", "Current Position: %d", linkageController.getCurrentPosition());
-            telemetry.update();
-        } */
+        linkageController.zeroMotor();
 
 
 
@@ -487,7 +540,6 @@ public class AutonomousBucket extends OpMode {
         opmodeTimer.resetTimer();
         pathTimer.resetTimer();
         viperSlides.setPIDEnabled(true);
-        // linkageController.setPosition(LinkageController.Position.RETRACTED);
         setPathState(0);
     }
 
@@ -501,8 +553,7 @@ public class AutonomousBucket extends OpMode {
         telemetry.addData("Path Timer", pathTimer.getElapsedTimeSeconds());
         telemetry.update();
         viperSlides.update();
-        linkageController.setPosition(LinkageController.Position.RETRACTED);
-        //linkageController.checkForAmperageSpike();
+        linkageController.checkForAmperageSpike();
         linkageController.update();
 
 

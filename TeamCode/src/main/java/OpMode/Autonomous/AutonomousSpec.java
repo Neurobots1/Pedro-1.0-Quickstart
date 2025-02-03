@@ -228,11 +228,11 @@ public class AutonomousSpec extends OpMode {
 
                     viperSlides.setTarget(ViperSlides.Target.LOW);
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2.7 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2.9 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.openPosition();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2.9 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.1 && pathTimer.getElapsedTimeSeconds() < 4) {
                         setPathState(2);
 
 
@@ -243,7 +243,7 @@ public class AutonomousSpec extends OpMode {
 
             case 2:
 
-                    follower.followPath(pathChain2,1, true);
+                    follower.followPath(pathChain2,0.9, true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     pathTimer.resetTimer();
                       setPathState(3);
@@ -266,7 +266,7 @@ public class AutonomousSpec extends OpMode {
               case 4: //
                 if (!follower.isBusy()) {
 
-                    follower.followPath(pathChain4,1, true);
+                    follower.followPath(pathChain4,0.9, true);
                     pathTimer.resetTimer();
                     setPathState(5);
 
@@ -291,7 +291,7 @@ public class AutonomousSpec extends OpMode {
 
             case 7: //
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 2.2 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.closedPosition();
                     }
                     if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
@@ -321,7 +321,7 @@ public class AutonomousSpec extends OpMode {
 
 
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.openPosition();
                     }
 
@@ -347,7 +347,7 @@ public class AutonomousSpec extends OpMode {
 
             case 11: //
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.closedPosition();
                     }
                     if (pathTimer.getElapsedTimeSeconds() > 4 && pathTimer.getElapsedTimeSeconds() < 4.1) {
@@ -375,7 +375,7 @@ public class AutonomousSpec extends OpMode {
 
                     viperSlides.setTarget(ViperSlides.Target.LOW);
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.openPosition();
                     }
 
@@ -401,7 +401,7 @@ public class AutonomousSpec extends OpMode {
 
             case 15: //
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.closedPosition();
                     }
                     if (pathTimer.getElapsedTimeSeconds() > 4 && pathTimer.getElapsedTimeSeconds() < 4.2) {
@@ -430,7 +430,7 @@ public class AutonomousSpec extends OpMode {
 
                     viperSlides.setTarget(ViperSlides.Target.LOW);
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.openPosition();
                     }
 

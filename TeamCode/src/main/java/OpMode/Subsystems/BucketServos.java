@@ -29,7 +29,7 @@ public class BucketServos {
     // Method to check if the servos are in the Transfer Position
     public boolean isTransferPosition() {
         double tolerance = 0.1;
-        boolean rightTransfer = Math.abs(bucketServoRight.getPosition() - 0.0) < tolerance;
+        boolean rightTransfer = Math.abs(bucketServoRight.getPosition() - 1) < tolerance;
         //boolean leftTransfer = Math.abs(bucketServoLeft.getPosition() - 1.0) < tolerance;
         return rightTransfer /*&& leftTransfer*/;
     }
@@ -37,7 +37,7 @@ public class BucketServos {
     // Method to check if the servos are in the Deposit Position
     public boolean isDepositPosition() {
         double tolerance = 0.1;
-        boolean rightDeposit = Math.abs(bucketServoRight.getPosition() - 1.0) < tolerance;
+        boolean rightDeposit = Math.abs(bucketServoRight.getPosition() - 0) < tolerance;
         //boolean leftDeposit = Math.abs(bucketServoLeft.getPosition() - 0.0) < tolerance;
         return rightDeposit /*&& leftDeposit*/;
     }
