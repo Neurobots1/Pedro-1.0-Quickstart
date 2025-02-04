@@ -260,7 +260,7 @@ public class BlueTeleop extends OpMode {
         if (gamepad1.y) {
             viperSlides.setTarget(ViperSlides.Target.HIGH);
         }
-        if (gamepad1.a && bucketServos.isTransferPosition()) {
+        if (gamepad1.a && bucketServos.isTransferPosition() && isClawOpen) {
             viperSlides.setTarget(ViperSlides.Target.GROUND);
         }
         if (gamepad1.b && bucketServos.isTransferPosition()) {
