@@ -74,13 +74,14 @@ public class AutonomousBucket extends OpMode {
     private final Pose bucketPose = new Pose(11, 128, Math.toRadians(315));
     private final Pose blockPose1 = new Pose(32, 121 , Math.toRadians(-13));
     private final Pose blockPose2 = new Pose(30, 130, Math.toRadians(-4));
-    private final Pose blockPose3 = new Pose(28, 126.5, Math.toRadians(29));
+    private final Pose blockPose3 = new Pose(40, 126, Math.toRadians(84));
     private final Pose endPose = new Pose(60, 92, Math.toRadians(90));
 
 
 
     //controle point
     private final Pose endPoseControlPoint = new Pose(66,135);
+    private final Pose blockpose3Controlpoint = new Pose(40, 70);
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload, park;
@@ -131,11 +132,12 @@ public class AutonomousBucket extends OpMode {
                 .build();
         // Short path to get the clip on wall
         blockPath3 = follower.pathBuilder()
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         new Point(bucketPose),
+                        new Point(blockpose3Controlpoint),
                         new Point(blockPose3)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(33), Math.toRadians(32))
+                .setLinearHeadingInterpolation(Math.toRadians(33), Math.toRadians(84))
                 .build();
         // Wall to score pose 2
         bucketPath3 = follower.pathBuilder()
