@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 public class LinkageController {
 
     public enum Position {
-        RETRACTED(-50),
+        RETRACTED(-75),
         EXTENDED(1100);
 
         private final int targetPosition;

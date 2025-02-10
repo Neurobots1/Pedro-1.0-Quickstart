@@ -11,7 +11,7 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -27,8 +27,8 @@ import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "AutonomousSpec", group = "Autonomous")
-public class AutonomousSpec extends OpMode {
+@Autonomous(name = "AutonomousSpecSlow", group = "Autonomous")
+public class AutonomousSpecSlow extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -217,7 +217,7 @@ public class AutonomousSpec extends OpMode {
         switch (pathState) {
             case 0: // Do actions , then Move from start to scoring position 1
                 viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-                follower.followPath(pathChain1,0.7 , true);
+                follower.followPath(pathChain1,0.6 , true);
                 pathTimer.resetTimer();
                 setPathState(1);
                 break;
@@ -243,7 +243,7 @@ public class AutonomousSpec extends OpMode {
 
             case 2:
 
-                    follower.followPath(pathChain2,0.9, false);
+                    follower.followPath(pathChain2,0.85, false);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     pathTimer.resetTimer();
                       setPathState(3);
@@ -266,7 +266,7 @@ public class AutonomousSpec extends OpMode {
               case 4: //
                 if (!follower.isBusy()) {
 
-                    follower.followPath(pathChain4,0.9, false);
+                    follower.followPath(pathChain4,0.85, false);
                     pathTimer.resetTimer();
                     setPathState(5);
 
@@ -317,15 +317,13 @@ public class AutonomousSpec extends OpMode {
             case 9: //
                 if (!follower.isBusy()) {
 
-                        viperSlides.setTarget(ViperSlides.Target.LOW);
-
-
+                    viperSlides.setTarget(ViperSlides.Target.LOW);
 
                     if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
                         clawServo.openPosition();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.8 && pathTimer.getElapsedTimeSeconds() < 4) {
                         pathTimer.resetTimer();
                         setPathState(10);
 
@@ -337,7 +335,7 @@ public class AutonomousSpec extends OpMode {
 
             case 10:
                     if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 1) {
-                        follower.followPath(pathChain8, 0.9, false);
+                        follower.followPath(pathChain8, 0.85, false);
                     }
 
                     if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.1) {
@@ -397,7 +395,7 @@ public class AutonomousSpec extends OpMode {
 
                 if(!follower.isBusy()) {
 
-                        follower.followPath(pathChain10, 0.9, false);
+                        follower.followPath(pathChain10, 0.85,false);
                         viperSlides.setTarget(ViperSlides.Target.GROUND);
                         pathTimer.resetTimer();
                         setPathState(-1);

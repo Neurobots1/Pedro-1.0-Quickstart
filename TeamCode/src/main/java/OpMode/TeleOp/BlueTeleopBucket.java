@@ -2,6 +2,8 @@ package OpMode.TeleOp;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,23 +15,19 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import OpMode.Subsystems.BucketServos;
-import OpMode.Subsystems.GamePieceDetection;
 import OpMode.Subsystems.ClawServo;
+import OpMode.Subsystems.GamePieceDetection;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
-import OpMode.Subsystems.ViperSlides;
 import OpMode.Subsystems.LinkageController;
+import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-
 @Config
-@TeleOp(name = "BlueTeleop", group = "Active")
-public class BlueTeleop extends OpMode {
+@TeleOp(name = "BlueTeleopBucket" +
+        "", group = "Active")
+public class BlueTeleopBucket extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -37,7 +35,7 @@ public class BlueTeleop extends OpMode {
     private ViperSlides viperSlides;
     // PedroPathing Teleop
     private Follower follower;
-    private final Pose startPose = new Pose(0, 0, 0);
+    private final Pose startPose = new Pose(0, 0, 90);
     private FtcDashboard dashboard;
 
     // REV Touch Sensor (Limit Switch)
