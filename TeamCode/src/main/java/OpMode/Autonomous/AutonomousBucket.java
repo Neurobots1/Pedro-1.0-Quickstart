@@ -72,16 +72,15 @@ public class AutonomousBucket extends OpMode {
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
     private final Pose bucketPose = new Pose(11, 128, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(32, 121 , Math.toRadians(-13));
-    private final Pose blockPose2 = new Pose(30, 130, Math.toRadians(-4));
-    private final Pose blockPose3 = new Pose(40, 126, Math.toRadians(84));
+    private final Pose blockPose1 = new Pose(32, 119 , Math.toRadians(-11));
+    private final Pose blockPose2 = new Pose(30, 129, Math.toRadians(-4));
+    private final Pose blockPose3 = new Pose(34, 126, Math.toRadians(60));
     private final Pose endPose = new Pose(60, 92, Math.toRadians(90));
 
 
 
     //controle point
     private final Pose endPoseControlPoint = new Pose(66,135);
-    private final Pose blockpose3Controlpoint = new Pose(40, 70);
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload, park;
@@ -104,7 +103,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(bucketPose),
                         new Point(blockPose1)
                 ))
-                .setConstantHeadingInterpolation( Math.toRadians(-13))
+                .setConstantHeadingInterpolation( Math.toRadians(-11))
                 .build();
         // Push first block to zone
         bucketPath1 = follower.pathBuilder()
@@ -132,12 +131,11 @@ public class AutonomousBucket extends OpMode {
                 .build();
         // Short path to get the clip on wall
         blockPath3 = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         new Point(bucketPose),
-                        new Point(blockpose3Controlpoint),
                         new Point(blockPose3)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(33), Math.toRadians(84))
+                .setLinearHeadingInterpolation(Math.toRadians(33), Math.toRadians(60))
                 .build();
         // Wall to score pose 2
         bucketPath3 = follower.pathBuilder()
@@ -145,7 +143,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(blockPose3),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(315))
+                .setLinearHeadingInterpolation(Math.toRadians(60), Math.toRadians(315))
                 .build();
         // Score pose 2 to wall
         endPath = follower.pathBuilder()
@@ -273,7 +271,7 @@ public class AutonomousBucket extends OpMode {
             case 6: //
                 if (!follower.isBusy()) {
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2.0) {
                         bucketServos.depositPosition();
 
                     }
