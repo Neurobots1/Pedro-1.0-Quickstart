@@ -15,6 +15,10 @@ public class FConstants {
         FollowerConstants.rightFrontMotorName = "rightFront";
         FollowerConstants.rightRearMotorName = "rightRear";
 
+        FollowerConstants.useVoltageCompensationInAuto = true;
+        FollowerConstants.useVoltageCompensationInTeleOp = true;
+        FollowerConstants.nominalVoltage = 13;
+
         FollowerConstants.leftFrontMotorDirection = DcMotorSimple.Direction.REVERSE;
         FollowerConstants.leftRearMotorDirection = DcMotorSimple.Direction.REVERSE;
         FollowerConstants.rightFrontMotorDirection = DcMotorSimple.Direction.FORWARD;
@@ -22,11 +26,11 @@ public class FConstants {
 
         FollowerConstants.mass = 14;
 
-        FollowerConstants.xMovement = 70.7925;
-        FollowerConstants.yMovement = 52.8807;
+        FollowerConstants.xMovement = 72.5351;
+        FollowerConstants.yMovement = 55.4285;
 
-        FollowerConstants.forwardZeroPowerAcceleration = -32.9437;
-        FollowerConstants.lateralZeroPowerAcceleration = -76.3274;
+        FollowerConstants.forwardZeroPowerAcceleration = -29.2437;
+        FollowerConstants.lateralZeroPowerAcceleration = -74.162;
 
         FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.16,0,0.01,0);
         FollowerConstants.useSecondaryTranslationalPID = false;
