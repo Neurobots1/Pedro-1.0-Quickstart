@@ -46,13 +46,13 @@ public class AutonomousSpecSlow extends OpMode {
     // Servos
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
-    private IntakeServos intakeServos; // Intake subsystem instance
+    private IntakeServos intakeServos; // IntakeBoolean subsystem instance
     private ClawServo clawServo;
     private Servo bucketServoRight;
     private Servo bucketServoLeft;
     private BucketServos bucketServos;
 
-    // Intake Motor and Color Sensor
+    // IntakeBoolean Motor and Color Sensor
     private DcMotor intakemotor;
     private IntakeMotor intakeMotor;
 

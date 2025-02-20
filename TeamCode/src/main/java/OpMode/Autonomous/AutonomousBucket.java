@@ -44,7 +44,7 @@ public class AutonomousBucket extends OpMode {
     // Servos
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
-    private IntakeServos intakeServos; // Intake subsystem instance
+    private IntakeServos intakeServos; // IntakeBoolean subsystem instance
     private ClawServo clawServo;
 
 
@@ -52,7 +52,7 @@ public class AutonomousBucket extends OpMode {
     private Servo bucketServoLeft;
     private BucketServos bucketServos;
 
-    // Intake Motor and Color Sensor
+    // IntakeBoolean Motor and Color Sensor
     private DcMotor intakemotor;
     private IntakeMotor intakeMotor;
 

@@ -19,7 +19,7 @@ public class ClawServo {
         ClawServo.setPosition(0);  // Set to maximum after scaling
     }
 
-    // Method to move both servos to the Intake Position
+    // Method to move both servos to the IntakeBoolean Position
     public void closedPosition() {
         ClawServo.setPosition(1);  // Set to minimum after scaling
     }

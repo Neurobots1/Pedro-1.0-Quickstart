@@ -24,7 +24,7 @@ public class IntakeServos {
         //IntakeServoLeft.setPosition(0.9);   // Set to maximum after scaling
     }
 
-    // Method to move both servos to the Intake Position
+    // Method to move both servos to the IntakeBoolean Position
     public void transferPosition() {
         IntakeServoRight.setPosition(1);  // Set to minimum after scaling
         //IntakeServoLeft.setPosition(0.0);   // Set to minimum after scaling
@@ -35,7 +35,7 @@ public class IntakeServos {
         //IntakeServoLeft.setPosition(0.0);   // Set to minimum after scaling
     }
 
-    // Method to check if the servos are in the Intake Position
+    // Method to check if the servos are in the IntakeBoolean Position
     public boolean isIntakePosition() {
         double tolerance = 0.1;
         boolean rightIntake = Math.abs(IntakeServoRight.getPosition() - 0.1) < tolerance;

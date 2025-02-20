@@ -44,13 +44,13 @@ public class RedTeleopBucket extends OpMode {
     // Servos
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
-    private IntakeServos intakeServos; // Intake subsystem instance
+    private IntakeServos intakeServos; // IntakeBoolean subsystem instance
     private ClawServo clawServo;
     private Servo bucketServoRight;
     private Servo bucketServoLeft;
     private BucketServos bucketServos;
 
-    // Intake Motor and Color Sensor
+    // IntakeBoolean Motor and Color Sensor
     private DcMotor intakemotor;
     private IntakeMotor intakeMotor;
     private DcMotor extendoMotor;
@@ -183,7 +183,7 @@ public class RedTeleopBucket extends OpMode {
         if (detectedColor.equals("Blue")) {
             intakeMotor.outtake();  // Outtake at low power
         } else if (gamepad1.left_bumper) {
-            intakeMotor.intake();  // Intake
+            intakeMotor.intake();  // IntakeBoolean
         } else if (gamepad1.right_bumper) {
             intakeMotor.outtake();  // Outtake
         } else {
@@ -215,7 +215,7 @@ public class RedTeleopBucket extends OpMode {
             bucketServos.transferPosition();       // If the slide position is not less than -1950, set bucket to transfer position
         }
 
-        // Servo Control for Linkage and Intake Servos
+        // Servo Control for Linkage and IntakeBoolean Servos
 
         //linkageController.checkForAmperageSpike();
 

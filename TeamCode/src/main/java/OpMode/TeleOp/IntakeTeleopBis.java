@@ -4,13 +4,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 
 
 import OpMode.Subsystems.ColourSensorThread;
 import OpMode.Subsystems.IntakeMotor;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import OpMode.Subsystems.IntakeServos;
 import OpMode.Subsystems.LinkageController;
@@ -29,9 +29,15 @@ public class IntakeTeleopBis extends OpMode {
     // Servos
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
-    private IntakeServos intakeServos; // Intake subsystem instance
+    private DcMotor extendoMotor;
+    private IntakeServos intakeServos; // IntakeBoolean subsystem instance
 
-    private boolean Intake = false;
+    boolean waitingForExtension = false;
+
+    public boolean IntakeBoolean = false;
+
+    private boolean previousLeftTriggerState = false;
+    private boolean currentLeftTriggerState = false;
 
     @Override
     public void init() {
@@ -44,6 +50,15 @@ public class IntakeTeleopBis extends OpMode {
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
         intakeServos.transferPosition(); // Set intake servos to transfer position
+        linkageController.zeroMotor();
+
+        Gamepad currentGamepad1 = new Gamepad();
+        Gamepad currentGamepad2 = new Gamepad();
+
+        Gamepad previousGamepad1 = new Gamepad();
+        Gamepad previousGamepad2 = new Gamepad();
+
+
 
 
         // Initialize color sensor and thread
@@ -60,19 +75,26 @@ public class IntakeTeleopBis extends OpMode {
         // Get detected color from the background thread
         String detectedColor = colourSensorThread.getDetectedColor();
 
-        if(gamepad1.a){
-            Intake = !Intake;
-        }
 
-        if(Intake){
-            linkageController.setPosition(LinkageController.Position.EXTENDED);
-            while (!detectedColor.equals("Blue")){
-                intakeMotor.intake();
+        currentLeftTriggerState = gamepad1.a;
+        if (currentLeftTriggerState && !previousLeftTriggerState) {
+
+            if(IntakeBoolean){
+                linkageController.setPosition(LinkageController.Position.EXTENDED);
+                if (!detectedColor.equals("Blue")){
+                    intakeMotor.intake();
+                }
+                intakeMotor.stop();
+            } else {
+                linkageController.setPosition(LinkageController.Position.RETRACTED);
+                intakeMotor.stop();
             }
-            intakeMotor.stop();
-        } else {
-            linkageController.setPosition(LinkageController.Position.RETRACTED);
+
+            IntakeBoolean = !IntakeBoolean;
         }
+        previousLeftTriggerState = currentLeftTriggerState;
+
+
 
         // Telemetry output
         telemetry.addData("Detected Color", detectedColor);
