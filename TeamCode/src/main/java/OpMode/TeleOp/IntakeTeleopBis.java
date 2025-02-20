@@ -11,41 +11,25 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import OpMode.Subsystems.ColourSensorThread;
 import OpMode.Subsystems.IntakeMotor;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.util.Constants;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import OpMode.Subsystems.BucketServos;
-import OpMode.Subsystems.GamePieceDetection;
-import OpMode.Subsystems.ClawServo;
-import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
-import OpMode.Subsystems.ViperSlides;
 import OpMode.Subsystems.LinkageController;
-import pedroPathing.constants.FConstants;
-import pedroPathing.constants.LConstants;
 
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-
-
-@TeleOp(name = "IntakeTeleOp", group = "Active")
+@TeleOp(name = "IntakeTeleOpBis", group = "Active")
 public class IntakeTeleopBis extends OpMode {
 
+
+    // subsystem
+    private LinkageController linkageController;
     private IntakeMotor intakeMotor;
     private ColourSensorThread colourSensorThread;
     private Thread colorThread;
-    private LinkageController linkageController;
+
+
+    // Servos
+    private Servo intakeServoRight;
+    private Servo intakeServoLeft;
+    private IntakeServos intakeServos; // Intake subsystem instance
 
     private boolean Intake = false;
 
@@ -53,17 +37,13 @@ public class IntakeTeleopBis extends OpMode {
     public void init() {
         // Initialize intake motor
         intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
-
-        Gamepad currentGamepad1 = new Gamepad();
-
-
-
-        Gamepad previousGamepad1 = new Gamepad();
-
         linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
-        telemetry.addData("Status", "Initialized");
 
-
+        // Initialize intake servos
+        intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
+        intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
+        intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
+        intakeServos.transferPosition(); // Set intake servos to transfer position
 
 
         // Initialize color sensor and thread
@@ -84,17 +64,15 @@ public class IntakeTeleopBis extends OpMode {
             Intake = !Intake;
         }
 
-        if(Intake = true){
+        if(Intake){
             linkageController.setPosition(LinkageController.Position.EXTENDED);
-            while (!detectedColor.equals("Red")){
+            while (!detectedColor.equals("Blue")){
                 intakeMotor.intake();
             }
             intakeMotor.stop();
+        } else {
+            linkageController.setPosition(LinkageController.Position.RETRACTED);
         }
-
-
-
-
 
         // Telemetry output
         telemetry.addData("Detected Color", detectedColor);
