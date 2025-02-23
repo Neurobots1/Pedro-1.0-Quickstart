@@ -69,7 +69,7 @@ public class AprilTagLocalizer {
                 .build();
 
         VisionPortal.Builder portalBuilder = new VisionPortal.Builder();
-        portalBuilder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));  // Modify if using phone camera
+        portalBuilder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
         portalBuilder.addProcessor(aprilTagProcessor);
 
         visionPortal = portalBuilder.build();
@@ -82,7 +82,7 @@ public class AprilTagLocalizer {
         List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
 
         if (!detections.isEmpty()) {
-            // Use the first detection for localization (you can modify to use more than one detection)
+            // Use the first detection for localization
             AprilTagDetection detection = detections.get(0);
             AprilTagPose tagPose = new AprilTagPose(
                     detection.robotPose.getPosition().x,
