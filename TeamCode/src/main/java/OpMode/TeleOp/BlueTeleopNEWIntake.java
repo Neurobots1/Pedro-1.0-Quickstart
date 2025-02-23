@@ -149,7 +149,7 @@ public class BlueTeleopNEWIntake extends OpMode {
 
                 break;
             default:
-                // should never be reached, as liftState should never be null
+                // should never be reached, as intakeState should never be null
                 intakeState = IntakeState.INTAKE_START;
 
         }
