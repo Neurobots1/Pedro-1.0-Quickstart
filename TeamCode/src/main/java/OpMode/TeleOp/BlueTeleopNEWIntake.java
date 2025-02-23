@@ -29,6 +29,17 @@ import pedroPathing.constants.LConstants;
 @TeleOp(name = "BlueTeleop", group = "Active")
 public class BlueTeleopNEWIntake extends OpMode {
 
+    public enum IntakeState {
+        INTAKE_START,
+        INTAKE_EXTEND,
+        INTAKE_DUMP,
+        INTAKE_RETRACT
+
+    };
+
+    IntakeState intakeState = IntakeState.INTAKE_START;
+    ElapsedTime intakeTimer = new ElapsedTime();
+
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
     public static double f = 0.1;
@@ -72,6 +83,7 @@ public class BlueTeleopNEWIntake extends OpMode {
 
         // Initialize the loop timer
         loopTimer = new ElapsedTime();
+        intakeTimer.reset();
 
         // Corrected Color Sensor Initialization
         colorSensor = new ColorSensor(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
@@ -121,6 +133,30 @@ public class BlueTeleopNEWIntake extends OpMode {
 
     @Override
     public void loop() {
+
+        switch (intakeState) {
+
+            case INTAKE_DUMP:
+
+                break;
+            case INTAKE_START:
+
+                break;
+            case INTAKE_EXTEND:
+
+                break;
+            case INTAKE_RETRACT:
+
+                break;
+            default:
+                // should never be reached, as liftState should never be null
+                intakeState = IntakeState.INTAKE_START;
+
+        }
+
+        if (gamepad1.dpad_down && intakeState != IntakeState.INTAKE_START) {
+            intakeState = IntakeState.INTAKE_START;
+        }
         // Measure loop time
         double loopTime = loopTimer.milliseconds();
         loopTimer.reset();
