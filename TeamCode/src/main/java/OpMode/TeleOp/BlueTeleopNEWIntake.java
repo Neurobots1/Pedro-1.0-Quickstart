@@ -136,10 +136,11 @@ public class BlueTeleopNEWIntake extends OpMode {
 
         switch (intakeState) {
 
-            case INTAKE_DUMP:
+
+            case INTAKE_START:
 
                 break;
-            case INTAKE_START:
+            case INTAKE_DUMP:
 
                 break;
             case INTAKE_EXTEND:
