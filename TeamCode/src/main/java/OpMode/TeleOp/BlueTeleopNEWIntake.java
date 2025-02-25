@@ -8,6 +8,7 @@ import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,19 +22,21 @@ import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
 import OpMode.Subsystems.LinkageController;
 import OpMode.Subsystems.ViperSlides;
-import OpMode.Subsystems.ColorSensor; // Corrected import
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
-@TeleOp(name = "BlueTeleop", group = "Active")
+@TeleOp(name = "BlueTeleopNEWIntake", group = "Active")
 public class BlueTeleopNEWIntake extends OpMode {
 
     public enum IntakeState {
         INTAKE_START,
         INTAKE_EXTEND,
-        INTAKE_DUMP,
-        INTAKE_RETRACT
+        INTAKE_OUTTAKE,
+        INTAKE_HUMAIN,
+        INTAKE_BLOCK,
+
+        INTAKE_WAITFORBLOCK
 
     };
 
@@ -66,7 +69,9 @@ public class BlueTeleopNEWIntake extends OpMode {
     private DcMotor intakemotor;
     private IntakeMotor intakeMotor;
     private DcMotor extendoMotor;
-    private ColorSensor colorSensor; // Corrected class usage
+    private ColorSensor colorSensor;
+    private GamePieceDetection gamePieceDetection;;
+
 
     private boolean hasRumbled = false;
     private ElapsedTime loopTimer;
@@ -86,7 +91,7 @@ public class BlueTeleopNEWIntake extends OpMode {
         intakeTimer.reset();
 
         // Corrected Color Sensor Initialization
-        colorSensor = new ColorSensor(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
+        gamePieceDetection = new GamePieceDetection(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
 
         // Initialize Viper Slide
         viperSlides = new ViperSlides(
@@ -100,6 +105,7 @@ public class BlueTeleopNEWIntake extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
+        follower.startTeleopDrive();
 
         // Initialize Dashboard
         dashboard = FtcDashboard.getInstance();
@@ -138,17 +144,54 @@ public class BlueTeleopNEWIntake extends OpMode {
 
 
             case INTAKE_START:
-
+               linkageController.setPosition(LinkageController.Position.RETRACTED);
+               intakeMotor.stop();
+               intakeServos.transferPosition();
+                intakeState = IntakeState.INTAKE_EXTEND;
                 break;
-            case INTAKE_DUMP:
 
-                break;
             case INTAKE_EXTEND:
+                linkageController.setPosition(LinkageController.Position.EXTENDED);
+                if (intakeTimer.seconds()>2){
+                    intakeServos.intakePosition();
+                    intakeMotor.intake();
+                    intakeTimer.reset();
+                    intakeState = IntakeState.INTAKE_WAITFORBLOCK;
+                }
 
                 break;
-            case INTAKE_RETRACT:
+
+            case INTAKE_WAITFORBLOCK:
+                gamePieceDetection.detectColor();
+
+                String detectedColor = gamePieceDetection.getDetectedColor();
+
+                if (detectedColor.equals("Blue") || detectedColor.equals("Yellow")){
+                    intakeMotor.stop();
+                    intakeServos.transferPosition();
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    intakeTimer.reset();
+
+                    if (gamepad1.right_bumper){
+                        intakeState = IntakeState.INTAKE_HUMAIN;
+                    } else if (gamepad1.left_bumper) {
+                        intakeState = IntakeState.INTAKE_BLOCK;
+                    }
+                }
 
                 break;
+
+
+            case INTAKE_HUMAIN:
+                intakeMotor.outtake();
+                intakeState = IntakeState.INTAKE_START;
+                break;
+
+            case INTAKE_BLOCK:
+                intakeMotor.intake();
+                intakeState = IntakeState.INTAKE_START;
+                break;
+
             default:
                 // should never be reached, as intakeState should never be null
                 intakeState = IntakeState.INTAKE_START;
@@ -167,8 +210,8 @@ public class BlueTeleopNEWIntake extends OpMode {
         follower.update();
 
         // Update Color Sensor
-        colorSensor.update();
-        String detectedColor = colorSensor.getDetectedColor();
+        gamePieceDetection.detectColor();
+        String detectedColor = gamePieceDetection.getDetectedColor();
 
         // Rumble for Blue Detection
         if ((detectedColor.equals("Blue") && !hasRumbled)) {
@@ -177,70 +220,6 @@ public class BlueTeleopNEWIntake extends OpMode {
         }
         if (!detectedColor.equals("Blue") && !detectedColor.equals("Yellow")) {
             hasRumbled = false;
-        }
-
-        // Opponent Color Detection (e.g., Red)
-        if (detectedColor.equals("Red")) {
-            intakeMotor.outtake();
-        } else if (gamepad1.left_bumper) {
-            intakeMotor.intake();
-        } else if (gamepad1.right_bumper) {
-            intakeMotor.outtake();
-        } else {
-            intakeMotor.stop();
-        }
-
-        // Rising edge detection for left trigger to toggle claw
-        currentLeftTriggerState = gamepad1.left_trigger > 0.5;
-        if (currentLeftTriggerState && !previousLeftTriggerState) {
-            // Toggle claw position on rising edge
-            if (isClawOpen) {
-                clawServo.closedPosition();
-            } else {
-                clawServo.openPosition();
-            }
-            isClawOpen = !isClawOpen;
-        }
-        previousLeftTriggerState = currentLeftTriggerState;
-
-        // Bucket Servo Control Based on Slide Position and Right Trigger
-        if (viperSlides.getSlidePositionRight() > 1300) {
-            if (gamepad1.right_trigger > 0.1) {
-                bucketServos.depositPosition();
-            } else {
-                bucketServos.transferPosition();
-            }
-        } else {
-            bucketServos.transferPosition();
-        }
-
-        // Linkage Control
-        if (gamepad1.dpad_up) {
-            linkageController.setPosition(LinkageController.Position.EXTENDED);
-            waitingForExtension = true;
-        } else if (gamepad1.dpad_down) {
-            if (intakeServos.isTransferPosition()) {
-                linkageController.setPosition(LinkageController.Position.RETRACTED);
-            } else {
-                telemetry.addData("Warning", "Cannot retract linkage until intake servos are in transfer position!");
-            }
-        } else if (gamepad1.dpad_right) {
-            if (linkageController.isExtended()) {
-                intakeServos.intakePosition();
-            } else {
-                telemetry.addData("Warning", "Cannot move intake servos to intake position while linkage is retracted!");
-            }
-        } else if (gamepad1.dpad_left) {
-            intakeServos.transferPosition();
-        } else if (gamepad1.right_stick_button) {
-            intakeServos.neutralPosition();
-        }
-
-        if (waitingForExtension) {
-            if (linkageController.isExtended()) {
-                intakeServos.neutralPosition();
-                waitingForExtension = false;
-            }
         }
 
         linkageController.checkForAmperageSpike();

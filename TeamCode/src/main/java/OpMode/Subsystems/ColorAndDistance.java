@@ -2,20 +2,17 @@ package OpMode.Subsystems;
 
 import android.graphics.Color;
 
-import androidx.annotation.ColorInt;
-
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-public class ColorSensor {
+public class ColorAndDistance{
     private RevColorSensorV3 colorSensor;
     private String detectedColor = "None";
     private boolean objectDetected = false;
 
-    public ColorSensor(RevColorSensorV3 colorSensor) {
+    public ColorAndDistance(RevColorSensorV3 colorSensor) {
         this.colorSensor = colorSensor;
     }
 
