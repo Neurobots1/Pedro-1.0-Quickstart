@@ -32,7 +32,7 @@ public class BlueTeleopNEWIntake extends OpMode {
     public enum IntakeState {
         INTAKE_START,
         INTAKE_EXTEND,
-        INTAKE_OUTTAKE,
+        INTAKE_RETRACT,
         INTAKE_HUMAIN,
         INTAKE_BLOCK,
 
@@ -155,7 +155,7 @@ public class BlueTeleopNEWIntake extends OpMode {
 
             case INTAKE_EXTEND:
                 linkageController.setPosition(LinkageController.Position.EXTENDED);
-                if (intakeTimer.seconds()>2){
+                if (intakeTimer.seconds()>1){
                     intakeServos.intakePosition();
                     intakeMotor.intake();
                     intakeTimer.reset();
@@ -171,21 +171,26 @@ public class BlueTeleopNEWIntake extends OpMode {
 
                 if (detectedColor.equals("Blue") || detectedColor.equals("Yellow")){
                     intakeMotor.stop();
-                    intakeTimer.reset();
                     intakeServos.transferPosition();
-                    if (intakeTimer.seconds()>2) {
-                        linkageController.setPosition(LinkageController.Position.RETRACTED);
-                    }
-
-                    if (gamepad1.right_bumper){
-                        intakeState = IntakeState.INTAKE_HUMAIN;
-                    } else if (gamepad1.left_bumper) {
-                        intakeState = IntakeState.INTAKE_BLOCK;
-                    }
+                    intakeTimer.reset();
+                    intakeState = IntakeState.INTAKE_RETRACT;
                 }
 
                 break;
 
+            case INTAKE_RETRACT:
+                if (intakeTimer.seconds()>1) {
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                }
+                if (gamepad1.right_bumper){
+                    intakeTimer.reset();
+                    intakeState = IntakeState.INTAKE_HUMAIN;
+                } else if (gamepad1.left_bumper) {
+                    intakeTimer.reset();
+                    intakeState = IntakeState.INTAKE_BLOCK;
+
+                }
+                break;
 
             case INTAKE_HUMAIN:
                 intakeMotor.outtake();
