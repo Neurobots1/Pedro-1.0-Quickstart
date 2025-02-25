@@ -147,7 +147,10 @@ public class BlueTeleopNEWIntake extends OpMode {
                linkageController.setPosition(LinkageController.Position.RETRACTED);
                intakeMotor.stop();
                intakeServos.transferPosition();
-                intakeState = IntakeState.INTAKE_EXTEND;
+               intakeTimer.reset();
+               if (gamepad1.dpad_up) {
+                   intakeState = IntakeState.INTAKE_EXTEND;
+               }
                 break;
 
             case INTAKE_EXTEND:
@@ -168,9 +171,11 @@ public class BlueTeleopNEWIntake extends OpMode {
 
                 if (detectedColor.equals("Blue") || detectedColor.equals("Yellow")){
                     intakeMotor.stop();
-                    intakeServos.transferPosition();
-                    linkageController.setPosition(LinkageController.Position.RETRACTED);
                     intakeTimer.reset();
+                    intakeServos.transferPosition();
+                    if (intakeTimer.seconds()>2) {
+                        linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    }
 
                     if (gamepad1.right_bumper){
                         intakeState = IntakeState.INTAKE_HUMAIN;
