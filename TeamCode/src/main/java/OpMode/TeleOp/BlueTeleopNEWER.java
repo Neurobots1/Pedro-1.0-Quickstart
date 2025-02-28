@@ -17,9 +17,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
+import OpMode.Subsystems.ColorAndDistance;
 import OpMode.Subsystems.GamePieceDetection;
 import OpMode.Subsystems.IntakeMotor;
-import OpMode.Subsystems.IntakeServos;
 import OpMode.Subsystems.IntakeServosNEW;
 import OpMode.Subsystems.LinkageController;
 import OpMode.Subsystems.ViperSlides;
@@ -27,15 +27,15 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
-@TeleOp(name = "BlueTeleopNEWIntake", group = "Active")
-public class BlueTeleopNEWIntake extends OpMode {
+@TeleOp(name = "BlueTeleopNEWER", group = "Active")
+public class BlueTeleopNEWER extends OpMode {
 
     public enum IntakeState {
         INTAKE_START,
         INTAKE_EXTEND,
         INTAKE_RETRACT,
-        INTAKE_HUMAIN,
-        INTAKE_BLOCK,
+        OUTAKE_HUMAIN,
+        OUTAKE_BLOCK,
 
         INTAKE_WAITFORBLOCK
 
@@ -50,7 +50,7 @@ public class BlueTeleopNEWIntake extends OpMode {
     private ViperSlides viperSlides;
     // PedroPathing Teleop
     private Follower follower;
-    private final Pose startPose = new Pose(0, 0, 0);
+    private final Pose startPose = new Pose(0, 0, 90);
     private FtcDashboard dashboard;
 
     // REV Touch Sensor (Limit Switch)
@@ -71,7 +71,7 @@ public class BlueTeleopNEWIntake extends OpMode {
     private IntakeMotor intakeMotor;
     private DcMotor extendoMotor;
     private ColorSensor colorSensor;
-    private GamePieceDetection gamePieceDetection;
+    private ColorAndDistance colorAndDistance;
 
 
     private boolean hasRumbled = false;
@@ -92,7 +92,7 @@ public class BlueTeleopNEWIntake extends OpMode {
         intakeTimer.reset();
 
         // Corrected Color Sensor Initialization
-        gamePieceDetection = new GamePieceDetection(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
+        colorAndDistance = new ColorAndDistance(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
 
         // Initialize Viper Slide
         viperSlides = new ViperSlides(
@@ -157,8 +157,8 @@ public class BlueTeleopNEWIntake extends OpMode {
             case INTAKE_EXTEND:
                 linkageController.setPosition(LinkageController.Position.EXTENDED);
                 if (intakeTimer.seconds()>1){
-                    intakeServos.intakePosition();
                     intakeMotor.intake();
+                    intakeServos.intakePosition();
                     intakeTimer.reset();
                     intakeState = IntakeState.INTAKE_WAITFORBLOCK;
                 }
@@ -166,9 +166,9 @@ public class BlueTeleopNEWIntake extends OpMode {
                 break;
 
             case INTAKE_WAITFORBLOCK:
-                gamePieceDetection.detectColor();
+                colorAndDistance.update();
 
-                String detectedColor = gamePieceDetection.getDetectedColor();
+                String detectedColor = colorAndDistance.getDetectedColor();
 
                 if (detectedColor.equals("Blue") || detectedColor.equals("Yellow")){
                     intakeMotor.stop();
@@ -181,15 +181,14 @@ public class BlueTeleopNEWIntake extends OpMode {
                 break;
 
             case INTAKE_RETRACT:
-                if (intakeTimer.seconds()>1) {
-                    linkageController.setPosition(LinkageController.Position.RETRACTED);
-                }
+                linkageController.setPosition(LinkageController.Position.RETRACTED);
+
                 if (gamepad1.right_bumper){
                     intakeTimer.reset();
-                    intakeState = IntakeState.INTAKE_HUMAIN;
+                    intakeState = IntakeState.OUTAKE_HUMAIN;
                 } else if (gamepad1.left_bumper) {
                     intakeTimer.reset();
-                    intakeState = IntakeState.INTAKE_BLOCK;
+                    intakeState = IntakeState.OUTAKE_BLOCK;
 
                 }
 
@@ -199,30 +198,32 @@ public class BlueTeleopNEWIntake extends OpMode {
 
                 break;
 
-            case INTAKE_HUMAIN:
-                gamePieceDetection.detectColor();
-
-                String detectedColor1 = gamePieceDetection.getDetectedColor();
-
-                if (detectedColor1.equals("Blue")||detectedColor1.equals("Yellow")) {
-                    intakeMotor.outtake();
+            case OUTAKE_HUMAIN:
+                colorAndDistance.update();
+                if (intakeTimer.seconds()<1.5 ){
+                   intakeMotor.outtake();
                 }
-                if (detectedColor1.equals("None")) {
+
+                if (intakeTimer.seconds()>1.5){
                     intakeState = IntakeState.INTAKE_START;
                 }
+
+
+
+
                 break;
 
-            case INTAKE_BLOCK:
-                gamePieceDetection.detectColor();
-
-                String detectedColor2 = gamePieceDetection.getDetectedColor();
-
-                if (detectedColor2.equals("Blue")||detectedColor2.equals("Yellow")) {
+            case OUTAKE_BLOCK:
+                if (intakeTimer.seconds()<1.5){
                     intakeMotor.intake();
+
                 }
-                if (detectedColor2.equals("None")) {
+
+                if (intakeTimer.seconds()>1.5){
                     intakeState = IntakeState.INTAKE_START;
+
                 }
+
 
                 break;
 
@@ -244,8 +245,9 @@ public class BlueTeleopNEWIntake extends OpMode {
         follower.update();
 
         // Update Color Sensor
-        gamePieceDetection.detectColor();
-        String detectedColor = gamePieceDetection.getDetectedColor();
+        colorAndDistance.update();
+
+        String detectedColor = colorAndDistance.getDetectedColor();
 
         // Rumble for Blue Detection
         if ((detectedColor.equals("Blue") && !hasRumbled)) {
@@ -266,9 +268,19 @@ public class BlueTeleopNEWIntake extends OpMode {
             bucketServos.transferPosition();       // If the slide position is not less than -1950, set bucket to transfer position
         }
 
-        if (gamepad1.touchpad){
-            viperSlides.setTarget(ViperSlides.Target.LEVEL1);
+        currentLeftTriggerState = gamepad1.left_trigger > 0.5;  // Detect if the left trigger is pressed
+        if (currentLeftTriggerState && !previousLeftTriggerState) {  // Rising edge
+            // Toggle claw position on rising edge
+            if (isClawOpen) {
+                clawServo.closedPosition();  // Close the claw
+            } else {
+                clawServo.openPosition();  // Open the claw
+            }
+            // Flip the claw state
+            isClawOpen = !isClawOpen;
         }
+        previousLeftTriggerState = currentLeftTriggerState;
+
 
 
 
@@ -298,6 +310,10 @@ public class BlueTeleopNEWIntake extends OpMode {
 
         }
 
+        if (gamepad1.touchpad){
+            viperSlides.setTarget(ViperSlides.Target.LEVEL1);
+        }
+
         // Home Slides
         if (gamepad1.options) {
             viperSlides.setPIDEnabled(false);
@@ -322,7 +338,7 @@ public class BlueTeleopNEWIntake extends OpMode {
         telemetry.addData("Slide Position Left", viperSlides.getSlidePositionLeft());
         telemetry.addData("Slide Position Right", viperSlides.getSlidePositionRight());
         telemetry.addData("Slide Target", viperSlides.getTarget());
-        telemetry.addData("Detected Color", detectedColor);
+        telemetry.addData("Detected Color", colorAndDistance.getDetectedColor());
         //
         telemetry.addData("Current Position", linkageController.getCurrentPosition());
         telemetry.addData("Target Position", linkageController.getTargetPosition());

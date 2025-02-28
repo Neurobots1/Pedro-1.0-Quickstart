@@ -19,8 +19,7 @@ public class IntakeServos {
 
     // Method to move both servos to the Transfer Position
     public void intakePosition() {
-        IntakeServoRight.setPosition(0.25
-        );  // Set to maximum after scaling
+        IntakeServoRight.setPosition(0.25);  // Set to maximum after scaling
         //IntakeServoLeft.setPosition(0.9);   // Set to maximum after scaling
     }
 

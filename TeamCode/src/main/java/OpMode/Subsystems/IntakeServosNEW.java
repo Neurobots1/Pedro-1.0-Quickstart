@@ -13,19 +13,24 @@ public class IntakeServosNEW {
         this.IntakeServoLeft = leftServo;
 
         // Scale the servos' range during initialization
-        IntakeServoRight.scaleRange(0.5, 1);  // Scale for ExtendoServoRight (reversed) ( change this for adjustments )
+        IntakeServoRight.scaleRange(0, 0.5);  // Scale for ExtendoServoRight (reversed) ( change this for adjustments )
         //IntakeServoLeft.scaleRange(0, 1);   // Scale for ExtendoServoLeft (non-reversed) ( change this for adjustments )
     }
 
     // Method to move both servos to the Transfer Position
     public void intakePosition() {
-        IntakeServoRight.setPosition(0);  // Set to maximum after scaling
+        IntakeServoRight.setPosition(1);  // Set to maximum after scaling
         //IntakeServoLeft.setPosition(0.9);   // Set to maximum after scaling
     }
 
     // Method to move both servos to the IntakeBoolean Position
     public void transferPosition() {
-        IntakeServoRight.setPosition(1);  // Set to minimum after scaling
+        IntakeServoRight.setPosition(0.1);  // Set to minimum after scaling
+        //IntakeServoLeft.setPosition(0.0);   // Set to minimum after scaling
+    }
+
+    public void neutralPosition() {
+        IntakeServoRight.setPosition(0.5);  // Set to minimum after scaling
         //IntakeServoLeft.setPosition(0.0);   // Set to minimum after scaling
     }
 

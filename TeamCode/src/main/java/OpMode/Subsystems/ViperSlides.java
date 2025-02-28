@@ -12,7 +12,7 @@ public class ViperSlides {
         LOW(1400),
         MEDIUM(1900),
         HIGH(2950),
-        LEVEL1(1000);
+        LEVEL1(1200);
 
         private final int position;
 

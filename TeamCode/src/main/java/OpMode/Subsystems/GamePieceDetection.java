@@ -10,7 +10,7 @@ public class GamePieceDetection {
     private ColorSensor colorSensor;
 
     // A queue to store the last 50 readings for averaging
-    private static final int MAX_READINGS = 50;
+    private static final int MAX_READINGS = 20;
     private Queue<Integer> redQueue = new LinkedList<>();
     private Queue<Integer> greenQueue = new LinkedList<>();
     private Queue<Integer> blueQueue = new LinkedList<>();

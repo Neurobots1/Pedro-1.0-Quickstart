@@ -17,7 +17,7 @@ public class BucketServos {
     }
 
     public void transferPosition() {
-        bucketServoRight.setPosition(1);   // Transfer position for right servo
+        bucketServoRight.setPosition(0.9);   // Transfer position for right servo
         //bucketServoLeft.setPosition(1);    // Transfer position for left servo
     }
 

@@ -16,14 +16,16 @@ public class ColorAndDistance{
         this.colorSensor = colorSensor;
     }
 
+
+
     public void update() {
         double distance = colorSensor.getDistance(DistanceUnit.MM);
-        objectDetected = distance < 10;
+        objectDetected = distance < 20;
 
-        if (!objectDetected) {
-            detectedColor = "None";
+          /* if (!objectDetected) {
+            detectedColor = "Undetermined";
             return;
-        }
+        } */
 
 
         NormalizedRGBA colors = colorSensor.getNormalizedColors();
@@ -41,15 +43,12 @@ public class ColorAndDistance{
     }
 
     private String determineColor(float hue, float saturation, float value) {
-        if (saturation < 0.2) { // Optional filter to remove weak colors
-            return "None";
-        }
 
-        if (hue >= 20 && hue < 40) {
+        if (hue >= 20 && hue < 55) {
             return "Red"; // about 30
-        } else if (hue >= 210 && hue < 240) {
+        } else if (hue >= 200 && hue < 240) {
             return "Blue"; // about 225
-        } else if (hue >= 50 && hue < 70) {
+        } else if (hue >= 60 && hue < 100) {
             return "Yellow"; // about 60
         }
 
