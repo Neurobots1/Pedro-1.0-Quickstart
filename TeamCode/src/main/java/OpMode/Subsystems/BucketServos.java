@@ -12,7 +12,7 @@ public class BucketServos {
         this.bucketServoLeft = leftServo;
 
         // Scale the servos' range during initialization
-        bucketServoRight.scaleRange(0.2, 0.8);  // Adjust range for right servo
+        bucketServoRight.scaleRange(0.1, 0.8);  // Adjust range for right servo
         //bucketServoLeft.scaleRange(0, 1);   // Adjust range for left servo
     }
 

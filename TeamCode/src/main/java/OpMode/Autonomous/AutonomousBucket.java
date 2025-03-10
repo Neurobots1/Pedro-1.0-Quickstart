@@ -10,8 +10,10 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -20,6 +22,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
+import OpMode.Subsystems.ColorAndDistance;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
 import OpMode.Subsystems.LinkageController;
@@ -49,6 +52,9 @@ public class AutonomousBucket extends OpMode {
 
 
     private Servo bucketServoRight;
+    private ColorSensor colorSensor;
+    private ColorAndDistance colorAndDistance;
+
     private Servo bucketServoLeft;
     private BucketServos bucketServos;
 
@@ -71,16 +77,16 @@ public class AutonomousBucket extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
-    private final Pose bucketPose = new Pose(11, 128, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(32, 119 , Math.toRadians(-11));
-    private final Pose blockPose2 = new Pose(30, 129, Math.toRadians(-4));
-    private final Pose blockPose3 = new Pose(34, 126, Math.toRadians(60));
-    private final Pose endPose = new Pose(60, 92, Math.toRadians(90));
+    private final Pose bucketPose = new Pose(18, 126, Math.toRadians(315));
+    private final Pose blockPose1 = new Pose(25, 121, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(25, 131, Math.toRadians(0));
+    private final Pose blockPose3 = new Pose(35, 126, Math.toRadians(57));
+    private final Pose endPose = new Pose(60, 96, Math.toRadians(90));
 
 
 
     //controle point
-    private final Pose endPoseControlPoint = new Pose(66,135);
+    private final Pose endPoseControlPoint = new Pose(60,124);
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload, park;
@@ -103,7 +109,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(bucketPose),
                         new Point(blockPose1)
                 ))
-                .setConstantHeadingInterpolation( Math.toRadians(-11))
+                .setConstantHeadingInterpolation( Math.toRadians(0))
                 .build();
         // Push first block to zone
         bucketPath1 = follower.pathBuilder()
@@ -111,7 +117,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(blockPose1),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-26), Math.toRadians(315))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(315))
                 .build();
         // Curve behind second block
         blockPath2 = follower.pathBuilder()
@@ -135,7 +141,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(bucketPose),
                         new Point(blockPose3)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(33), Math.toRadians(60))
+                .setLinearHeadingInterpolation(Math.toRadians(315), Math.toRadians(57))
                 .build();
         // Wall to score pose 2
         bucketPath3 = follower.pathBuilder()
@@ -143,7 +149,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(blockPose3),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(60), Math.toRadians(315))
+                .setLinearHeadingInterpolation(Math.toRadians(57), Math.toRadians(315))
                 .build();
         // Score pose 2 to wall
         endPath = follower.pathBuilder()
@@ -152,7 +158,7 @@ public class AutonomousBucket extends OpMode {
                         new Point(endPoseControlPoint),
                         new Point(endPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(315), Math.toRadians(92))
+                .setLinearHeadingInterpolation(Math.toRadians(315), Math.toRadians(90))
                 .build();
 
 
@@ -188,7 +194,6 @@ public class AutonomousBucket extends OpMode {
 
                     if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 3.6) {
                         linkageController.setPosition(LinkageController.Position.EXTENDED);
-                        intakeServos.intakePosition();
                     }
 
                     if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4.5) {
@@ -197,6 +202,7 @@ public class AutonomousBucket extends OpMode {
 
 
                     if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 5.5) {
+                        follower.followPath(blockPath1);
                         setPathState(2);
                         pathTimer.resetTimer();
 
@@ -206,16 +212,20 @@ public class AutonomousBucket extends OpMode {
                 break;
 
             case 2:
-                if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
-                    follower.followPath(blockPath1);
+                if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2) {
                     intakeMotor.intake();
                 }
+                if (pathTimer.getElapsedTimeSeconds()>0 && pathTimer.getElapsedTimeSeconds()<0.1){
+                    intakeServos.intakePosition();
+                }
 
-                if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 3.1) {
+                if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds() <2.1) {
+                    intakeMotor.stop();
                     setPathState(3);
                     pathTimer.resetTimer();
                 }
                 break;
+
             case 3:
 
                 if (!follower.isBusy()) {
@@ -230,7 +240,7 @@ public class AutonomousBucket extends OpMode {
             case 4:
                 if (!follower.isBusy()) {
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
                         intakeServos.transferPosition();
 
                     }
@@ -239,16 +249,15 @@ public class AutonomousBucket extends OpMode {
 
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 1.4 && pathTimer.getElapsedTimeSeconds() < 3) {
-                        intakeMotor.outtake();
+                    if (pathTimer.getElapsedTimeSeconds() > 1.4 && pathTimer.getElapsedTimeSeconds() < 1.7) {
+                        intakeMotor.intake();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2.4 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.7 && pathTimer.getElapsedTimeSeconds() < 1.7) {
                         intakeMotor.stop();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2.4
-                            && pathTimer.getElapsedTimeSeconds() < 5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.7 && pathTimer.getElapsedTimeSeconds() < 1.8) {
                         pathTimer.resetTimer();
                         setPathState(5);
 
@@ -271,23 +280,22 @@ public class AutonomousBucket extends OpMode {
             case 6: //
                 if (!follower.isBusy()) {
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2.0) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
                         bucketServos.depositPosition();
 
+
                     }
 
-
-                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 3.6) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
                         linkageController.setPosition(LinkageController.Position.EXTENDED);
-                        intakeServos.intakePosition();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.2 && pathTimer.getElapsedTimeSeconds() < 0.3) {
                         bucketServos.transferPosition();
                     }
 
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 0.6) {
                         setPathState(7);
                         pathTimer.resetTimer();
 
@@ -299,10 +307,16 @@ public class AutonomousBucket extends OpMode {
             case 7: //
                 if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
                     follower.followPath(blockPath2);
+                }
+                if (pathTimer.getElapsedTimeSeconds()>0.1 && pathTimer.getElapsedTimeSeconds()<2){
                     intakeMotor.intake();
                 }
+                if (pathTimer.getElapsedTimeSeconds()>0.1 && pathTimer.getElapsedTimeSeconds()<0.2){
+                    intakeServos.intakePosition();
+                }
 
-                if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 3.1) {
+                if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.1) {
+                    intakeMotor.stop();
                     setPathState(8);
                     pathTimer.resetTimer();
                 }
@@ -319,24 +333,24 @@ public class AutonomousBucket extends OpMode {
             case 9: //
                 if (!follower.isBusy()) {
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
                         intakeServos.transferPosition();
 
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 1.3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
                         linkageController.setPosition(LinkageController.Position.RETRACTED);
 
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 1.4 && pathTimer.getElapsedTimeSeconds() < 3) {
-                        intakeMotor.outtake();
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 1.2) {
+                        intakeMotor.intake();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2.4 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.2 && pathTimer.getElapsedTimeSeconds() < 1.3) {
                         intakeMotor.stop();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2.4 && pathTimer.getElapsedTimeSeconds() < 5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.3 && pathTimer.getElapsedTimeSeconds() < 1.4) {
                         pathTimer.resetTimer();
                         setPathState(10);
 
@@ -356,16 +370,13 @@ public class AutonomousBucket extends OpMode {
 
                 case 12:
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
                         bucketServos.depositPosition();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
                         linkageController.setPosition(LinkageController.Position.EXTENDED);
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && pathTimer.getElapsedTimeSeconds() < 3) {
-                        intakeServos.intakePosition();
-                    }
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 0.6) {
                         pathTimer.resetTimer();
                         setPathState(13);
 
@@ -376,11 +387,19 @@ public class AutonomousBucket extends OpMode {
             case 13: //
                 if (!follower.isBusy()) {
                     follower.followPath(blockPath3, 0.6, true);
-
                     bucketServos.transferPosition();
-                    intakeMotor.intake();
-                    pathTimer.resetTimer();
-                    setPathState(14);
+
+                    if (pathTimer.getElapsedTimeSeconds()>1 && pathTimer.getElapsedTimeSeconds()<1.1){
+                        intakeServos.intakePosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds()>1.1 && pathTimer.getElapsedTimeSeconds()<2){
+                        intakeMotor.intake();
+                    }
+
+                    if(pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds()<2.1) {
+                        pathTimer.resetTimer();
+                        setPathState(14);
+                    }
                 }
 
 
@@ -519,6 +538,7 @@ public class AutonomousBucket extends OpMode {
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
         intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
+        colorAndDistance = new ColorAndDistance(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
         intakeServos.transferPosition(); // Set intake servos to transfer position
         //Linkage
         linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
