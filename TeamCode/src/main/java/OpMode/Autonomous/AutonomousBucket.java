@@ -416,7 +416,7 @@ public class AutonomousBucket extends OpMode {
             case 15:
                 if (!follower.isBusy()) {
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
                         intakeServos.transferPosition();
 
                     }
