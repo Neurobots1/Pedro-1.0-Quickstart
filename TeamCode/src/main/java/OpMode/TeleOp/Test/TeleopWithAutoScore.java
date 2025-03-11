@@ -25,6 +25,7 @@ public class TeleopWithAutoScore extends OpMode {
 
     private boolean isAuto = false;
     private boolean hasScored = false;
+    private boolean isMovingToBucket = false; // Tracks if the robot is moving towards the bucket
 
     /** This method is called once when init is pressed **/
     @Override
@@ -58,7 +59,7 @@ public class TeleopWithAutoScore extends OpMode {
             }
         } else {
             // If in auto mode and robot has finished moving, proceed to scoring
-            if (!follower.isBusy()) {
+            if (isMovingToBucket && !follower.isBusy()) {
                 scoreItem();
             }
         }
@@ -77,6 +78,7 @@ public class TeleopWithAutoScore extends OpMode {
     private void startScoringSequence() {
         isAuto = true;
         hasScored = false;
+        isMovingToBucket = true; // Set flag to indicate robot is moving
 
         // Move to the bucketPose
         PathChain moveToBucket = follower.pathBuilder()
@@ -94,6 +96,7 @@ public class TeleopWithAutoScore extends OpMode {
     private void scoreItem() {
         // Simulated scoring action (e.g., opening a claw)
         hasScored = true;
+        isMovingToBucket = false; // Reset movement flag
 
         // Exit auto mode and return to manual control
         isAuto = false;
