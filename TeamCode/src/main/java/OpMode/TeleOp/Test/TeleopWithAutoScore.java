@@ -13,13 +13,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+
 /**
- * TeleOp that allows manual driving and auto-scoring without odometry resets.
+ * Teleop with automatic scoring using existing odometry (No Odometry Reset).
  */
-@TeleOp(name = "TeleOp with Auto Scoring (No Odometry Reset)", group = "Examples")
+@TeleOp(name = "Teleop with Auto Scoring (No Sensors)", group = "Examples")
 public class TeleopWithAutoScore extends OpMode {
     private Follower follower;
-    private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
+    private final Pose startPose = new Pose(0, 0, 0);
     private final Pose bucketPose = new Pose(11, 128, Math.toRadians(315)); // Target scoring pose
 
     private boolean isAuto = false;
@@ -39,7 +40,7 @@ public class TeleopWithAutoScore extends OpMode {
         follower.startTeleopDrive();
     }
 
-    /** Main loop of the OpMode **/
+    /** This is the main loop of the opmode and runs continuously after play **/
     @Override
     public void loop() {
         if (!isAuto) {
@@ -51,9 +52,14 @@ public class TeleopWithAutoScore extends OpMode {
                     true
             );
 
-            // Press "A" to start auto-scoring
+            // Press "A" to start the scoring sequence
             if (gamepad1.a) {
                 startScoringSequence();
+            }
+        } else {
+            // If in auto mode and robot has finished moving, proceed to scoring
+            if (!follower.isBusy()) {
+                scoreItem();
             }
         }
 
@@ -62,7 +68,7 @@ public class TeleopWithAutoScore extends OpMode {
         // Telemetry
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
-        telemetry.addData("Heading (Degrees)", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
         telemetry.addData("Is Auto Aligning", isAuto);
         telemetry.addData("Has Scored", hasScored);
         telemetry.update();
@@ -72,7 +78,7 @@ public class TeleopWithAutoScore extends OpMode {
         isAuto = true;
         hasScored = false;
 
-        // Create path to the bucket
+        // Move to the bucketPose
         PathChain moveToBucket = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(follower.getPose()),
@@ -83,14 +89,14 @@ public class TeleopWithAutoScore extends OpMode {
                 .build();
 
         follower.followPath(moveToBucket);
-
-        // After path completes, simulate scoring
     }
 
     private void scoreItem() {
-        // Simulated scoring action (e.g., opening claw)
+        // Simulated scoring action (e.g., opening a claw)
         hasScored = true;
-        isAuto = false; // Return to manual control
+
+        // Exit auto mode and return to manual control
+        isAuto = false;
     }
 
     /** This method stops the robot **/

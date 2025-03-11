@@ -25,13 +25,14 @@ import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
+import OpMode.Subsystems.IntakeServosNEW;
 import OpMode.Subsystems.LinkageController;
 import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "AutonomousBucket", group = "Autonomous")
-public class AutonomousBucket extends OpMode {
+@Autonomous(name = "AutonomousNewBucket", group = "Autonomous")
+public class AutonomousNewBucket extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -47,7 +48,7 @@ public class AutonomousBucket extends OpMode {
     // Servos
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
-    private IntakeServos intakeServos; // IntakeBoolean subsystem instance
+    private IntakeServosNEW intakeServos; // IntakeBoolean subsystem instance
     private ClawServo clawServo;
 
 
@@ -212,6 +213,10 @@ public class AutonomousBucket extends OpMode {
                 break;
 
             case 2:
+                colorAndDistance.update();
+
+                String detectedColor = colorAndDistance.getDetectedColor();
+
                 if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2) {
                     intakeMotor.intake();
                 }
@@ -219,7 +224,7 @@ public class AutonomousBucket extends OpMode {
                     intakeServos.intakePosition();
                 }
 
-                if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds() <2.1) {
+                if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds() <2.1 || detectedColor.equals("Yellow")  ) {
                     intakeMotor.stop();
                     setPathState(3);
                     pathTimer.resetTimer();
@@ -305,6 +310,10 @@ public class AutonomousBucket extends OpMode {
                 break;
 
             case 7: //
+                colorAndDistance.update();
+
+                detectedColor = colorAndDistance.getDetectedColor();
+
                 if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
                     follower.followPath(blockPath2);
                 }
@@ -315,7 +324,7 @@ public class AutonomousBucket extends OpMode {
                     intakeServos.intakePosition();
                 }
 
-                if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.1) {
+                if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.1 || detectedColor.equals("Yellow")) {
                     intakeMotor.stop();
                     setPathState(8);
                     pathTimer.resetTimer();
@@ -337,13 +346,13 @@ public class AutonomousBucket extends OpMode {
                         linkageController.setPosition(LinkageController.Position.RETRACTED);
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 0.6) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
                         intakeServos.transferPosition();
 
                     }
 
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.4 && pathTimer.getElapsedTimeSeconds() < 1.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 1.5) {
                         intakeMotor.intake();
                     }
 
@@ -387,6 +396,10 @@ public class AutonomousBucket extends OpMode {
 
             case 13: //
                 if (!follower.isBusy()) {
+                    colorAndDistance.update();
+
+                    detectedColor = colorAndDistance.getDetectedColor();
+
                     follower.followPath(blockPath3, 0.6, true);
                     bucketServos.transferPosition();
 
@@ -397,7 +410,8 @@ public class AutonomousBucket extends OpMode {
                         intakeMotor.intake();
                     }
 
-                    if(pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds()<2.1) {
+                    if(pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds()<2.1 || detectedColor.equals("Yellow")) {
+                        intakeMotor.stop();
                         pathTimer.resetTimer();
                         setPathState(14);
                     }
@@ -421,20 +435,20 @@ public class AutonomousBucket extends OpMode {
                         intakeServos.transferPosition();
 
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 1.3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
                         linkageController.setPosition(LinkageController.Position.RETRACTED);
 
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 1.4 && pathTimer.getElapsedTimeSeconds() < 3) {
-                        intakeMotor.outtake();
+                    if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 1.5) {
+                        intakeMotor.intake();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2.4 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && pathTimer.getElapsedTimeSeconds() < 1.6) {
                         intakeMotor.stop();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2.4 && pathTimer.getElapsedTimeSeconds() < 5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.6 && pathTimer.getElapsedTimeSeconds() < 1.7) {
                         pathTimer.resetTimer();
                         setPathState(16);
 
@@ -537,7 +551,7 @@ public class AutonomousBucket extends OpMode {
 
         intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
-        intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
+        intakeServos = new IntakeServosNEW(intakeServoRight , intakeServoLeft);
         intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
         colorAndDistance = new ColorAndDistance(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
         intakeServos.transferPosition(); // Set intake servos to transfer position
