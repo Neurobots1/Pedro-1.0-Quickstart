@@ -1,6 +1,7 @@
 package OpMode.Autonomous;
 
 
+import com.google.blocks.ftcrobotcontroller.runtime.Block;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -91,7 +92,7 @@ public class AutonomousNewBucket extends OpMode {
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload, park;
-    private PathChain startPath, blockPath1, bucketPath1, blockPath2, bucketPath2, blockPath3, bucketPath3, endPath;
+    private PathChain startPath, blockPath1,  bucketPath1, blockPath2,blockPath2Altenatif, bucketPath2, blockPath3,blockPath3Alternatif ,bucketPath3, endPath;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -112,6 +113,7 @@ public class AutonomousNewBucket extends OpMode {
                 ))
                 .setConstantHeadingInterpolation( Math.toRadians(0))
                 .build();
+
         // Push first block to zone
         bucketPath1 = follower.pathBuilder()
                 .addPath(new BezierLine(
@@ -128,6 +130,16 @@ public class AutonomousNewBucket extends OpMode {
                 ))
                 .setConstantHeadingInterpolation( Math.toRadians(0))
                 .build();
+
+
+        blockPath2Altenatif = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(follower.getPose()),
+                        new Point(blockPose2)
+                ))
+                .setConstantHeadingInterpolation(blockPose2.getHeading())
+                .build();
+
         // Push second block to zone
         bucketPath2 = follower.pathBuilder()
                 .addPath(new BezierLine(
@@ -144,6 +156,15 @@ public class AutonomousNewBucket extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(315), Math.toRadians(57))
                 .build();
+        blockPath3Alternatif = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(follower.getPose()),
+                        new Point(blockPose3)
+                        ))
+                .setConstantHeadingInterpolation(blockPose3.getHeading())
+                .build();
+
+
         // Wall to score pose 2
         bucketPath3 = follower.pathBuilder()
                 .addPath(new BezierLine(
@@ -226,8 +247,13 @@ public class AutonomousNewBucket extends OpMode {
 
                 if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds() <2.1 || detectedColor.equals("Yellow")  ) {
                     intakeMotor.stop();
-                    setPathState(3);
                     pathTimer.resetTimer();
+                    setPathState(3);
+                }
+                if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds()<2.1 && detectedColor.equals("None")){
+                    intakeMotor.stop();
+                    pathTimer.resetTimer();
+                    setPathState(20);
                 }
                 break;
 
@@ -329,7 +355,43 @@ public class AutonomousNewBucket extends OpMode {
                     setPathState(8);
                     pathTimer.resetTimer();
                 }
+                if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds()<2.1 && detectedColor.equals("None")){
+                    intakeMotor.stop();
+                    setPathState(21);
+                    pathTimer.resetTimer();
+                }
                 break;
+
+            case 20:
+                colorAndDistance.update();
+
+                detectedColor = colorAndDistance.getDetectedColor();
+
+                if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
+                    follower.followPath(blockPath2Altenatif);
+                }
+                if (pathTimer.getElapsedTimeSeconds()>0.1 && pathTimer.getElapsedTimeSeconds()<2){
+                    intakeMotor.intake();
+                }
+                if (pathTimer.getElapsedTimeSeconds()>0.1 && pathTimer.getElapsedTimeSeconds()<0.2){
+                    intakeServos.intakePosition();
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.1 || detectedColor.equals("Yellow")) {
+                    intakeMotor.stop();
+                    setPathState(8);
+                    pathTimer.resetTimer();
+                }
+
+                if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds()<2.1 && detectedColor.equals("None")){
+                    intakeMotor.stop();
+                    setPathState(21);
+                    pathTimer.resetTimer();
+                }
+                break;
+
+
+
             case 8:
 
                 if (!follower.isBusy()) {
@@ -416,9 +478,31 @@ public class AutonomousNewBucket extends OpMode {
                         setPathState(14);
                     }
                 }
-
-
                 break;
+            case 21:
+                if (!follower.isBusy()) {
+                    colorAndDistance.update();
+
+                    detectedColor = colorAndDistance.getDetectedColor();
+
+                    follower.followPath(blockPath3Alternatif, 0.6, true);
+                    bucketServos.transferPosition();
+
+                    if (pathTimer.getElapsedTimeSeconds()>1 && pathTimer.getElapsedTimeSeconds()<1.1){
+                        intakeServos.intakePosition();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds()>1.1 && pathTimer.getElapsedTimeSeconds()<2){
+                        intakeMotor.intake();
+                    }
+
+                    if(pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds()<2.1 || detectedColor.equals("Yellow")) {
+                        intakeMotor.stop();
+                        pathTimer.resetTimer();
+                        setPathState(14);
+                    }
+                }
+                break;
+
             case 14:
 
                 if (!follower.isBusy()) {
