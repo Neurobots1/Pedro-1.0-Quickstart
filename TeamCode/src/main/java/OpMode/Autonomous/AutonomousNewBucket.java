@@ -468,10 +468,10 @@ public class AutonomousNewBucket extends OpMode {
 
             case 17:
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
                         bucketServos.depositPosition();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 6) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.1) {
                         pathTimer.resetTimer();
                         setPathState(18);
                     }
@@ -480,23 +480,17 @@ public class AutonomousNewBucket extends OpMode {
                 break;
             case 18:
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
                         bucketServos.transferPosition();
 
                     }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 4) {
-                        follower.followPath(endPath, 0.8, true);
-                    }
+                    follower.followPath(endPath, 0.8, true);
 
                     if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 1.1) {
                         viperSlides.setTarget(ViperSlides.Target.LOW);
                     }
 
-
-
-
-                    if (pathTimer.getElapsedTimeSeconds() > 4 && pathTimer.getElapsedTimeSeconds() < 8) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.1 && pathTimer.getElapsedTimeSeconds() < 1.2) {
                         pathTimer.resetTimer();
                         setPathState(19);
 
@@ -509,8 +503,6 @@ public class AutonomousNewBucket extends OpMode {
 
                 viperSlides.setTarget(ViperSlides.Target.LOW);
                 setPathState(-1);
-
-
 
         }
 
