@@ -79,10 +79,10 @@ public class AutonomousNewBucket extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
-    private final Pose bucketPose = new Pose(18, 126, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(25, 121, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(25, 131, Math.toRadians(0));
-    private final Pose blockPose3 = new Pose(35, 126, Math.toRadians(57));
+    private final Pose bucketPose = new Pose(14, 130, Math.toRadians(315));
+    private final Pose blockPose1 = new Pose(20, 120, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(23, 131, Math.toRadians(0));
+    private final Pose blockPose3 = new Pose(33, 121, Math.toRadians(57));
     private final Pose endPose = new Pose(60, 96, Math.toRadians(90));
 
 
@@ -206,31 +206,30 @@ public class AutonomousNewBucket extends OpMode {
 
             case 1: // Wait until the robot is near the scoring position , then curve to first block
 
-                if (!follower.isBusy()) {
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 3) {
                         bucketServos.depositPosition();
 
                     }
 
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 3.6) {
-                        linkageController.setPosition(LinkageController.Position.EXTENDED);
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 4.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 3.6) {
                         bucketServos.transferPosition();
                     }
 
+                    if (pathTimer.getElapsedTimeSeconds() > 3.3 && pathTimer.getElapsedTimeSeconds() < 4.5) {
+                        linkageController.setPosition(LinkageController.Position.EXTENDED);
+                    }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 5.5) {
+
+                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 5.5) {
                         follower.followPath(blockPath1);
-                        setPathState(2);
                         pathTimer.resetTimer();
+                        setPathState(2);
 
                     }
 
-                }
+
                 break;
 
             case 2:
@@ -238,19 +237,19 @@ public class AutonomousNewBucket extends OpMode {
 
                 String detectedColor = colorAndDistance.getDetectedColor();
 
-                if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 3) {
                     intakeMotor.intake();
                 }
-                if (pathTimer.getElapsedTimeSeconds()>0 && pathTimer.getElapsedTimeSeconds()<0.1){
+                if (pathTimer.getElapsedTimeSeconds()>1.5 && pathTimer.getElapsedTimeSeconds()<1.6){
                     intakeServos.intakePosition();
                 }
 
-                if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds() <2.1 || detectedColor.equals("Yellow")  ) {
+                if (pathTimer.getElapsedTimeSeconds()>3.5 && pathTimer.getElapsedTimeSeconds() <3.6 || detectedColor.equals("Yellow")  ) {
                     intakeMotor.stop();
                     pathTimer.resetTimer();
                     setPathState(3);
                 }
-                if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds()<2.1 && detectedColor.equals("None")){
+                if (pathTimer.getElapsedTimeSeconds()>3.7 && pathTimer.getElapsedTimeSeconds()<3.8 && detectedColor.equals("None")){
                     intakeMotor.stop();
                     pathTimer.resetTimer();
                     setPathState(20);
@@ -311,24 +310,24 @@ public class AutonomousNewBucket extends OpMode {
             case 6: //
                 if (!follower.isBusy()) {
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.6) {
                         bucketServos.depositPosition();
 
 
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2.7 && pathTimer.getElapsedTimeSeconds() < 2.8) {
                         linkageController.setPosition(LinkageController.Position.EXTENDED);
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.2 && pathTimer.getElapsedTimeSeconds() < 0.3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2.8 && pathTimer.getElapsedTimeSeconds() < 2.9) {
                         bucketServos.transferPosition();
                     }
 
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5 && pathTimer.getElapsedTimeSeconds() < 0.6) {
-                        setPathState(7);
+                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 3.2) {
                         pathTimer.resetTimer();
+                        setPathState(7);
 
                     }
 
@@ -357,8 +356,8 @@ public class AutonomousNewBucket extends OpMode {
                 }
                 if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds()<2.1 && detectedColor.equals("None")){
                     intakeMotor.stop();
-                    setPathState(21);
                     pathTimer.resetTimer();
+                    setPathState(21);
                 }
                 break;
 
@@ -385,8 +384,8 @@ public class AutonomousNewBucket extends OpMode {
 
                 if (pathTimer.getElapsedTimeSeconds()>2 && pathTimer.getElapsedTimeSeconds()<2.1 && detectedColor.equals("None")){
                     intakeMotor.stop();
-                    setPathState(21);
                     pathTimer.resetTimer();
+                    setPathState(21);
                 }
                 break;
 

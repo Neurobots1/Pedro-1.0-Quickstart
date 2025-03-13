@@ -55,8 +55,8 @@ public class AutoDriveFullTeleop extends OpMode {
     }
 
     private AutoScoreState autoScoreState = AutoScoreState.IDLE;
-    private final Pose bucketPose = new Pose(11, 128, Math.toRadians(315)); // Target pose for scoring
-
+    private final Pose bucketPose = new Pose(12, 131, Math.toRadians(315)); // Target pose for scoring
+    private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -64,7 +64,7 @@ public class AutoDriveFullTeleop extends OpMode {
     private ViperSlides viperSlides;
     // PedroPathing Teleop
     private Follower follower;
-    private final Pose startPose = new Pose(0, 0, 90);
+
     private FtcDashboard dashboard;
 
     // REV Touch Sensor (Limit Switch)
@@ -157,13 +157,11 @@ public class AutoDriveFullTeleop extends OpMode {
 
         //AutoDrive
 
-        if (gamepad2.b) {
+        if (gamepad1.dpad_right) {
             // Stop the auto-scoring and resume manual control
             autoScoreState = AutoScoreState.IDLE;
             follower.startTeleopDrive(); // Stop any path the robot is following
-            viperSlides.setTarget(ViperSlides.Target.GROUND); // Reset ViperSlides
-            bucketServos.transferPosition(); // Reset bucket servo
-            telemetry.addData("Auto-Scoring", "OVERRIDDEN");
+
         }
 
         switch (autoScoreState) {
@@ -176,7 +174,7 @@ public class AutoDriveFullTeleop extends OpMode {
                         false
                 );
 
-                if (gamepad2.a) {
+                if (gamepad1.dpad_left) {
                     startScoringSequence(); // Start the auto-scoring sequence when A is pressed
                 }
 
@@ -192,6 +190,7 @@ public class AutoDriveFullTeleop extends OpMode {
 
             case SCORING:
                 // Complete the scoring and return to idle state
+                follower.startTeleopDrive();
                 autoScoreState = AutoScoreState.IDLE;
                 break;
         }
@@ -426,10 +425,10 @@ public class AutoDriveFullTeleop extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setConstantHeadingInterpolation(bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.2)
+                .setZeroPowerAccelerationMultiplier(0.5)
                 .build();
 
-        follower.followPath(moveToBucket);
+        follower.followPath(moveToBucket,0.85,false);
     }
 
 }
