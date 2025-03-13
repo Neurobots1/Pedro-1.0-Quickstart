@@ -1,12 +1,20 @@
 package OpMode.Subsystems;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
 
 public class ActionTimeSensitive {
 
@@ -46,9 +54,42 @@ public class ActionTimeSensitive {
 
     private Timer timer;
 
+    public ActionTimeSensitive() {
+
+        timer = new Timer();
+
+        viperSlides = new ViperSlides(
+                hardwareMap.get(DcMotorEx.class, "slidemotorleft"),
+                hardwareMap.get(DcMotorEx.class, "slidemotorright"),
+                hardwareMap.get(TouchSensor.class, "limitSwitch"),
+                p, i, d
+        );
+
+        intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
+        intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
+        intakeServos = new IntakeServosNEW(intakeServoRight, intakeServoLeft);
+        intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
+        colorAndDistance = new ColorAndDistance(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
+        intakeServos.transferPosition(); // Set intake servos to transfer position
+        //Linkage
+        linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
+        bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
+        bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
+        bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
+
+        clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
+
+        bucketServos.transferPosition();
+        clawServo.openPosition();
+
+        linkageController.zeroMotor();
+    }
+
+
     public void Bucket(){
         timer.resetTimer();
         viperSlides.setTarget(ViperSlides.Target.HIGH);
+        linkageController.setPosition(LinkageController.Position.EXTENDED);
         if (viperSlides.isAtTargetPosition(ViperSlides.Target.HIGH)){
             bucketServos.depositPosition();
             if (timer.getElapsedTimeSeconds()>2 && timer.getElapsedTimeSeconds()<2.1){
@@ -72,7 +113,7 @@ public class ActionTimeSensitive {
 
     public void Intake(){
         linkageController.setPosition(LinkageController.Position.EXTENDED);
-
+        intakeMotor.intake();
     }
 
 
