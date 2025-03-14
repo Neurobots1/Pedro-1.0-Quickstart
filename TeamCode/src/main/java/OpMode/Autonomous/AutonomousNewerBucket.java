@@ -1,7 +1,6 @@
 package OpMode.Autonomous;
 
 
-import com.google.blocks.ftcrobotcontroller.runtime.Block;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -20,20 +19,21 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Network;
 
+import OpMode.Subsystems.ActionTimeSensitive;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
 import OpMode.Subsystems.IntakeMotor;
-import OpMode.Subsystems.IntakeServos;
 import OpMode.Subsystems.IntakeServosNEW;
 import OpMode.Subsystems.LinkageController;
 import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "AutonomousNewBucket", group = "Autonomous")
-public class AutonomousNewBucket extends OpMode {
+@Autonomous(name = "AutonomousNewerBucket", group = "Autonomous")
+public class AutonomousNewerBucket extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -60,6 +60,8 @@ public class AutonomousNewBucket extends OpMode {
     private Servo bucketServoLeft;
     private BucketServos bucketServos;
 
+    private ActionTimeSensitive actionTimeSensitive;
+
     // IntakeBoolean Motor and Color Sensor
     private DcMotor intakemotor;
     private IntakeMotor intakeMotor;
@@ -72,7 +74,7 @@ public class AutonomousNewBucket extends OpMode {
 
 
 
-    private Timer pathTimer, actionTimer, opmodeTimer;
+    private Timer pathTimer, actionTimer, opmodeTimer, timer;
 
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
@@ -198,36 +200,28 @@ public class AutonomousNewBucket extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0: // Do actions , then Move from start to scoring position 1
-                viperSlides.setTarget(ViperSlides.Target.HIGH);
                 follower.followPath(startPath, 0.7, true);
                 pathTimer.resetTimer();
                 setPathState(1);
                 break;
 
             case 1: // Wait until the robot is near the scoring position , then curve to first block
+                if (follower.isBusy()){
+                    pathTimer.resetTimer();
+                }
+                if (!follower.isBusy()) {
 
-
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 3) {
-                        bucketServos.depositPosition();
-
+                    if(pathTimer.getElapsedTimeSeconds()>0.1 && pathTimer.getElapsedTimeSeconds()<0.2) {
+                        actionTimeSensitive.Bucket();
                     }
 
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 3.6) {
-                        bucketServos.transferPosition();
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3.3 && pathTimer.getElapsedTimeSeconds() < 4.5) {
-                        linkageController.setPosition(LinkageController.Position.EXTENDED);
-                    }
-
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 5.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2.1 && pathTimer.getElapsedTimeSeconds() < 2.2) {
                         follower.followPath(blockPath1);
                         pathTimer.resetTimer();
                         setPathState(2);
 
                     }
+                }
 
 
                 break;
@@ -237,19 +231,22 @@ public class AutonomousNewBucket extends OpMode {
 
                 String detectedColor = colorAndDistance.getDetectedColor();
 
-                if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 3) {
-                    intakeMotor.intake();
+                if (follower.isBusy()){
+                    pathTimer.resetTimer();
                 }
-                if (pathTimer.getElapsedTimeSeconds()>1.5 && pathTimer.getElapsedTimeSeconds()<1.6){
+
+                actionTimeSensitive.Intake();
+
+                if (pathTimer.getElapsedTimeSeconds()>0.2 && pathTimer.getElapsedTimeSeconds()<0.3){
                     intakeServos.intakePosition();
                 }
 
-                if (pathTimer.getElapsedTimeSeconds()>3.5 && pathTimer.getElapsedTimeSeconds() <3.6 || detectedColor.equals("Yellow")  ) {
+                if (pathTimer.getElapsedTimeSeconds()>2.5 && pathTimer.getElapsedTimeSeconds() <2.6 || detectedColor.equals("Yellow")  ) {
                     intakeMotor.stop();
                     pathTimer.resetTimer();
                     setPathState(3);
                 }
-                if (pathTimer.getElapsedTimeSeconds()>3.7 && pathTimer.getElapsedTimeSeconds()<3.8 && detectedColor.equals("None")){
+                if (pathTimer.getElapsedTimeSeconds()>2.5 && pathTimer.getElapsedTimeSeconds()<2.6 && detectedColor.equals("None")){
                     intakeMotor.stop();
                     pathTimer.resetTimer();
                     setPathState(20);
@@ -269,23 +266,8 @@ public class AutonomousNewBucket extends OpMode {
 
             case 4:
                 if (!follower.isBusy()) {
+                    actionTimeSensitive.Outake();
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
-                        intakeServos.transferPosition();
-
-                    }
-                    if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 1.3) {
-                        linkageController.setPosition(LinkageController.Position.RETRACTED);
-
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 1.4 && pathTimer.getElapsedTimeSeconds() < 2) {
-                        intakeMotor.intake();
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.1) {
-                        intakeMotor.stop();
-                    }
 
                     if (pathTimer.getElapsedTimeSeconds() > 2.1 && pathTimer.getElapsedTimeSeconds() < 2.2) {
                         pathTimer.resetTimer();
@@ -299,7 +281,6 @@ public class AutonomousNewBucket extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     follower.followPath(bucketPath1, 0.6, true);
-                    viperSlides.setTarget(ViperSlides.Target.HIGH);
                     pathTimer.resetTimer();
                     setPathState(6);
                 }
@@ -310,19 +291,7 @@ public class AutonomousNewBucket extends OpMode {
             case 6: //
                 if (!follower.isBusy()) {
 
-                    if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.1) {
-                        bucketServos.depositPosition();
-
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 2.7 && pathTimer.getElapsedTimeSeconds() < 2.8) {
-                        linkageController.setPosition(LinkageController.Position.EXTENDED);
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3 && pathTimer.getElapsedTimeSeconds() < 3.1) {
-                        bucketServos.transferPosition();
-                    }
-
+                    actionTimeSensitive.Bucket();
 
                     if (pathTimer.getElapsedTimeSeconds() > 4 && pathTimer.getElapsedTimeSeconds() < 4.1) {
                         pathTimer.resetTimer();
@@ -612,6 +581,7 @@ public class AutonomousNewBucket extends OpMode {
         pathTimer = new Timer();
         actionTimer = new Timer();
         opmodeTimer = new Timer();
+        timer = new Timer();
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
