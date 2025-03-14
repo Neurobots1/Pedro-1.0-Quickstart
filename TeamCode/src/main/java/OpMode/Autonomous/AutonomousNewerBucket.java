@@ -209,6 +209,11 @@ public class AutonomousNewerBucket extends OpMode {
                 if (follower.isBusy()){
                     pathTimer.resetTimer();
                 }
+
+
+
+
+
                 if (!follower.isBusy()) {
 
                     if(pathTimer.getElapsedTimeSeconds()>0.1 && pathTimer.getElapsedTimeSeconds()<0.2) {
@@ -612,6 +617,7 @@ public class AutonomousNewerBucket extends OpMode {
         bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
         bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
+        actionTimeSensitive = new ActionTimeSensitive();
 
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
 

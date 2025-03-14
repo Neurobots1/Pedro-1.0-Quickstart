@@ -54,36 +54,7 @@ public class ActionTimeSensitive {
 
     private Timer timer;
 
-    public ActionTimeSensitive() {
 
-        timer = new Timer();
-
-        viperSlides = new ViperSlides(
-                hardwareMap.get(DcMotorEx.class, "slidemotorleft"),
-                hardwareMap.get(DcMotorEx.class, "slidemotorright"),
-                hardwareMap.get(TouchSensor.class, "limitSwitch"),
-                p, i, d
-        );
-
-        intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
-        intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
-        intakeServos = new IntakeServosNEW(intakeServoRight, intakeServoLeft);
-        intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
-        colorAndDistance = new ColorAndDistance(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
-        intakeServos.transferPosition(); // Set intake servos to transfer position
-        //Linkage
-        linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
-        bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
-        bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
-        bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
-
-        clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
-
-        bucketServos.transferPosition();
-        clawServo.openPosition();
-
-        linkageController.zeroMotor();
-    }
 
 
     public void Bucket(){
