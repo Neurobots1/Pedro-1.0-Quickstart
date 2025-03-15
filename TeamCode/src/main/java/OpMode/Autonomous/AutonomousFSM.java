@@ -90,7 +90,7 @@ public class AutonomousFSM extends OpMode {
 
     /* Paths and PathChains */
     private Path scorePreload, park;
-    private PathChain startPath, blockPath1,  bucketPath1, blockPath2,blockPath2Altenatif, bucketPath2, blockPath3,blockPath3Alternatif ,bucketPath3, endPath , endPathAlternatif;
+    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, endPath , endPathAlternative;
 
 
     public void buildPaths() {
@@ -169,7 +169,7 @@ public class AutonomousFSM extends OpMode {
 
         /** ---------------- ALTERNATIVE PATHS ---------------- **/
 
-        blockPath2Altenatif = follower.pathBuilder()
+        blockPath2Alternative = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(follower.getPose()),
                         new Point(blockPose2)
@@ -177,7 +177,7 @@ public class AutonomousFSM extends OpMode {
                 .setLinearHeadingInterpolation(follower.getPose().getHeading(),blockPose2.getHeading())
                 .build();
 
-        blockPath3Alternatif = follower.pathBuilder()
+        blockPath3Alternative = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(follower.getPose()),
                         new Point(blockPose3)
@@ -185,7 +185,7 @@ public class AutonomousFSM extends OpMode {
                 .setLinearHeadingInterpolation(follower.getPose().getHeading(),blockPose3.getHeading())
                 .build();
 
-        endPathAlternatif = follower.pathBuilder()
+        endPathAlternative = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(follower.getPose()),
                         new Point(endPose)
@@ -446,18 +446,18 @@ public class AutonomousFSM extends OpMode {
             /** ---------------- ALTERNATIVE PATHS ---------------- **/
 
             case 35:  // Alternative path after missing first block
-                follower.followPath(blockPath2Altenatif);
+                follower.followPath(blockPath2Alternative);
                 intakeMotor.intake();
                 setPathState(17);
                 break;
 
             case 36:  // Alternative path after missing second block
-                follower.followPath(blockPath3Alternatif);
+                follower.followPath(blockPath3Alternative);
                 setPathState(23);
                 break;
 
             case 37:  // Alternative path after missing third block
-                follower.followPath(endPathAlternatif, 0.8, true);
+                follower.followPath(endPathAlternative, 0.8, true);
                 viperSlides.setTarget(ViperSlides.Target.LOW);
                 setPathState(34);
                 break;
