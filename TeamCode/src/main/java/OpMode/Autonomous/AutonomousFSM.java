@@ -85,88 +85,85 @@ public class AutonomousFSM extends OpMode {
 
 
 
-    //controle point
+    //control point
     private final Pose endPoseControlPoint = new Pose(60,124);
 
-    /* These are our Paths and PathChains that we will define in buildPaths() */
+    /* Paths and PathChains */
     private Path scorePreload, park;
     private PathChain startPath, blockPath1,  bucketPath1, blockPath2,blockPath2Altenatif, bucketPath2, blockPath3,blockPath3Alternatif ,bucketPath3, endPath , endPathAlternatif;
 
-    /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
-     * It is necessary to do this so that all the paths are built before the auto starts. **/
+
     public void buildPaths() {
-        // Start pose to first score pose
+
         startPath = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(startPose),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(315))
+                .setLinearHeadingInterpolation(startPose.getHeading(),bucketPose.getHeading())
                 .build();
-        // First score pose curve to first block
+
         blockPath1= follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(bucketPose),
                         new Point(blockPose1)
                 ))
-                .setConstantHeadingInterpolation( Math.toRadians(0))
+                .setLinearHeadingInterpolation(bucketPose.getHeading(),blockPose1.getHeading())
                 .build();
 
-        // Push first block to zone
+
         bucketPath1 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(blockPose1),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(315))
+                .setLinearHeadingInterpolation(blockPose1.getHeading(), bucketPose.getHeading())
                 .build();
-        // Curve behind second block
+
         blockPath2 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(bucketPose),
                         new Point(blockPose2)
                 ))
-                .setConstantHeadingInterpolation( Math.toRadians(0))
+                .setLinearHeadingInterpolation(bucketPose.getHeading(), blockPose2.getHeading())
                 .build();
 
 
 
-
-        // Push second block to zone
         bucketPath2 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(blockPose2),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(315))
+                .setLinearHeadingInterpolation(blockPose2.getHeading(), bucketPose.getHeading())
                 .build();
-        // Short path to get the clip on wall
+
         blockPath3 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(bucketPose),
                         new Point(blockPose3)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(315), Math.toRadians(57))
+                .setLinearHeadingInterpolation(bucketPose.getHeading(), blockPose3.getHeading())
                 .build();
 
 
 
-        // Wall to score pose 2
+
         bucketPath3 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(blockPose3),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(57), Math.toRadians(315))
+                .setLinearHeadingInterpolation(blockPose3.getHeading(), bucketPose.getHeading())
                 .build();
-        // Score pose 2 to wall
+
         endPath = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         new Point(bucketPose),
                         new Point(endPoseControlPoint),
                         new Point(endPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(315), Math.toRadians(90))
+                .setLinearHeadingInterpolation(bucketPose.getHeading(), endPose.getHeading())
                 .build();
 
 
@@ -177,7 +174,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(follower.getPose()),
                         new Point(blockPose2)
                 ))
-                .setConstantHeadingInterpolation(blockPose2.getHeading())
+                .setLinearHeadingInterpolation(follower.getPose().getHeading(),blockPose2.getHeading())
                 .build();
 
         blockPath3Alternatif = follower.pathBuilder()
@@ -185,7 +182,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(follower.getPose()),
                         new Point(blockPose3)
                 ))
-                .setConstantHeadingInterpolation(blockPose3.getHeading())
+                .setLinearHeadingInterpolation(follower.getPose().getHeading(),blockPose3.getHeading())
                 .build();
 
         endPathAlternatif = follower.pathBuilder()
@@ -193,7 +190,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(follower.getPose()),
                         new Point(endPose)
                 ))
-                .setConstantHeadingInterpolation(blockPose3.getHeading())
+                .setLinearHeadingInterpolation(follower.getPose().getHeading(),blockPose3.getHeading())
                 .build();
 
 
@@ -476,11 +473,6 @@ public class AutonomousFSM extends OpMode {
         pathTimer.resetTimer();
     }
 
-    /** These change the states of the paths and actions
-     * It will also reset the timers of the individual switches **/
-
-
-
     @Override
     public void init() {
         pathTimer = new Timer();
@@ -532,14 +524,13 @@ public class AutonomousFSM extends OpMode {
     }
 
 
-    /** This method is called continuously after Init while waiting for "play". **/
+
     @Override
     public void init_loop() {
 
     }
 
-    /** This method is called once at the start of the OpMode.
-     * It runs all the setup actions, including building paths and starting the path system **/
+
     @Override
     public void start() {
         opmodeTimer.resetTimer();
@@ -548,7 +539,7 @@ public class AutonomousFSM extends OpMode {
         setPathState(0);
     }
 
-    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
+
     @Override
     public void loop() {
         follower.update();
@@ -573,7 +564,7 @@ public class AutonomousFSM extends OpMode {
     }
 
 
-    /** We do not use this because everything should automatically disable **/
+
     @Override
     public void stop() {
     }
