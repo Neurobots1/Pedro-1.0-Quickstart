@@ -80,7 +80,7 @@ public class AutonomousFSM extends OpMode {
     private final Pose bucketPose = new Pose(14, 130, Math.toRadians(315));
     private final Pose blockPose1 = new Pose(20, 121, Math.toRadians(0));
     private final Pose blockPose2 = new Pose(20, 131, Math.toRadians(0));
-    private final Pose blockPose3 = new Pose(33, 121, Math.toRadians(57));
+    private final Pose blockPose3 = new Pose(32, 120, Math.toRadians(57));
     private final Pose endPose = new Pose(60, 96, Math.toRadians(90));
 
 
