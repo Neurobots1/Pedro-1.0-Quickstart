@@ -81,6 +81,10 @@ public class AutonomousFSM extends OpMode {
     private final Pose blockPose1 = new Pose(20, 121, Math.toRadians(0));
     private final Pose blockPose2 = new Pose(20, 131, Math.toRadians(0));
     private final Pose blockPose3 = new Pose(32, 120, Math.toRadians(57));
+
+    private final Pose blockIntake1 = new Pose(57, 120, Math.toRadians(270));
+
+    private final Pose blocIntake2 = new Pose(80, 101,Math.toRadians(270));
     private final Pose endPose = new Pose(60, 96, Math.toRadians(90));
 
 
@@ -90,7 +94,7 @@ public class AutonomousFSM extends OpMode {
 
     /* Paths and PathChains */
     private Path scorePreload, park;
-    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, endPath , endPathAlternative;
+    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative;
 
 
     public void buildPaths() {
@@ -165,6 +169,24 @@ public class AutonomousFSM extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(), endPose.getHeading())
                 .build();
+
+        submersiblePath = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(blockIntake1),
+                        new Point(blocIntake2)
+                        ))
+                .setLinearHeadingInterpolation(blockIntake1.getHeading(),blocIntake2.getHeading())
+                .build();
+
+        toSubmersible = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(follower.getPose()),
+                        new Point(blockIntake1)
+                        ))
+                .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
+                .build();
+
+
 
 
         /** ---------------- ALTERNATIVE PATHS ---------------- **/
