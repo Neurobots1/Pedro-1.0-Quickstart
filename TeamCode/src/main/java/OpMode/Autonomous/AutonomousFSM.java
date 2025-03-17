@@ -30,7 +30,7 @@ import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "AutonomousNewBucket", group = "Autonomous")
+@Autonomous(name = "AutonomousFSM", group = "Autonomous")
 public class AutonomousFSM extends OpMode {
 
     // Viper Slide Variables
@@ -249,7 +249,7 @@ public class AutonomousFSM extends OpMode {
                     setPathState(6);
                 } else if (pathTimer.getElapsedTimeSeconds() > 3.7 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
-                    setPathState(29); // Alternative path
+                    setPathState(35); // Alternative path
                 }
                 break;
 
@@ -321,7 +321,7 @@ public class AutonomousFSM extends OpMode {
                     setPathState(16);
                 } else if (pathTimer.getElapsedTimeSeconds() > 2 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
-                    setPathState(30); // Alternative path
+                    setPathState(36); // Alternative path
                 }
                 break;
 
@@ -386,7 +386,7 @@ public class AutonomousFSM extends OpMode {
                     setPathState(26);
                 } else if (pathTimer.getElapsedTimeSeconds() > 2 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
-                    setPathState(32); // Alternative path for missing 3rd block
+                    setPathState(36); // Alternative path for missing 3rd block
                 }
                 break;
 
