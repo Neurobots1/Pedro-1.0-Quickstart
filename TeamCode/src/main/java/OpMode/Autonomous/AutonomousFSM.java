@@ -363,8 +363,12 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 22:  // Move to final block
-                follower.followPath(blockPath3, 0.6, true);
-                setPathState(23);
+                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                    bucketServos.transferPosition();
+                    follower.followPath(blockPath3);
+                    linkageController.setPosition(LinkageController.Position.EXTENDED);
+                    setPathState(13);
+                }
                 break;
 
             case 23:  // Wait 2s, then lower slides
