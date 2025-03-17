@@ -210,10 +210,6 @@ public class AutonomousNewerBucket extends OpMode {
                     pathTimer.resetTimer();
                 }
 
-
-
-
-
                 if (!follower.isBusy()) {
 
                     if(pathTimer.getElapsedTimeSeconds()>0.1 && pathTimer.getElapsedTimeSeconds()<0.2) {
@@ -233,6 +229,7 @@ public class AutonomousNewerBucket extends OpMode {
 
             case 2:
                 colorAndDistance.update();
+
 
                 String detectedColor = colorAndDistance.getDetectedColor();
 
@@ -385,6 +382,8 @@ public class AutonomousNewerBucket extends OpMode {
                     if (pathTimer.getElapsedTimeSeconds() > 0 && pathTimer.getElapsedTimeSeconds() < 0.1) {
                         linkageController.setPosition(LinkageController.Position.RETRACTED);
                     }
+
+
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.1 && pathTimer.getElapsedTimeSeconds() < 0.2) {
                         intakeServos.transferPosition();
