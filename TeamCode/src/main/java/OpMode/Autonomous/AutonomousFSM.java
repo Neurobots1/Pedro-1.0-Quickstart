@@ -367,20 +367,23 @@ public class AutonomousFSM extends OpMode {
                     bucketServos.transferPosition();
                     follower.followPath(blockPath3);
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
-                    setPathState(13);
+                    setPathState(23);
                 }
                 break;
 
             case 23:  // Wait 2s, then lower slides
                 if (pathTimer.getElapsedTimeSeconds() > 2) {
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
+                    intakeMotor.intake();
                     setPathState(24);
                 }
                 break;
 
             case 24:  // Start final intake
-                intakeMotor.intake();
-                setPathState(25);
+                if(!follower.isBusy()) {
+                    intakeServos.intakePosition();
+                    setPathState(25);
+                }
                 break;
 
             case 25:  // Wait for final block detection
