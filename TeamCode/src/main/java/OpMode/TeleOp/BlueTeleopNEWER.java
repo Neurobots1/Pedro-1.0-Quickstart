@@ -152,6 +152,10 @@ public class BlueTeleopNEWER extends OpMode {
                if (gamepad1.dpad_up) {
                    intakeState = IntakeState.INTAKE_EXTEND;
                }
+
+               if (gamepad1.left_bumper){
+                   intakeMotor.outtake();
+               }
                 break;
 
             case INTAKE_EXTEND:
@@ -161,6 +165,9 @@ public class BlueTeleopNEWER extends OpMode {
                     intakeServos.intakePosition();
                     intakeTimer.reset();
                     intakeState = IntakeState.INTAKE_WAITFORBLOCK;
+                }
+                if (gamepad1.left_bumper){
+                    intakeMotor.outtake();
                 }
 
                 break;
@@ -175,6 +182,9 @@ public class BlueTeleopNEWER extends OpMode {
                     intakeServos.transferPosition();
                     intakeTimer.reset();
                     intakeState = IntakeState.INTAKE_RETRACT;
+                }
+                if (gamepad1.left_bumper){
+                    intakeMotor.outtake();
                 }
 
 
