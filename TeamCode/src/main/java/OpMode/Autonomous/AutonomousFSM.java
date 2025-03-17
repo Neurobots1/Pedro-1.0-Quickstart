@@ -435,13 +435,14 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 32:  // Wait 2 seconds before lowering slides
-                if (pathTimer.getElapsedTimeSeconds()>2)
-                follower.followPath(endPath, 0.8, true);
-                setPathState(33);
+                if (pathTimer.getElapsedTimeSeconds()>2) {
+                    follower.followPath(endPath, 0.8, true);
+                    setPathState(33);
+                }
                 break;
 
             case 33:  // Move to end
-                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                if (pathTimer.getElapsedTimeSeconds() > 3) {
                     bucketServos.transferPosition();
                     viperSlides.setTarget(ViperSlides.Target.LOW);
                     setPathState(34);
