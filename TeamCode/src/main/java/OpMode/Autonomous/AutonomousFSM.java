@@ -319,7 +319,7 @@ public class AutonomousFSM extends OpMode {
                 if (pathTimer.getElapsedTimeSeconds() > 2 || colorAndDistance.getDetectedColor().equals("Yellow")) {
                     intakeMotor.stop();
                     setPathState(16);
-                } else if (pathTimer.getElapsedTimeSeconds() > 2 && colorAndDistance.getDetectedColor().equals("None")) {
+                } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
                     setPathState(36); // Alternative path
                 }
@@ -391,7 +391,7 @@ public class AutonomousFSM extends OpMode {
                 if (pathTimer.getElapsedTimeSeconds() > 2 || colorAndDistance.getDetectedColor().equals("Yellow")) {
                     intakeMotor.stop();
                     setPathState(26);
-                } else if (pathTimer.getElapsedTimeSeconds() > 2 && colorAndDistance.getDetectedColor().equals("None")) {
+                } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
                     setPathState(36); // Alternative path for missing 3rd block
                 }
@@ -435,12 +435,14 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 32:  // Wait 2 seconds before lowering slides
+                if (pathTimer.getElapsedTimeSeconds()>2)
                 follower.followPath(endPath, 0.8, true);
                 setPathState(33);
                 break;
 
             case 33:  // Move to end
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    bucketServos.transferPosition();
                     viperSlides.setTarget(ViperSlides.Target.LOW);
                     setPathState(34);
                 }
