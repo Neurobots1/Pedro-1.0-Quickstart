@@ -448,7 +448,7 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 28:  // Intake block into bucket
-                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.9) {
                     intakeMotor.intake();
                     setPathState(29);
                 }

@@ -52,7 +52,7 @@ public class BlueTeleopNEWER extends OpMode {
     private ViperSlides viperSlides;
     // PedroPathing Teleop
     private Follower follower;
-    private final Pose startPose = finalPose;
+    private final Pose startPose = new Pose(finalPose.getX(), finalPose.getY(),finalPose.getHeading());
     private FtcDashboard dashboard;
 
     // REV Touch Sensor (Limit Switch)
