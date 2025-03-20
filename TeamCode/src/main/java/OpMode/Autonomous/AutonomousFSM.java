@@ -79,22 +79,23 @@ public class AutonomousFSM extends OpMode {
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
     private final Pose bucketPose = new Pose(14, 130, Math.toRadians(315));
     private final Pose blockPose1 = new Pose(20, 121, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(20, 131, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(20, 129, Math.toRadians(0));
     private final Pose blockPose3 = new Pose(32, 120, Math.toRadians(57));
 
-    private final Pose blockIntake1 = new Pose(57, 120, Math.toRadians(270));
+    private final Pose blockIntake1 = new Pose(60, 97, Math.toRadians(-90));
 
-    private final Pose blocIntake2 = new Pose(80, 101,Math.toRadians(270));
-    private final Pose endPose = new Pose(60, 96, Math.toRadians(90));
+    private final Pose blocIntake2 = new Pose(83, 97,Math.toRadians(-90));
+    private final Pose endPose = new Pose(60, 91.5, Math.toRadians(82.5));
 
 
 
     //control point
     private final Pose endPoseControlPoint = new Pose(60,124);
+    private final Pose ControlePoint = new Pose(68,139);
 
     /* Paths and PathChains */
     private Path scorePreload, park;
-    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative;
+    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative , toBucket;
 
 
     public void buildPaths() {
@@ -179,11 +180,20 @@ public class AutonomousFSM extends OpMode {
                 .build();
 
         toSubmersible = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(follower.getPose()),
+                .addPath(new BezierCurve(
+                        new Point(bucketPose),
+                        new Point(ControlePoint),
                         new Point(blockIntake1)
                         ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
+                .build();
+
+        toBucket = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(blocIntake2),
+                        new Point(bucketPose)
+                ))
+                .setLinearHeadingInterpolation(follower.getTotalHeading(),bucketPose.getHeading())
                 .build();
 
 
@@ -208,11 +218,12 @@ public class AutonomousFSM extends OpMode {
                 .build();
 
         endPathAlternative = follower.pathBuilder()
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         new Point(follower.getPose()),
+                        new Point(66,127),
                         new Point(endPose)
                 ))
-                .setLinearHeadingInterpolation(follower.getPose().getHeading(),blockPose3.getHeading())
+                .setLinearHeadingInterpolation(follower.getPose().getHeading(),endPose.getHeading())
                 .build();
 
 
@@ -229,19 +240,19 @@ public class AutonomousFSM extends OpMode {
         switch (pathState) {
             case 0:  // Move to scoring position 1
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
-                follower.followPath(startPath, 0.7, true);
+                follower.followPath(startPath, 0.8, true);
                 setPathState(1);
                 break;
 
             case 1:  // Deposit bucket
-                if (!follower.isBusy()) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     bucketServos.depositPosition();
                     setPathState(2);
                 }
                 break;
 
             case 2:  // Transfer position & extend linkage for intake
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 1.3) {
                     bucketServos.transferPosition();
                     follower.followPath(blockPath1);
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
@@ -250,7 +261,7 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 3:  // Wait 2s, then lower slides
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     intakeMotor.intake();
                     setPathState(4);
@@ -286,21 +297,21 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 8:  // Intake block into bucket
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.6) {
                     intakeMotor.intake();
                     setPathState(9);
                 }
                 break;
 
             case 9:  // Stop intake after block is secured
-                if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
                     intakeMotor.stop();
                     setPathState(10);
                 }
                 break;
 
             case 10:  // Move to bucket (slides stay up)
-                follower.followPath(bucketPath1, 0.6, true);
+                follower.followPath(bucketPath1, 0.8, true);
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
                 setPathState(11);
                 break;
@@ -313,16 +324,20 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 12:  // Prepare for next block
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 1.1) {
                     bucketServos.transferPosition();
                     follower.followPath(blockPath2);
-                    linkageController.setPosition(LinkageController.Position.EXTENDED);
-                    setPathState(13);
+                    setPathState(78);
                 }
                 break;
 
+            case 78:
+                linkageController.setPosition(LinkageController.Position.EXTENDED);
+                setPathState(13);
+                break;
+
             case 13:  // Wait 2s before lowering slides
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.7) {
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     intakeMotor.intake();
                     setPathState(14);
@@ -338,7 +353,7 @@ public class AutonomousFSM extends OpMode {
 
             case 15:  // Wait for block detection
                 colorAndDistance.update();
-                if (pathTimer.getElapsedTimeSeconds() > 2 || colorAndDistance.getDetectedColor().equals("Yellow")) {
+                if (colorAndDistance.getDetectedColor().equals("Yellow")) {
                     intakeMotor.stop();
                     setPathState(16);
                 } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
@@ -358,21 +373,21 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 18:  // Intake block into bucket
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.6) {
                     intakeMotor.intake();
                     setPathState(19);
                 }
                 break;
 
             case 19:  // Stop intake after block is secured
-                if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
                     intakeMotor.stop();
                     setPathState(20);
                 }
                 break;
 
             case 20:  // Move to bucket with second block (slides stay up)
-                follower.followPath(bucketPath2, 0.6, true);
+                follower.followPath(bucketPath2, 0.8, true);
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
                 setPathState(21);
                 break;
@@ -385,7 +400,7 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 22:  // Move to final block
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 1.1) {
                     bucketServos.transferPosition();
                     follower.followPath(blockPath3);
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
@@ -394,7 +409,7 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 23:  // Wait 2s, then lower slides
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.7) {
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     intakeMotor.intake();
                     setPathState(24);
@@ -410,12 +425,12 @@ public class AutonomousFSM extends OpMode {
 
             case 25:  // Wait for final block detection
                 colorAndDistance.update();
-                if (pathTimer.getElapsedTimeSeconds() > 2 || colorAndDistance.getDetectedColor().equals("Yellow")) {
+                if (colorAndDistance.getDetectedColor().equals("Yellow")) {
                     intakeMotor.stop();
                     setPathState(26);
                 } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
-                    setPathState(36); // Alternative path for missing 3rd block
+                    setPathState(37); // Alternative path for missing 3rd block
                 }
                 break;
 
@@ -430,21 +445,21 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 28:  // Intake block into bucket
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     intakeMotor.intake();
                     setPathState(29);
                 }
                 break;
 
             case 29:  // Stop intake after block is secured
-                if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     intakeMotor.stop();
                     setPathState(30);
                 }
                 break;
 
             case 30:  // Move to final bucket (slides stay up)
-                follower.followPath(bucketPath3, 0.6, true);
+                follower.followPath(bucketPath3, 0.8, true);
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
                 setPathState(31);
                 break;
@@ -452,38 +467,143 @@ public class AutonomousFSM extends OpMode {
             case 31:  // Deposit final block
                 if (!follower.isBusy()) {
                     bucketServos.depositPosition();
-                    setPathState(32);
+                    setPathState(32); // 33
                 }
                 break;
 
             case 32:  // Wait 2 seconds before lowering slides
-                if (pathTimer.getElapsedTimeSeconds()>2) {
-                    follower.followPath(endPath, 0.8, true);
-                    setPathState(33);
+                if (pathTimer.getElapsedTimeSeconds()>1) {
+                    bucketServos.transferPosition();
+                    follower.followPath(toSubmersible, 0.8, true);
+                    setPathState(38);
                 }
                 break;
 
             case 33:  // Move to end
-                if (pathTimer.getElapsedTimeSeconds() > 3) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     bucketServos.transferPosition();
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
-                    setPathState(34);
+                    follower.followPath(endPath);
+                    setPathState(42);
                 }
                 break;
 
-            case 34:
-                setPathState(-1); // End of autonomous
+            case 38:
+                if (pathTimer.getElapsedTimeSeconds()>1.2) {
+                    intakeMotor.intake();
+                    viperSlides.setTarget(ViperSlides.Target.GROUND);
+                    setPathState(44);
+                }
                 break;
+
+            case 44:
+                if (!follower.isBusy()){
+                    intakeServos.intakePosition();
+                    linkageController.setPosition(LinkageController.Position.EXTENDED);
+                    setPathState(45);
+                }
+                break;
+
+            case 45:
+                if (pathTimer.getElapsedTimeSeconds()>1.2) {
+                    follower.followPath(submersiblePath, 0.7, true);
+                    setPathState(56);
+                }
+                break;
+
+            case 56:
+                colorAndDistance.update();
+                String detectedColor = colorAndDistance.getDetectedColor();
+
+                if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
+                    intakeMotor.stop();
+                    intakeServos.transferPosition();
+                    follower.followPath(toBucket, 0.6, true);
+                    setPathState(43);
+                } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
+                    intakeMotor.stop();
+                    setPathState(-1); // Alternative path for missing 3rd block
+                }
+
+                break;
+
+            case 42:  // Move to end
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    viperSlides.setTarget(ViperSlides.Target.LOW);
+                    setPathState(-1);
+                }
+                break;
+
+            case 43:
+                if (pathTimer.getElapsedTimeSeconds()>0.3) {
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    setPathState(48);
+                }
+                break;
+
+
+            case 48:
+                if (pathTimer.getElapsedTimeSeconds()>0.2){
+                    intakeServos.transferPosition();
+                    setPathState(49);
+                }
+                break;
+
+            case 49:
+                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                    intakeMotor.intake();
+                    setPathState(50);
+                }
+                break;
+
+            case 50:
+                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                    intakeMotor.stop();
+                    setPathState(51);
+                }
+                break;
+
+            case 51:
+                if (pathTimer.getElapsedTimeSeconds()>0.7){
+                    viperSlides.setTarget(ViperSlides.Target.HIGH);
+                    setPathState(52);
+                }
+                break;
+
+            case 52:
+                if (pathTimer.getElapsedTimeSeconds()>1.6){
+                    bucketServos.depositPosition();
+                    setPathState(53);
+                }
+                break;
+
+            case 53:
+                if (pathTimer.getElapsedTimeSeconds()>1.2){
+                    bucketServos.transferPosition();
+                    setPathState(54);
+                }
+                break;
+
+            case 54:
+                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                    viperSlides.setTarget(ViperSlides.Target.LOW);
+                    follower.followPath(endPath);
+                    setPathState(-1);
+                }
+                break;
+
+
+
 
             /** ---------------- ALTERNATIVE PATHS ---------------- **/
 
             case 35:  // Alternative path after missing first block
+                intakeServos.transferPosition();
                 follower.followPath(blockPath2Alternative);
-                intakeMotor.intake();
-                setPathState(17);
+                setPathState(78);
                 break;
 
             case 36:  // Alternative path after missing second block
+                intakeServos.transferPosition();
                 follower.followPath(blockPath3Alternative);
                 setPathState(23);
                 break;
@@ -491,6 +611,8 @@ public class AutonomousFSM extends OpMode {
             case 37:  // Alternative path after missing third block
                 follower.followPath(endPathAlternative, 0.8, true);
                 viperSlides.setTarget(ViperSlides.Target.LOW);
+                intakeServos.transferPosition();
+                linkageController.setPosition(LinkageController.Position.RETRACTED);
                 setPathState(34);
                 break;
         }
