@@ -79,13 +79,13 @@ public class AutonomousFSM extends OpMode {
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
     private final Pose bucketPose = new Pose(14, 130, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(20, 121, Math.toRadians(0));
+    private final Pose blockPose1 = new Pose(20, 120, Math.toRadians(0));
     private final Pose blockPose2 = new Pose(20, 129, Math.toRadians(0));
     private final Pose blockPose3 = new Pose(32, 120, Math.toRadians(57));
 
     private final Pose blockIntake1 = new Pose(60, 97, Math.toRadians(-90));
 
-    private final Pose blocIntake2 = new Pose(83, 97,Math.toRadians(-90));
+    private final Pose blocIntake2 = new Pose(75, 97,Math.toRadians(-90));
     private final Pose endPose = new Pose(60, 91.5, Math.toRadians(82.5));
 
     public static Pose finalPose =new Pose();
@@ -196,7 +196,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blocIntake2),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(follower.getTotalHeading(),bucketPose.getHeading())
+                .setLinearHeadingInterpolation(blocIntake2.getHeading(),bucketPose.getHeading())
                 .build();
 
 
@@ -320,7 +320,7 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 11:  // Deposit block
-                if (!follower.isBusy()) {
+                if (pathTimer.getElapsedTimeSeconds()>0.8) {
                     bucketServos.depositPosition();
                     setPathState(12);
                 }
@@ -396,7 +396,7 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 21:  // Deposit second block
-                if (!follower.isBusy()) {
+                if (pathTimer.getElapsedTimeSeconds()>0.5) {
                     bucketServos.depositPosition();
                     setPathState(22);
                 }
@@ -468,7 +468,7 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 31:  // Deposit final block
-                if (!follower.isBusy()) {
+                if (pathTimer.getElapsedTimeSeconds()>0.8) {
                     bucketServos.depositPosition();
                     setPathState(32); // 33
                 }
@@ -499,15 +499,15 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 44:
-                if (!follower.isBusy()){
-                    intakeServos.intakePosition();
+                if (pathTimer.getElapsedTimeSeconds()>1.1){
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
                     setPathState(45);
                 }
                 break;
 
             case 45:
-                if (pathTimer.getElapsedTimeSeconds()>1.2) {
+                if (pathTimer.getElapsedTimeSeconds()>1) {
+                    intakeServos.intakePosition();
                     follower.followPath(submersiblePath, 0.7, true);
                     setPathState(56);
                 }
@@ -520,7 +520,7 @@ public class AutonomousFSM extends OpMode {
                 if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
-                    follower.followPath(toBucket, 0.6, true);
+                    follower.followPath(toBucket, 0.8, true);
                     setPathState(43);
                 } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
@@ -566,14 +566,14 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 51:
-                if (pathTimer.getElapsedTimeSeconds()>0.7){
+                if (pathTimer.getElapsedTimeSeconds()>0.3){
                     viperSlides.setTarget(ViperSlides.Target.HIGH);
                     setPathState(52);
                 }
                 break;
 
             case 52:
-                if (pathTimer.getElapsedTimeSeconds()>1.6){
+                if (pathTimer.getElapsedTimeSeconds()>1){
                     bucketServos.depositPosition();
                     setPathState(53);
                 }
@@ -724,6 +724,6 @@ public class AutonomousFSM extends OpMode {
 
     @Override
     public void stop() {
-        finalPose= new Pose(follower.getPose().getX(),follower.getPose().getY(),follower.getTotalHeading()).copy();
+        finalPose= new Pose(follower.getPose().getX(),follower.getPose().getY(),follower.getPose().getHeading()).copy();
     }
 }
