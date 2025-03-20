@@ -163,7 +163,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(blockPose3.getHeading(), bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier()
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
         endPath = follower.pathBuilder()
