@@ -109,6 +109,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(startPose.getHeading(),bucketPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
         blockPath1= follower.pathBuilder()
@@ -117,6 +118,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blockPose1)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(),blockPose1.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
 
@@ -126,6 +128,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(blockPose1.getHeading(), bucketPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
         blockPath2 = follower.pathBuilder()
@@ -134,6 +137,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blockPose2)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(), blockPose2.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
 
@@ -144,6 +148,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(blockPose2.getHeading(), bucketPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
         blockPath3 = follower.pathBuilder()
@@ -152,6 +157,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blockPose3)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(), blockPose3.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
 
@@ -173,6 +179,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(endPose)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(), endPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
         submersiblePath = follower.pathBuilder()
@@ -181,6 +188,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blocIntake2)
                         ))
                 .setLinearHeadingInterpolation(blockIntake1.getHeading(),blocIntake2.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
         toSubmersible = follower.pathBuilder()
@@ -190,6 +198,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blockIntake1)
                         ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
         toBucket = follower.pathBuilder()
@@ -198,6 +207,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(blocIntake2.getHeading(),bucketPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
 
@@ -211,6 +221,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blockPose2)
                 ))
                 .setLinearHeadingInterpolation(follower.getPose().getHeading(),blockPose2.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
         blockPath3Alternative = follower.pathBuilder()
@@ -219,6 +230,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blockPose3)
                 ))
                 .setLinearHeadingInterpolation(follower.getPose().getHeading(),blockPose3.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
         endPathAlternative = follower.pathBuilder()
@@ -228,6 +240,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(endPose)
                 ))
                 .setLinearHeadingInterpolation(follower.getPose().getHeading(),endPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
 
