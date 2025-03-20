@@ -1,5 +1,7 @@
 package OpMode.TeleOp;
 
+import static OpMode.Autonomous.AutonomousFSM.finalPose;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
@@ -50,7 +52,7 @@ public class BlueTeleopNEWER extends OpMode {
     private ViperSlides viperSlides;
     // PedroPathing Teleop
     private Follower follower;
-    private final Pose startPose = new Pose(0, 0, 90);
+    private final Pose startPose = finalPose;
     private FtcDashboard dashboard;
 
     // REV Touch Sensor (Limit Switch)

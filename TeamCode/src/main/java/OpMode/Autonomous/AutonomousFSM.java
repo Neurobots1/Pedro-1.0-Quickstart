@@ -51,6 +51,7 @@ public class AutonomousFSM extends OpMode {
     private ClawServo clawServo;
 
 
+
     private Servo bucketServoRight;
     private ColorSensor colorSensor;
     private ColorAndDistance colorAndDistance;
@@ -86,6 +87,8 @@ public class AutonomousFSM extends OpMode {
 
     private final Pose blocIntake2 = new Pose(83, 97,Math.toRadians(-90));
     private final Pose endPose = new Pose(60, 91.5, Math.toRadians(82.5));
+
+    public static Pose finalPose =new Pose();
 
 
 
@@ -721,5 +724,6 @@ public class AutonomousFSM extends OpMode {
 
     @Override
     public void stop() {
+        finalPose= new Pose(follower.getPose().getX(),follower.getPose().getY(),follower.getTotalHeading()).copy();
     }
 }
