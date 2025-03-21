@@ -98,7 +98,7 @@ public class AutonomousFSM extends OpMode {
 
     /* Paths and PathChains */
     private Path scorePreload, park;
-    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative , toBucket;
+    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative , toBucket, toBucketAlternative;
 
 
     public void buildPaths() {
@@ -240,6 +240,15 @@ public class AutonomousFSM extends OpMode {
                         new Point(endPose)
                 ))
                 .setLinearHeadingInterpolation(follower.getPose().getHeading(),endPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
+                .build();
+
+        toBucketAlternative = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(follower.getPose()),
+                        new Point(bucketPose)
+                ))
+                .setLinearHeadingInterpolation(follower.getPose().getHeading(),bucketPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
