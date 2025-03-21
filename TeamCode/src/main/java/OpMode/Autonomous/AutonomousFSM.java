@@ -179,7 +179,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(endPose)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(), endPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(1)
                 .build();
 
         submersiblePath = follower.pathBuilder()
@@ -198,7 +198,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blockIntake1)
                         ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.5)
+                .setZeroPowerAccelerationMultiplier(3.5)
                 .build();
 
         toBucket = follower.pathBuilder()
