@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import OpMode.Autonomous.Localizers.AprilTagLocalizer;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
@@ -98,8 +99,15 @@ public class AutoDriveFullTeleop extends OpMode {
     private boolean currentLeftTriggerState = false;
     private boolean isClawOpen = true;
 
+    private boolean aprilTagCooldown = false;
+    private ElapsedTime aprilTagTimer = new ElapsedTime();
+    private Pose lastAprilTagPose = null;
+    private AprilTagLocalizer aprilTagLocalizer;
+
     @Override
     public void init() {
+
+        aprilTagLocalizer = new AprilTagLocalizer(hardwareMap);
 
         // Initialize the loop timer
         loopTimer = new ElapsedTime();
@@ -121,6 +129,7 @@ public class AutoDriveFullTeleop extends OpMode {
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         follower.startTeleopDrive();
+
 
         // Initialize Dashboard
         dashboard = FtcDashboard.getInstance();
@@ -164,6 +173,25 @@ public class AutoDriveFullTeleop extends OpMode {
 
         }
 
+        // AprilTag localization update logic
+        if (!aprilTagCooldown) {
+            AprilTagLocalizer.AprilTagPose aprilTagPose = aprilTagLocalizer.getPose(); // Get the pose from the AprilTag localization system
+            if (aprilTagPose != null) {
+                // Update the robot's pose to match the detected AprilTag position
+                Pose newPose = new Pose(aprilTagPose.getX(), aprilTagPose.getY(), aprilTagPose.getRotation());
+                follower.setPose(newPose);
+                lastAprilTagPose = newPose; // Save the pose for potential future use
+                aprilTagCooldown = true; // Start the cooldown
+                aprilTagTimer.reset(); // Reset the timer
+            }
+
+        } else {
+            // Check if the cooldown has expired (10 seconds)
+            if (aprilTagTimer.seconds() > 10) {
+                aprilTagCooldown = false; // Disable cooldown after 10 seconds
+            }
+        }
+
         switch (autoScoreState) {
             case IDLE:
                 // Allow manual control
@@ -184,7 +212,7 @@ public class AutoDriveFullTeleop extends OpMode {
                 // Check if the robot has reached the bucket, then proceed to scoring
                 if (!follower.isBusy()) {
                     autoScoreState = AutoScoreState.SCORING;
-                    bucketServos.depositPosition(); // Deposit the item in the bucket
+                    // bucketServos.depositPosition(); // Deposit the item in the bucket
                 }
                 break;
 
@@ -428,7 +456,15 @@ public class AutoDriveFullTeleop extends OpMode {
                 .setZeroPowerAccelerationMultiplier(0.5)
                 .build();
 
-        follower.followPath(moveToBucket,0.85,false);
+        follower.followPath(moveToBucket,1,false);
+    }
+
+    private Pose getAprilTagPose() {
+        AprilTagLocalizer.AprilTagPose aprilTagPose = aprilTagLocalizer.getPose();
+        if (aprilTagPose != null) {
+            return new Pose(aprilTagPose.getX(), aprilTagPose.getY(), aprilTagPose.getRotation());
+        }
+        return null;
     }
 
 }

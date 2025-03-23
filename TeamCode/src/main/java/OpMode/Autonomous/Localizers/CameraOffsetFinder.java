@@ -7,6 +7,8 @@ import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+
 import OpMode.Autonomous.Localizers.AprilTagLocalizer;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -20,6 +22,8 @@ public class CameraOffsetFinder extends OpMode {
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
 
+    WebcamName webcamName;
+
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
@@ -28,6 +32,10 @@ public class CameraOffsetFinder extends OpMode {
         follower.startTeleopDrive();
 
         aprilTagLocalizer = new AprilTagLocalizer(hardwareMap);
+
+        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        // Stream the camera view to telemetry
+        telemetry.addLine("Camera feed should be visible on the Driver Station now.");
     }
 
     @Override
