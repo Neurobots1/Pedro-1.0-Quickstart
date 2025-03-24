@@ -80,11 +80,11 @@ public class AutonomousNewSpec extends OpMode{
 
     //Pose
 
-    private final Pose startPose = new Pose(8,56,180);
+    private final Pose startPose = new Pose(6,56,180);
 
-    private final Pose rackPose = new Pose(38,70,180);
+    private final Pose rackPose = new Pose(33,70,180);
 
-    private final Pose wallPose = new Pose(8,14,0);
+    private final Pose wallPose = new Pose(11,26,0);
 
 
 
