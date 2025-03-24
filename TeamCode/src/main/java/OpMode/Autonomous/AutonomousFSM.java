@@ -86,7 +86,7 @@ public class AutonomousFSM extends OpMode {
     private final Pose blockIntake1 = new Pose(60, 97, Math.toRadians(-90));
 
     private final Pose blocIntake2 = new Pose(75, 97,Math.toRadians(-90));
-    private final Pose endPose = new Pose(60, 91.5, Math.toRadians(82.5));
+    private final Pose endPose = new Pose(60, 91.5, Math.toRadians(-90));
 
     public static Pose finalPose =new Pose();
 
