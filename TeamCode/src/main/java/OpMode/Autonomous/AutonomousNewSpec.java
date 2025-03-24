@@ -161,40 +161,44 @@ public class AutonomousNewSpec extends OpMode{
                     viperSlides.setTarget(ViperSlides.Target.LOW);
                     clawServo.openPosition();
                     setPathState(3);
-                    break;
+
                 }
+
+                break;
 
             case 3:
                 if (pathTimer.getElapsedTimeSeconds()>0.75){
                     follower.followPath(toWall,0.8,true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     setPathState(4);
-                    break;
                 }
+                break;
 
 
             case 4:
                 if (!follower.isBusy()){
                     clawServo.closedPosition();
                     setPathState(5);
-                    break;
                 }
+                break;
 
             case 5:
                 if (pathTimer.getElapsedTimeSeconds()>0.5){
                     follower.followPath(toRack,0.8,true);
                     viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                     setPathState(6);
-                    break;
                 }
+                break;
+
 
             case 6:
                 if (!follower.isBusy()){
                     viperSlides.setTarget(ViperSlides.Target.LOW);
                     clawServo.openPosition();
                     setPathState(-1);
-                    break;
                 }
+                break;
+
         }
     }
 
