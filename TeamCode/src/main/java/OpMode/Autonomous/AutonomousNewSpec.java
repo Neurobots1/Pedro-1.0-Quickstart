@@ -80,15 +80,11 @@ public class AutonomousNewSpec extends OpMode{
 
     //Pose
 
-    private final Pose startPose = new Pose(6,56,180);
+    private final Pose startPose = new Pose(6.5,56,180);
 
     private final Pose rackPose = new Pose(33,70,180);
 
     private final Pose wallPose = new Pose(11,26,0);
-
-
-
-
 
     public static Pose finalPose =new Pose();
 
@@ -260,6 +256,9 @@ public class AutonomousNewSpec extends OpMode{
 
     @Override
     public void init_loop() {
+        follower.update();
+        telemetry.addData("Position", follower.getPose().toString());
+        telemetry.update();
 
     }
 
