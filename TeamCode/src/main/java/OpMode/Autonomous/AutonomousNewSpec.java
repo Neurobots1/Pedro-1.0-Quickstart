@@ -165,7 +165,7 @@ public class AutonomousNewSpec extends OpMode{
                 }
 
             case 3:
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                if (pathTimer.getElapsedTimeSeconds()>0.75){
                     follower.followPath(toWall,0.8,true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     setPathState(4);
