@@ -198,7 +198,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blockIntake1)
                         ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
-                .setZeroPowerAccelerationMultiplier(3.5)
+                .setZeroPowerAccelerationMultiplier(5)
                 .build();
 
         toBucket = follower.pathBuilder()
@@ -538,6 +538,7 @@ public class AutonomousFSM extends OpMode {
                     setPathState(43);
                 } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
                     setPathState(-1); // Alternative path for missing 3rd block
                 }
 
