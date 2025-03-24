@@ -93,6 +93,11 @@ public class BlueTeleopNEWER extends OpMode {
         loopTimer = new ElapsedTime();
         intakeTimer.reset();
 
+        //startPose
+        telemetry.addData("startPoseX", startPose.getX());
+        telemetry.addData("startPoseY", startPose.getY());
+        telemetry.addData("startPoseHeading", startPose.getHeading());
+
         // Corrected Color Sensor Initialization
         colorAndDistance = new ColorAndDistance(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
 

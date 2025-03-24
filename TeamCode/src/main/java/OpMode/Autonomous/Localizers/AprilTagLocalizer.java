@@ -1,5 +1,6 @@
 package OpMode.Autonomous.Localizers;
 
+import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -49,7 +50,7 @@ public class AprilTagLocalizer {
     private AprilTagPose currentPose = new AprilTagPose(0, 0, 0);  // Default pose: origin (0,0) and 0 rotation
 
     private Position cameraPosition = new Position(DistanceUnit.INCH, 0, 0, 12, 0);  // Adjust position as needed
-    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES, 0, -90, 0, 0);
+    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES, 0, 45, -90,0);
 
     /**
      * Constructor for the AprilTag Localizer.
@@ -82,17 +83,19 @@ public class AprilTagLocalizer {
         List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
 
         if (!detections.isEmpty()) {
-            // Use the first detection for localization
             AprilTagDetection detection = detections.get(0);
-            AprilTagPose tagPose = new AprilTagPose(
+
+            Pose temp = new Pose(
                     detection.robotPose.getPosition().x,
                     detection.robotPose.getPosition().y,
-                    detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS)
-            );
+                    detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS),
+                    false
+            ).getAsPedroCoordinates();
 
-            currentPose = tagPose;  // Update the current pose based on the AprilTag detection
+            currentPose = new AprilTagPose(temp.getX(), temp.getY(), temp.getHeading());
         }
     }
+
 
     /**
      * Returns the current pose of the robot.

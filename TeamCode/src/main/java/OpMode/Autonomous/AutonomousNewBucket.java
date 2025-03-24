@@ -309,7 +309,6 @@ public class AutonomousNewBucket extends OpMode {
 
             case 6: //
                 if (!follower.isBusy()) {
-
                     if (pathTimer.getElapsedTimeSeconds() > 2 && pathTimer.getElapsedTimeSeconds() < 2.1) {
                         bucketServos.depositPosition();
 
