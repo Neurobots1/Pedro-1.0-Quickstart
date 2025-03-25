@@ -27,7 +27,7 @@ import pedroPathing.constants.LConstants;
 
 @Config
 @Deprecated
-@TeleOp(name = "BlueTeleopNEWIntake", group = "Active")
+@TeleOp(name = "BlueTeleopNEWIntake", group = "Unused")
 public class BlueTeleopNEWIntake extends OpMode {
 
     public enum IntakeState {
