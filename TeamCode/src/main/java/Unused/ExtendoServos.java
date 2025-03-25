@@ -2,6 +2,8 @@ package Unused;
 
 import com.qualcomm.robotcore.hardware.Servo;
 
+
+@Deprecated
 public class ExtendoServos {
 
     private Servo extendoServoRight;

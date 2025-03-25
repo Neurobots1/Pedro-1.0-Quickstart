@@ -1,11 +1,8 @@
-package OpMode.TeleOp;
+package Unused;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
-import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -16,33 +13,22 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import OpMode.Subsystems.BucketServos;
-import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.GamePieceDetection;
+import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
-import OpMode.Subsystems.IntakeServosNEW;
-import OpMode.Subsystems.LinkageController;
 import OpMode.Subsystems.ViperSlides;
+import OpMode.Subsystems.LinkageController;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+
 @Config
-@TeleOp(name = "BlueTeleopNEWIntake", group = "Active")
-public class BlueTeleopNEWIntake extends OpMode {
-
-    public enum IntakeState {
-        INTAKE_START,
-        INTAKE_EXTEND,
-        INTAKE_RETRACT,
-        INTAKE_HUMAIN,
-        INTAKE_BLOCK,
-
-        INTAKE_WAITFORBLOCK
-
-    };
-
-    IntakeState intakeState = IntakeState.INTAKE_START;
-    ElapsedTime intakeTimer = new ElapsedTime();
+@Deprecated
+@TeleOp(name = "BlueTeleop", group = "Active")
+public class BlueTeleop extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -60,39 +46,44 @@ public class BlueTeleopNEWIntake extends OpMode {
     // Servos
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
-    private IntakeServosNEW intakeServos;
+    private IntakeServos intakeServos; // IntakeBoolean subsystem instance
     private ClawServo clawServo;
     private Servo bucketServoRight;
     private Servo bucketServoLeft;
     private BucketServos bucketServos;
 
-    // Intake Motor and Color Sensor
+    // IntakeBoolean Motor and Color Sensor
     private DcMotor intakemotor;
     private IntakeMotor intakeMotor;
     private DcMotor extendoMotor;
     private ColorSensor colorSensor;
     private GamePieceDetection gamePieceDetection;
-
-
     private boolean hasRumbled = false;
+
+    // Loop Timer
     private ElapsedTime loopTimer;
+
+    // Declare the LinkageController instance
     private LinkageController linkageController;
+
+    // Declare the timer for the linkage retraction
     boolean waitingForExtension = false;
 
-    // Left Trigger Rising Edge Detection
+
+
+
+    // Variables for Left Trigger Rising Edge Detection
     private boolean previousLeftTriggerState = false;
     private boolean currentLeftTriggerState = false;
     private boolean isClawOpen = true;
 
     @Override
     public void init() {
+        // Initialize GamePieceDetection
+        gamePieceDetection = new GamePieceDetection(hardwareMap.get(ColorSensor.class, "colorSensor"));
 
         // Initialize the loop timer
         loopTimer = new ElapsedTime();
-        intakeTimer.reset();
-
-        // Corrected Color Sensor Initialization
-        gamePieceDetection = new GamePieceDetection(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
 
         // Initialize Viper Slide
         viperSlides = new ViperSlides(
@@ -106,7 +97,6 @@ public class BlueTeleopNEWIntake extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
-        follower.startTeleopDrive();
 
         // Initialize Dashboard
         dashboard = FtcDashboard.getInstance();
@@ -116,16 +106,17 @@ public class BlueTeleopNEWIntake extends OpMode {
 
         // Initialize motors and sensors
         intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
+        colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
 
         // Initialize intake servos
         intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
-        intakeServos = new IntakeServosNEW(intakeServoRight, intakeServoLeft);
-        intakeServos.transferPosition();
-
-        // Linkage
+        intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
+        intakeServos.transferPosition(); // Set intake servos to transfer position
+        //Linkage
         linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
         telemetry.addData("Status", "Initialized");
+
         linkageController.zeroMotor();
 
         // Initialize claw servo
@@ -135,127 +126,87 @@ public class BlueTeleopNEWIntake extends OpMode {
         bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
         bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
+
         bucketServos.transferPosition();
     }
 
     @Override
+    public void init_loop() {
+    }
+
+    @Override
+    public void start() {
+        // Ensure the follower starts TeleOp drive
+        follower.startTeleopDrive();
+        linkageController.zeroMotor();
+        //linkageController.setPosition(LinkageController.Position.RETRACTED);
+
+        // Disable PID control temporarily
+        viperSlides.setPIDEnabled(false);  // Disable PID control
+
+        // Move slides down until the limit switch is triggered
+        while (!viperSlides.isLimitSwitchPressed()) {
+            // Set the motor to move the slides down (negative direction)
+            viperSlides.setSlidePower(-1.0); // Adjust the power as needed
+        }
+
+        // Once the limit switch is pressed, stop the motor
+        viperSlides.setSlidePower(0); // Stop the motor
+
+        // Optionally, reset the position of the Viper slides to 0
+        viperSlides.resetPosition(); // Reset the encoder and set position to 0
+
+        // Re-enable PID control after the manual reset
+        viperSlides.setPIDEnabled(true);  // Re-enable PID control
+    }
+
+    @Override
     public void loop() {
-
-        switch (intakeState) {
-
-
-            case INTAKE_START:
-               linkageController.setPosition(LinkageController.Position.RETRACTED);
-               intakeMotor.stop();
-               intakeServos.transferPosition();
-               intakeTimer.reset();
-               if (gamepad1.dpad_up) {
-                   intakeState = IntakeState.INTAKE_EXTEND;
-               }
-                break;
-
-            case INTAKE_EXTEND:
-                linkageController.setPosition(LinkageController.Position.EXTENDED);
-                if (intakeTimer.seconds()>1){
-                    intakeServos.intakePosition();
-                    intakeMotor.intake();
-                    intakeTimer.reset();
-                    intakeState = IntakeState.INTAKE_WAITFORBLOCK;
-                }
-
-                break;
-
-            case INTAKE_WAITFORBLOCK:
-                gamePieceDetection.detectColor();
-
-                String detectedColor = gamePieceDetection.getDetectedColor();
-
-                if (detectedColor.equals("Blue") || detectedColor.equals("Yellow")){
-                    intakeMotor.stop();
-                    intakeServos.transferPosition();
-                    intakeTimer.reset();
-                    intakeState = IntakeState.INTAKE_RETRACT;
-                }
-
-
-                break;
-
-            case INTAKE_RETRACT:
-                if (intakeTimer.seconds()>1) {
-                    linkageController.setPosition(LinkageController.Position.RETRACTED);
-                }
-                if (gamepad1.right_bumper){
-                    intakeTimer.reset();
-                    intakeState = IntakeState.INTAKE_HUMAIN;
-                } else if (gamepad1.left_bumper) {
-                    intakeTimer.reset();
-                    intakeState = IntakeState.INTAKE_BLOCK;
-
-                }
-
-                if (gamepad1.dpad_up) {
-                    intakeState = IntakeState.INTAKE_EXTEND;
-                }
-
-                break;
-
-            case INTAKE_HUMAIN:
-                gamePieceDetection.detectColor();
-
-                String detectedColor1 = gamePieceDetection.getDetectedColor();
-
-                if (detectedColor1.equals("Blue")||detectedColor1.equals("Yellow")) {
-                    intakeMotor.outtake();
-                }
-                if (detectedColor1.equals("None")) {
-                    intakeState = IntakeState.INTAKE_START;
-                }
-                break;
-
-            case INTAKE_BLOCK:
-                gamePieceDetection.detectColor();
-
-                String detectedColor2 = gamePieceDetection.getDetectedColor();
-
-                if (detectedColor2.equals("Blue")||detectedColor2.equals("Yellow")) {
-                    intakeMotor.intake();
-                }
-                if (detectedColor2.equals("None")) {
-                    intakeState = IntakeState.INTAKE_START;
-                }
-
-                break;
-
-            default:
-                // should never be reached, as intakeState should never be null
-                intakeState = IntakeState.INTAKE_START;
-
-        }
-
-        if (gamepad1.dpad_down && intakeState != IntakeState.INTAKE_START) {
-            intakeState = IntakeState.INTAKE_START;
-        }
-        // Measure loop time
+        // Measure the time elapsed since the last loop iteration
         double loopTime = loopTimer.milliseconds();
-        loopTimer.reset();
+        loopTimer.reset();  // Reset the timer for the next loop iteration
 
         // TeleOp movement
         follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
         follower.update();
 
-        // Update Color Sensor
+        // Game Piece Detection and Rumble Feedback
         gamePieceDetection.detectColor();
         String detectedColor = gamePieceDetection.getDetectedColor();
-
-        // Rumble for Blue Detection
         if ((detectedColor.equals("Blue") && !hasRumbled)) {
-            gamepad1.rumble(1000);
+            gamepad1.rumble(1000);  // Rumble for 1 second
             hasRumbled = true;
         }
         if (!detectedColor.equals("Blue") && !detectedColor.equals("Yellow")) {
             hasRumbled = false;
         }
 
+        // Opponent Color Detection (e.g., Red)
+        if (detectedColor.equals("Red")) {
+            intakeMotor.outtake();  // Outtake at low power
+        } else if (gamepad1.left_bumper) {
+            intakeMotor.intake();  // IntakeBoolean
+        } else if (gamepad1.right_bumper) {
+            intakeMotor.outtake();  // Outtake
+        } else {
+            intakeMotor.stop();  // Stop intake motor
+        }
+
+        // Rising edge detection for left trigger to toggle claw
+        currentLeftTriggerState = gamepad1.left_trigger > 0.5;  // Detect if the left trigger is pressed
+        if (currentLeftTriggerState && !previousLeftTriggerState) {  // Rising edge
+            // Toggle claw position on rising edge
+            if (isClawOpen) {
+                clawServo.closedPosition();  // Close the claw
+            } else {
+                clawServo.openPosition();  // Open the claw
+            }
+            // Flip the claw state
+            isClawOpen = !isClawOpen;
+        }
+        previousLeftTriggerState = currentLeftTriggerState;  // Update the previous state
+
+        // Bucket Servo Control Based on Slide Position and Right Trigger
         if (viperSlides.getSlidePositionRight() > 1300) {
             if (gamepad1.right_trigger > 0.1) {
                 bucketServos.depositPosition(); // Move bucket to deposit position if right trigger is pressed and slides are down
@@ -266,8 +217,45 @@ public class BlueTeleopNEWIntake extends OpMode {
             bucketServos.transferPosition();       // If the slide position is not less than -1950, set bucket to transfer position
         }
 
-        if (gamepad1.touchpad){
-            viperSlides.setTarget(ViperSlides.Target.LEVEL1);
+        // Servo Control for Linkage and IntakeBoolean Servos
+
+        //linkageController.checkForAmperageSpike();
+
+
+        if (gamepad1.dpad_up) {
+            // Command the linkage to extend
+            linkageController.setPosition(LinkageController.Position.EXTENDED);
+            waitingForExtension = true; // Start waiting
+        }
+        else if (gamepad1.dpad_down) {
+            // Attempt to retract the linkage
+            if (intakeServos.isTransferPosition()) {
+                // Only proceed with retraction if intake servos are in transfer position
+                linkageController.setPosition(LinkageController.Position.RETRACTED);
+            } else {
+                telemetry.addData("Warning", "Cannot retract linkage until intake servos are in transfer position!");
+            }
+        } else if (gamepad1.dpad_right) {
+            // Attempt to move intake servos to the intake position
+            if (linkageController.isExtended()) {
+                intakeServos.intakePosition(); // Only allow if linkage is extended
+            } else {
+                telemetry.addData("Warning", "Cannot move intake servos to intake position while linkage is retracted!");
+            }
+        } else if (gamepad1.dpad_left) {
+            // Move intake servos to transfer position
+            intakeServos.transferPosition();
+        } else if (gamepad1.right_stick_button) {
+            intakeServos.neutralPosition();
+
+        }
+
+        if (waitingForExtension) {
+            if (linkageController.isExtended()) {
+                // When fully extended, set intake servos to neutral
+                intakeServos.neutralPosition();
+                waitingForExtension = false; // Reset the flag
+            }
         }
 
 
@@ -279,9 +267,11 @@ public class BlueTeleopNEWIntake extends OpMode {
         viperSlides.update();
 
         if (viperSlides.isLimitSwitchPressed() && !wasLimitSwitchPressed) {
+            // Limit switch is pressed, and it wasn't pressed in the previous loop iteration
             viperSlides.resetPosition();
         }
 
+        // Update the previous state of the limit switch
         wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
 
         if (gamepad1.y) {
@@ -295,25 +285,33 @@ public class BlueTeleopNEWIntake extends OpMode {
         }
         if (gamepad1.x && bucketServos.isTransferPosition()) {
             viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-
         }
 
         // Home Slides
         if (gamepad1.options) {
-            viperSlides.setPIDEnabled(false);
+            // Disable PID control temporarily
+            viperSlides.setPIDEnabled(false);  // Disable PID control
 
+            // Move slides down until the limit switch is triggered
             while (!viperSlides.isLimitSwitchPressed()) {
-                viperSlides.setSlidePower(-1.0);
+                // Set the motor to move the slides down (negative direction)
+                viperSlides.setSlidePower(-1.0); // Adjust the power as needed
             }
 
-            viperSlides.setSlidePower(0);
-            viperSlides.resetPosition();
-            viperSlides.setPIDEnabled(true);
+            // Once the limit switch is pressed, stop the motor
+            viperSlides.setSlidePower(0); // Stop the motor
+
+            // Optionally, reset the position of the Viper slides to 0
+            viperSlides.resetPosition(); // Reset the encoder and set position to 0
+
+            // Re-enable PID control after the manual reset
+            viperSlides.setPIDEnabled(true);  // Re-enable PID control
         }
 
         if (gamepad1.back) {
+            // Reset the heading to zero
             Pose currentPose = follower.getPose();
-            Pose newPose = new Pose(currentPose.getX(), currentPose.getY(), 0);
+            Pose newPose = new Pose(currentPose.getX(), currentPose.getY(), 0); // Set heading to 0
             follower.setPose(newPose);
         }
 
@@ -333,7 +331,6 @@ public class BlueTeleopNEWIntake extends OpMode {
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
-        telemetry.addData("intake State", intakeState);
         telemetry.update();
     }
-    }
+}

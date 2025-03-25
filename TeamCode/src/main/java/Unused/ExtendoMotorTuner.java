@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.acmerobotics.dashboard.FtcDashboard;  // Make sure to import the FtcDashboard class
 
 @TeleOp
+@Deprecated
 @Config // Makes the PID parameters configurable in FTC Dashboard
 public class ExtendoMotorTuner extends OpMode {
 

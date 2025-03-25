@@ -4,6 +4,8 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+
+@Deprecated
 public class ExtendoMotor {
 
     // Enum to represent different positions
