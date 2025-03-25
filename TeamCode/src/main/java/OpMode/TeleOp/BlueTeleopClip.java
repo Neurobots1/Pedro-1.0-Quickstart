@@ -28,7 +28,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
-@TeleOp(name = "BlueTeleopNEWER", group = "Active")
+@TeleOp(name = "BlueTeleopNEWER", group = "0")
 public class BlueTeleopClip extends OpMode {
 
     public enum IntakeState {
@@ -313,16 +313,16 @@ public class BlueTeleopClip extends OpMode {
         wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
 
         if (gamepad1.y) {
-            viperSlides.setTarget(ViperSlides.Target.HIGH);
+            viperSlides.setTarget(ViperSlides.Target.MEDIUM);
         }
         if (gamepad1.a && bucketServos.isTransferPosition() && isClawOpen) {
             viperSlides.setTarget(ViperSlides.Target.GROUND);
         }
-        if (gamepad1.b && bucketServos.isTransferPosition()) {
+        if (gamepad1.x && bucketServos.isTransferPosition()) {
             viperSlides.setTarget(ViperSlides.Target.LOW);
         }
-        if (gamepad1.x && bucketServos.isTransferPosition()) {
-            viperSlides.setTarget(ViperSlides.Target.MEDIUM);
+        if (gamepad1.b && bucketServos.isTransferPosition()) {
+            viperSlides.setTarget(ViperSlides.Target.HIGH);
 
         }
 
