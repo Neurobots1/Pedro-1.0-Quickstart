@@ -1,5 +1,7 @@
 package OpMode.TeleOp.Test;
 
+import static OpMode.Autonomous.AutonomousFSM.finalPose;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
@@ -57,8 +59,7 @@ public class AutoDriveFullTeleop extends OpMode {
 
     private AutoScoreState autoScoreState = AutoScoreState.IDLE;
     private final Pose bucketPose = new Pose(12, 131, Math.toRadians(315)); // Target pose for scoring
-    private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
-
+    private final Pose startPose = new Pose(finalPose.getX(), finalPose.getY(),finalPose.getHeading());
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
     public static double f = 0.1;
@@ -178,7 +179,7 @@ public class AutoDriveFullTeleop extends OpMode {
             AprilTagLocalizer.AprilTagPose aprilTagPose = aprilTagLocalizer.getPose(); // Get the pose from the AprilTag localization system
             if (aprilTagPose != null) {
                 // Update the robot's pose to match the detected AprilTag position
-                Pose newPose = new Pose(aprilTagPose.getX(), aprilTagPose.getY(), aprilTagPose.getRotation());
+                Pose newPose = new Pose(aprilTagPose.getX(), aprilTagPose.getY(), aprilTagPose.getHeading());
                 follower.setPose(newPose);
                 lastAprilTagPose = newPose; // Save the pose for potential future use
                 aprilTagCooldown = true; // Start the cooldown
@@ -462,7 +463,7 @@ public class AutoDriveFullTeleop extends OpMode {
     private Pose getAprilTagPose() {
         AprilTagLocalizer.AprilTagPose aprilTagPose = aprilTagLocalizer.getPose();
         if (aprilTagPose != null) {
-            return new Pose(aprilTagPose.getX(), aprilTagPose.getY(), aprilTagPose.getRotation());
+            return new Pose(aprilTagPose.getX(), aprilTagPose.getY(), aprilTagPose.getHeading());
         }
         return null;
     }

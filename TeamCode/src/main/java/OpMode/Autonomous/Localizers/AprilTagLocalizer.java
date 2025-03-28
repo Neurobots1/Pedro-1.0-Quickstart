@@ -49,8 +49,9 @@ public class AprilTagLocalizer {
      */
     private AprilTagPose currentPose = new AprilTagPose(0, 0, 0);  // Default pose: origin (0,0) and 0 rotation
 
-    private Position cameraPosition = new Position(DistanceUnit.INCH, 0, 0, 12, 0);  // Adjust position as needed
-    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES, 0, 45, -90,0);
+    private Position cameraPosition = new Position(DistanceUnit.INCH, 0, 0, 5.25
+            , 0);  // Adjust position as needed
+    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES, -45,0 , -90,0);
 
     /**
      * Constructor for the AprilTag Localizer.
@@ -93,6 +94,7 @@ public class AprilTagLocalizer {
             ).getAsPedroCoordinates();
 
             currentPose = new AprilTagPose(temp.getX(), temp.getY(), temp.getHeading());
+
         }
     }
 
@@ -121,12 +123,12 @@ public class AprilTagLocalizer {
     public static class AprilTagPose {
         private double x;
         private double y;
-        private double rotation;
+        private double heading;
 
-        public AprilTagPose(double x, double y, double rotation) {
+        public AprilTagPose(double x, double y, double heading) {
             this.x = x;
             this.y = y;
-            this.rotation = rotation;
+            this.heading = heading;
         }
 
         public double getX() {
@@ -137,8 +139,8 @@ public class AprilTagLocalizer {
             return y;
         }
 
-        public double getRotation() {
-            return rotation;
+        public double getHeading() {
+            return heading;
         }
     }
 }

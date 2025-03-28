@@ -46,7 +46,7 @@ public class ColorAndDistance{
 
         if (hue >= 20 && hue < 55) {
             return "Red"; // about 30
-        } else if (hue >= 200 && hue < 240) {
+        } else if (hue >= 200 && hue < 300) {
             return "Blue"; // about 225
         } else if (hue >= 60 && hue < 100) {
             return "Yellow"; // about 60

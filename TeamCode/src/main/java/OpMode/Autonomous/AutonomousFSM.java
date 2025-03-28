@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
+import OpMode.Subsystems.HandServo;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServosNEW;
 import OpMode.Subsystems.LinkageController;
@@ -49,6 +50,7 @@ public class AutonomousFSM extends OpMode {
     private Servo intakeServoLeft;
     private IntakeServosNEW intakeServos; // IntakeBoolean subsystem instance
     private ClawServo clawServo;
+    private HandServo handServo;
 
 
 
@@ -607,10 +609,19 @@ public class AutonomousFSM extends OpMode {
 
             case 54:
                 if (pathTimer.getElapsedTimeSeconds()>0.5){
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
+
                     follower.followPath(endPath,0.8,true);
+                    setPathState(55);
+                }
+                break;
+
+            case 55:
+                if ((pathTimer.getElapsedTimeSeconds()>1)){
+                    viperSlides.setTarget(ViperSlides.Target.GROUND);
+                    handServo.openPosition();
                     setPathState(-1);
                 }
+
                 break;
 
 
@@ -672,6 +683,7 @@ public class AutonomousFSM extends OpMode {
 
 
         intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
+        handServo = new HandServo(hardwareMap.get(Servo.class, "HandServo"));
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServosNEW(intakeServoRight , intakeServoLeft);
         intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
@@ -685,7 +697,10 @@ public class AutonomousFSM extends OpMode {
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
         bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
 
+        handServo.closedPosition();
+
         clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
+
 
         bucketServos.transferPosition();
         clawServo.openPosition();

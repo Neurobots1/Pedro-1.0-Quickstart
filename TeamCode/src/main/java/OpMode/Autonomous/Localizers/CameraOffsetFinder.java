@@ -53,6 +53,7 @@ public class CameraOffsetFinder extends OpMode {
         Pose pedroPose = follower.getPose();
 
         // Get the AprilTag-detected pose
+        aprilTagLocalizer.updateLocalization();
         AprilTagLocalizer.AprilTagPose cameraPose = aprilTagLocalizer.getPose();
 
         // Display Pedro Pathing Pose
@@ -66,18 +67,27 @@ public class CameraOffsetFinder extends OpMode {
             telemetry.addData("\nAprilTag Camera Pose", "");
             telemetry.addData("X", cameraPose.getX());
             telemetry.addData("Y", cameraPose.getY());
-            telemetry.addData("Heading (Degrees)", Math.toDegrees(cameraPose.getRotation()));
+            telemetry.addData("Heading (Degrees)", Math.toDegrees(cameraPose.getHeading()));
 
             // Calculate offsets (AprilTag Pose - Pedro Pathing Pose)
-            double xOffset = cameraPose.getX() - pedroPose.getX();
-            double yOffset = cameraPose.getY() - pedroPose.getY();
-            double headingOffset = cameraPose.getRotation() - pedroPose.getHeading();
+            double dx = cameraPose.getX() - pedroPose.getX();
+            double dy = cameraPose.getY() - pedroPose.getY();
+            double heading = pedroPose.getHeading();
+
+            double xOffset =  dx * Math.cos(-heading) - dy * Math.sin(-heading);
+            double yOffset =  dx * Math.sin(-heading) + dy * Math.cos(-heading);
+            double headingOffset = cameraPose.getHeading() - pedroPose.getHeading();
 
             // Display Calculated Camera Offsets
             telemetry.addData("\nCamera Offsets", "");
             telemetry.addData("X Offset", xOffset);
             telemetry.addData("Y Offset", yOffset);
             telemetry.addData("Heading Offset (Degrees)", Math.toDegrees(headingOffset));
+
+            /* telemetry.addData("Raw AprilTag Pose", "");
+            telemetry.addData("Raw X", rawPose.getX());
+            telemetry.addData("Raw Y", rawPose.getY());
+            telemetry.addData("Raw Heading (Degrees)", Math.toDegrees(rawPose.getHeading())); */
         } else {
             telemetry.addData("AprilTag", "Not detected");
         }

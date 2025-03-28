@@ -28,7 +28,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
-@TeleOp(name = "BlueTeleopNEWER", group = "0")
+@TeleOp(name = "BlueTeleopClip", group = "0")
 public class BlueTeleopClip extends OpMode {
 
     public enum IntakeState {

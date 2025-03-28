@@ -31,7 +31,7 @@ public class HybridLocalizer {
         AprilTagLocalizer.AprilTagPose aprilTagPose = aprilTagLocalizer.getPose();  // Retrieve pose from AprilTag
 
         // Convert the AprilTagPose to a Pose2d for consistency
-        Pose aprilTagPose2d = new Pose(aprilTagPose.getX(), aprilTagPose.getY(), aprilTagPose.getRotation());
+        Pose aprilTagPose2d = new Pose(aprilTagPose.getX(), aprilTagPose.getY(), aprilTagPose.getHeading());
 
         // Fuse the poses using Kalman filter
         fusedPose = kalmanFilter.fuse(pedroPose, aprilTagPose2d);
