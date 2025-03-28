@@ -26,7 +26,8 @@ import pedroPathing.constants.LConstants;
 
 @Config
 @Deprecated
-@TeleOp(name = "BlueTeleopBucket", group = "10")
+@TeleOp(name = "BlueTeleopBucket" +
+        "", group = "Active")
 public class BlueTeleopBucket extends OpMode {
 
     // Viper Slide Variables
