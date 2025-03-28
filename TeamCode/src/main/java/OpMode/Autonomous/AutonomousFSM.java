@@ -100,7 +100,7 @@ public class AutonomousFSM extends OpMode {
 
     /* Paths and PathChains */
     private Path scorePreload, park;
-    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative , toBucket, toBucketAlternative;
+    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative , toBucket, toBucketAlternative, toSubmersibleAlternative1, toSubmersibleReverse;
 
 
     public void buildPaths() {
@@ -254,7 +254,24 @@ public class AutonomousFSM extends OpMode {
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
+        toSubmersibleAlternative1 = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        new Point(follower.getPose()),
+                        new Point(ControlePoint),
+                        new Point(blockIntake1)
+                ))
+                .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
+                .build();
 
+        toSubmersibleReverse = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(blocIntake2),
+                        new Point(blockIntake1)
+                ))
+                .setLinearHeadingInterpolation(blocIntake2.getHeading(),blockIntake1.getHeading())
+                .setZeroPowerAccelerationMultiplier(1)
+                .build();
 
     }
 
@@ -642,12 +659,49 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 37:  // Alternative path after missing third block
-                follower.followPath(endPathAlternative, 0.8, true);
-                viperSlides.setTarget(ViperSlides.Target.LOW);
+                follower.followPath(toSubmersibleAlternative1, 0.8, true);
+                viperSlides.setTarget(ViperSlides.Target.GROUND);
                 intakeServos.transferPosition();
                 linkageController.setPosition(LinkageController.Position.RETRACTED);
-                setPathState(34);
+                setPathState(38);
                 break;
+
+
+            case 57: //AltenativePath after missing submersible block
+                follower.followPath(toSubmersibleReverse);
+                setPathState(58);
+                break;
+
+            case 58://Alternative path after missing submersible block
+                colorAndDistance.update();
+                detectedColor = colorAndDistance.getDetectedColor();
+
+                if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
+                    intakeMotor.stop();
+                    intakeServos.transferPosition();
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    handServo.openPosition();
+                    setPathState(59);
+                } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
+                    intakeMotor.stop();
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    handServo.openPosition();
+                    setPathState(-1); // Alternative path for missing 3rd block
+                }
+                break;
+
+
+            case 59://Alternative path after missing submersible block End
+                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                    intakeMotor.intake();
+                    if (pathTimer.getElapsedTimeSeconds()>1){
+                        intakeMotor.stop();
+                        setPathState(-1);
+                    }
+            }
+                break;
+
+
         }
 
 
