@@ -562,7 +562,7 @@ public class AutonomousFSM extends OpMode {
                 } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
                     linkageController.setPosition(LinkageController.Position.RETRACTED);
-                    setPathState(-1); // Alternative path for missing 3rd block
+                    setPathState(57); // Alternative path for missing submersible block
                 }
 
                 break;
@@ -660,11 +660,12 @@ public class AutonomousFSM extends OpMode {
 
             case 37:  // Alternative path after missing third block
                 follower.followPath(toSubmersibleAlternative1, 0.8, true);
-                viperSlides.setTarget(ViperSlides.Target.GROUND);
                 intakeServos.transferPosition();
-                linkageController.setPosition(LinkageController.Position.RETRACTED);
                 setPathState(38);
                 break;
+
+
+                /** ----------- ALTERNATIVE PATHS AFTER MISSING SUBMERSIBLE BLOCK--------**/
 
 
             case 57: //AltenativePath after missing submersible block
@@ -696,11 +697,22 @@ public class AutonomousFSM extends OpMode {
                     intakeMotor.intake();
                     if (pathTimer.getElapsedTimeSeconds()>1){
                         intakeMotor.stop();
-                        setPathState(-1);
+                        if(opmodeTimer.getElapsedTimeSeconds()<25){
+                            setPathState(60);
+                        } else if (opmodeTimer.getElapsedTimeSeconds()>25) {
+                            setPathState(-1);
+                        }
                     }
-            }
+                }
                 break;
 
+
+            case 60://ToBucket Alternatif
+                follower.followPath(toBucketAlternative);
+                if (!follower.isBusy()) {
+                    setPathState(51);
+                }
+                break;
 
         }
 
@@ -792,6 +804,7 @@ public class AutonomousFSM extends OpMode {
         telemetry.addData("Path State", pathState);
         telemetry.addData("Position", follower.getPose().toString());
         telemetry.addData("Path Timer", pathTimer.getElapsedTimeSeconds());
+        telemetry.addData("OpMode Timer", pathTimer.getElapsedTimeSeconds());
         telemetry.update();
         viperSlides.update();
         linkageController.checkForAmperageSpike();
