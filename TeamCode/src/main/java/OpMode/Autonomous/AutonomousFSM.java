@@ -559,9 +559,8 @@ public class AutonomousFSM extends OpMode {
                     intakeServos.transferPosition();
                     follower.followPath(toBucket, 0.8, true);
                     setPathState(43);
-                } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
+                } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
-                    linkageController.setPosition(LinkageController.Position.RETRACTED);
                     setPathState(57); // Alternative path for missing submersible block
                 }
 
@@ -669,7 +668,8 @@ public class AutonomousFSM extends OpMode {
 
 
             case 57: //AltenativePath after missing submersible block
-                follower.followPath(toSubmersibleReverse);
+                follower.followPath(toSubmersibleReverse,1,true);
+                intakeMotor.intake();
                 setPathState(58);
                 break;
 
@@ -680,16 +680,31 @@ public class AutonomousFSM extends OpMode {
                 if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
-                    linkageController.setPosition(LinkageController.Position.RETRACTED);
                     handServo.openPosition();
-                    setPathState(59);
+                    setPathState(61);
                 } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
-                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    intakeServos.transferPosition();
                     handServo.openPosition();
-                    setPathState(-1); // Alternative path for missing 3rd block
+                    setPathState(62); // Alternative path for missing 3rd block
                 }
                 break;
+
+            case 61:
+                if(pathTimer.getElapsedTimeSeconds()>0.25){
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    setPathState(59);
+                }
+                break;
+
+
+            case 62:
+                if(pathTimer.getElapsedTimeSeconds()>1){
+                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    setPathState(-1);
+                }
+                break;
+
 
 
             case 59://Alternative path after missing submersible block End
@@ -700,6 +715,8 @@ public class AutonomousFSM extends OpMode {
                         if(opmodeTimer.getElapsedTimeSeconds()<25){
                             setPathState(60);
                         } else if (opmodeTimer.getElapsedTimeSeconds()>25) {
+                            follower.followPath(endPathAlternative);
+                            handServo.openPosition();
                             setPathState(-1);
                         }
                     }
