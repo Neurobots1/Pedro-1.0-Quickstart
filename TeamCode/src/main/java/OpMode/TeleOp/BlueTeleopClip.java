@@ -40,9 +40,21 @@ public class BlueTeleopClip extends OpMode {
 
         INTAKE_WAITFORBLOCK
 
-    };
+    }
+
+    public enum SlideState {
+        IDLE,
+        BlockInBucket,
+        BucketScoring,
+        Descending,
+        ClawClosed,
+        SlideMID,
+        SlideClip
+    }
 
     IntakeState intakeState = IntakeState.INTAKE_START;
+
+    SlideState slideState = SlideState.IDLE;
     ElapsedTime intakeTimer = new ElapsedTime();
 
     // Viper Slide Variables
@@ -246,6 +258,10 @@ public class BlueTeleopClip extends OpMode {
             default:
                 // should never be reached, as intakeState should never be null
                 intakeState = IntakeState.INTAKE_START;
+
+        }
+
+        switch (slideState) {
 
         }
 
