@@ -96,7 +96,8 @@ public class AutonomousFSM extends OpMode {
 
     //control point
     private final Pose endPoseControlPoint = new Pose(60,124);
-    private final Pose ControlePoint = new Pose(68,139);
+    private final Pose ControlePoint1 = new Pose(20,107);
+    private final Pose ControlePoint2 = new Pose(68,118);
 
     /* Paths and PathChains */
     private Path scorePreload, park;
@@ -196,7 +197,8 @@ public class AutonomousFSM extends OpMode {
         toSubmersible = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         new Point(bucketPose),
-                        new Point(ControlePoint),
+                        new Point(ControlePoint1),
+                        new Point(ControlePoint2),
                         new Point(blockIntake1)
                         ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
@@ -257,7 +259,7 @@ public class AutonomousFSM extends OpMode {
         toSubmersibleAlternative1 = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         new Point(follower.getPose()),
-                        new Point(ControlePoint),
+                        new Point(ControlePoint1),
                         new Point(blockIntake1)
                 ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
@@ -701,6 +703,8 @@ public class AutonomousFSM extends OpMode {
             case 62:
                 if(pathTimer.getElapsedTimeSeconds()>1){
                     linkageController.setPosition(LinkageController.Position.RETRACTED);
+                    handServo.openPosition();
+                    follower.followPath(endPathAlternative,1,true);
                     setPathState(-1);
                 }
                 break;
@@ -715,7 +719,7 @@ public class AutonomousFSM extends OpMode {
                         if(opmodeTimer.getElapsedTimeSeconds()<25){
                             setPathState(60);
                         } else if (opmodeTimer.getElapsedTimeSeconds()>25) {
-                            follower.followPath(endPathAlternative);
+                            follower.followPath(endPathAlternative,1,true);
                             handServo.openPosition();
                             setPathState(-1);
                         }
