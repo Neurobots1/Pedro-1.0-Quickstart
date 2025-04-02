@@ -263,6 +263,41 @@ public class BlueTeleopClip extends OpMode {
 
         switch (slideState) {
 
+            case IDLE :
+
+                viperSlides.setTarget(ViperSlides.Target.GROUND);
+                bucketServos.transferPosition();
+
+                break;
+
+            case BlockInBucket:
+                viperSlides.setTarget(ViperSlides.Target.HIGH);
+
+                break;
+            case BucketScoring:
+
+
+
+                break;
+            case Descending:
+
+                break;
+            case ClawClosed:
+
+                break;
+            case SlideMID:
+
+                break;
+            case SlideClip:
+
+                break;
+
+            default:
+
+                slideState = SlideState.IDLE;
+
+
+
         }
 
         if (gamepad1.dpad_down && intakeState != IntakeState.INTAKE_START) {

@@ -82,7 +82,7 @@ public class AutonomousFSM extends OpMode {
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
     private final Pose bucketPose = new Pose(13, 128, Math.toRadians(315));
     private final Pose blockPose1 = new Pose(20, 120, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(20, 129, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(20, 128 , Math.toRadians(0));
     private final Pose blockPose3 = new Pose(32, 120, Math.toRadians(59));
 
     private final Pose blockIntake1 = new Pose(60, 97, Math.toRadians(-90));
@@ -197,8 +197,7 @@ public class AutonomousFSM extends OpMode {
         toSubmersible = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         new Point(bucketPose),
-                        new Point(ControlePoint1),
-                        new Point(ControlePoint2),
+                        new Point(68,113),
                         new Point(blockIntake1)
                         ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
@@ -258,8 +257,8 @@ public class AutonomousFSM extends OpMode {
 
         toSubmersibleAlternative1 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(follower.getPose()),
-                        new Point(ControlePoint1),
+                        new Point(blockPose3),
+                        new Point(68,113),
                         new Point(blockIntake1)
                 ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
@@ -516,7 +515,7 @@ public class AutonomousFSM extends OpMode {
             case 32:  // Wait 2 seconds before lowering slides
                 if (pathTimer.getElapsedTimeSeconds()>1.4) {
                     bucketServos.transferPosition();
-                    follower.followPath(toSubmersible, 0.8, true);
+                    follower.followPath(toSubmersible, 1, true);
                     setPathState(38);
                 }
                 break;
@@ -628,7 +627,7 @@ public class AutonomousFSM extends OpMode {
             case 54:
                 if (pathTimer.getElapsedTimeSeconds()>0.5){
 
-                    follower.followPath(endPath,0.8,true);
+                    follower.followPath(endPath,1,true);
                     setPathState(55);
                 }
                 break;
@@ -710,7 +709,6 @@ public class AutonomousFSM extends OpMode {
                 break;
 
 
-
             case 59://Alternative path after missing submersible block End
                 if (pathTimer.getElapsedTimeSeconds()>0.5){
                     intakeMotor.intake();
@@ -780,22 +778,17 @@ public class AutonomousFSM extends OpMode {
         linkageController = new LinkageController(hardwareMap, "extendoMotor", 0.005, 0.0, 0.0);
         telemetry.addData("Status", "Initialized");
 
+        clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
         bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
         bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
 
         handServo.closedPosition();
 
-        clawServo = new ClawServo(hardwareMap.get(Servo.class, "ClawServo"));
-
-
         bucketServos.transferPosition();
         clawServo.openPosition();
 
         linkageController.zeroMotor();
-
-
-
 
 
 
