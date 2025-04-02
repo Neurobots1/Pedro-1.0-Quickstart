@@ -1,4 +1,4 @@
-package OpMode.TeleOp;
+package Unused;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -25,9 +25,7 @@ import pedroPathing.constants.LConstants;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-
-@Config
+@Deprecated
 @TeleOp(name = "NeutralTeleop", group = "Active")
 public class NeutralTeleop extends OpMode {
 
