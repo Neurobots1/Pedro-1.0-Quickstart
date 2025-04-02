@@ -209,7 +209,7 @@ public class AutonomousCLIP extends OpMode {
 
             case 4:
                 if (!follower.isBusy()){
-                    follower.followPath(PrehumanPath, 0.8, true);
+                    follower.followPath(PrehumanPath, 0.4, true);
                     setPathState(5);
                 }
                 break;
@@ -254,7 +254,7 @@ public class AutonomousCLIP extends OpMode {
 
             case 10:
                 if (!follower.isBusy()){
-                    follower.followPath(ClipPath4, 0.8, true);
+                    follower.followPath(ClipPath4, 0.4, true);
                     setPathState(11);
                 }
                 break;
