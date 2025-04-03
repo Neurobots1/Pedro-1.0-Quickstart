@@ -43,7 +43,6 @@ public class BlueTeleopNEWER extends OpMode {
 
     }
 
-    ;
 
     IntakeState intakeState = IntakeState.INTAKE_START;
     ElapsedTime intakeTimer = new ElapsedTime();
@@ -150,9 +149,6 @@ public class BlueTeleopNEWER extends OpMode {
     @Override
     public void loop() {
 
-        if (gamepad1.right_bumper) {
-            intakeTimer.reset();
-            intakeState = IntakeState.OUTAKE_HUMAIN;
 
             switch (intakeState) {
 
@@ -223,11 +219,11 @@ public class BlueTeleopNEWER extends OpMode {
 
                 case OUTAKE_HUMAIN:
                     colorAndDistance.update();
-                    if (intakeTimer.seconds() < 1.5) {
+                    if (intakeTimer.seconds() < 0.75) {
                         intakeMotor.outtake();
                     }
 
-                    if (intakeTimer.seconds() > 1.5) {
+                    if (intakeTimer.seconds() > 0.75) {
                         intakeState = IntakeState.INTAKE_START;
                     }
 
@@ -370,6 +366,6 @@ public class BlueTeleopNEWER extends OpMode {
             telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
             telemetry.addData("intake State", intakeState);
             telemetry.update();
-        }
+
     }
 }
