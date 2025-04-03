@@ -44,6 +44,7 @@ public class BlueTeleopClip extends OpMode {
 
     public enum SlideState {
         IDLE,
+        TRANSFER,
         BlockInBucket,
         BucketScoring,
         Descending,
@@ -269,6 +270,10 @@ public class BlueTeleopClip extends OpMode {
                 bucketServos.transferPosition();
 
                 break;
+
+            case TRANSFER :
+
+
 
             case BlockInBucket:
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
