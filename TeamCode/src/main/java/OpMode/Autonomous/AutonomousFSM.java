@@ -321,7 +321,7 @@ public class AutonomousFSM extends OpMode {
                 if (colorAndDistance.getDetectedColor().equals("Yellow")) {
                     intakeMotor.stop();
                     setPathState(6);
-                } else if (pathTimer.getElapsedTimeSeconds() > 3.7 && colorAndDistance.getDetectedColor().equals("None")) {
+                } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
                     setPathState(35); // Alternative path
                 }
@@ -397,7 +397,7 @@ public class AutonomousFSM extends OpMode {
                 if (colorAndDistance.getDetectedColor().equals("Yellow")) {
                     intakeMotor.stop();
                     setPathState(16);
-                } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
+                } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
                     setPathState(36); // Alternative path
                 }
@@ -469,7 +469,7 @@ public class AutonomousFSM extends OpMode {
                 if (colorAndDistance.getDetectedColor().equals("Yellow")) {
                     intakeMotor.stop();
                     setPathState(26);
-                } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
+                } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
                     setPathState(37); // Alternative path for missing 3rd block
                 }
@@ -515,7 +515,7 @@ public class AutonomousFSM extends OpMode {
             case 32:  // Wait 2 seconds before lowering slides
                 if (pathTimer.getElapsedTimeSeconds()>1.4) {
                     bucketServos.transferPosition();
-                    follower.followPath(toSubmersible, 1, true);
+                    follower.followPath(toSubmersible, 1, false);
                     setPathState(38);
                 }
                 break;
@@ -683,7 +683,7 @@ public class AutonomousFSM extends OpMode {
                     intakeServos.transferPosition();
                     handServo.openPosition();
                     setPathState(61);
-                } else if (pathTimer.getElapsedTimeSeconds() > 4 && colorAndDistance.getDetectedColor().equals("None")) {
+                } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
                     handServo.openPosition();

@@ -80,18 +80,10 @@ public class AutonomousCLIP extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(9, 57, Math.toRadians(180));
-    private final Pose PrehumanPose = new Pose(20, 30, Math.toRadians(0));
-    private final Pose HumanPose = new Pose(7.5, 27, Math.toRadians(0));
-    private final Pose ClipPose1 = new Pose(35.5, 75, Math.toRadians(180));
-    private final Pose BlocPose1 = new Pose(55, 33, Math.toRadians(180));
-    private final Pose BlocFin1 = new Pose(20, 14, Math.toRadians(180));
-    private final Pose BlocPose2 = new Pose(66, 18, Math.toRadians(0));
-    private final Pose BlocPose3 = new Pose(66, 9, Math.toRadians(0));
-    private final Pose ClipPose2 = new Pose(38, 73, Math.toRadians(180));
-    private final Pose ClipPose3 = new Pose(38, 70, Math.toRadians(180));
-    private final Pose ClipPose4 = new Pose(60, 97, Math.toRadians(180));
-    private final Pose ClipPose5 = new Pose(75, 97,Math.toRadians(180));
-    private final Pose endPose = new Pose(60, 91.5, Math.toRadians(-90));
+    private final Pose ClipPose1 = new Pose(35, 71, Math.toRadians(180));
+    private final Pose MidPose = new Pose(23, 18, Math.toRadians(14));
+    private final Pose MidPoseInverse = new Pose(23,18,Math.toRadians(180));
+
 
     public static Pose finalPose =new Pose();
 
@@ -104,8 +96,7 @@ public class AutonomousCLIP extends OpMode {
 
     /* Paths and PathChains */
     private Path scorePreload, park;
-    private PathChain startPath, FirstClip , ClipPath2 , ClipPath3 , ClipPath4 , ClipPath5 , BlockPath1 , BlockFin1 , BlockHumain , BlockPath2, BlockMid2 ,BlockFin2 , BlockPath3 , ClipPath9 , PrehumanPath;
-
+    private PathChain startPath, MidPath1, MidPathInverser, MidPath2;
 
     public void buildPaths() {
 
@@ -115,127 +106,37 @@ public class AutonomousCLIP extends OpMode {
                         new Point(ClipPose1)
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setZeroPowerAccelerationMultiplier(0.5)
+                .setZeroPowerAccelerationMultiplier(0.1)
                 .build();
 
-        FirstClip = follower.pathBuilder()
+        MidPath1 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(ClipPose1),
-                        new Point(PrehumanPose)
+                        new Point(MidPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
-                .setZeroPowerAccelerationMultiplier(1)
+                .setConstantHeadingInterpolation(Math.toRadians(9))
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
-
-        PrehumanPath = follower.pathBuilder()
+        MidPathInverser = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(PrehumanPose),
-                        new Point(HumanPose)
+                        new Point(MidPose),
+                        new Point(MidPoseInverse)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0),Math.toRadians(0))
-                .setZeroPowerAccelerationMultiplier(1)
+                .setLinearHeadingInterpolation(follower.getTotalHeading(),Math.toRadians(180))
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
-        ClipPath2 = follower.pathBuilder()
+        MidPath2 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(HumanPose),
-                        new Point(ClipPose2)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(0),Math.toRadians(176))
-                .setZeroPowerAccelerationMultiplier(1)
-                .build();
-
-        ClipPath3 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(ClipPose2),
-                        new Point(PrehumanPose)
-                ))
+                        new Point(MidPoseInverse),
+                        new Point(MidPose)
+                        ))
                 .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(0))
-                .setZeroPowerAccelerationMultiplier(1)
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
-        ClipPath4 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(PrehumanPose),
-                        new Point(6.5, 30)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(0),Math.toRadians(-10))
-                .setZeroPowerAccelerationMultiplier(1)
-                .build();
 
-        ClipPath5 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(6.5, 28),
-                        new Point(ClipPose3)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-10),Math.toRadians(176))
-                .setZeroPowerAccelerationMultiplier(1)
-                .build();
-
-        BlockPath1 = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Point(ClipPose1),
-                        new Point(1, 39),
-                        new Point(BlocPose1)
-                ))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setZeroPowerAccelerationMultiplier(1)
-                .build();
-
-        BlockFin1 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(BlocPose1),
-                        new Point(BlocFin1)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(180))
-                .setZeroPowerAccelerationMultiplier(1)
-                .build();
-
-        BlockHumain = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(BlocFin1),
-                        new Point(PrehumanPose)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(0))
-                .setZeroPowerAccelerationMultiplier(1)
-                .build();
-
-        BlockPath2 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(BlocFin1),
-                        new Point(BlocPose1)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(180))
-                .setZeroPowerAccelerationMultiplier(1)
-                .build();
-
-        BlockMid2 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(BlocPose1),
-                        new Point(BlocPose2)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(180))
-                .setZeroPowerAccelerationMultiplier(0.5)
-                .build();
-
-        BlockFin2 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(BlocPose2),
-                        new Point(BlocFin1)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(180))
-                .setZeroPowerAccelerationMultiplier(0.5)
-                .build();
-
-        BlockPath3 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(6.5, 28),
-                        new Point(ClipPose3)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-10),Math.toRadians(176))
-                .setZeroPowerAccelerationMultiplier(1)
-                .build();
 
 
 
@@ -256,104 +157,99 @@ public class AutonomousCLIP extends OpMode {
 
             case 1:
                 if (!follower.isBusy()){
-                viperSlides.setTarget(ViperSlides.Target.LOW);
+                   viperSlides.setTarget(ViperSlides.Target.LOW);
                     setPathState(2);
                 }
                 break;
 
             case 2:
-                if (pathTimer.getElapsedTimeSeconds()> 0.3){
-                 clawServo.openPosition();
+                if (pathTimer.getElapsedTimeSeconds()>0.3){
+                    clawServo.openPosition();
                     setPathState(3);
                 }
                 break;
 
             case 3:
-                if (pathTimer.getElapsedTimeSeconds()> 0.8){
-                    follower.followPath(BlockPath1, 0.8, true);
-                    viperSlides.setTarget(ViperSlides.Target.GROUND);
-                    setPathState(4);
-                }
+                follower.followPath(MidPath1,0.8,true);
+                viperSlides.setTarget(ViperSlides.Target.GROUND);
+                setPathState(4);
                 break;
 
             case 4:
                 if (!follower.isBusy()){
-                    follower.followPath(BlockFin1, 0.8, true);
+                    linkageController.setPosition(LinkageController.Position.EXTENDED);
+                    intakeMotor.intake();
                     setPathState(5);
                 }
                 break;
 
             case 5:
-                if (!follower.isBusy()){
-                    follower.followPath(BlockPath2, 0.8, true);
+                if (pathTimer.getElapsedTimeSeconds()>0.25){
+                    intakeServos.intakePosition();
                     setPathState(6);
                 }
                 break;
 
             case 6:
-                if (!follower.isBusy()){
-                    follower.followPath(BlockMid2,0.8,true);
+                colorAndDistance.update();
+                String detectedColor = colorAndDistance.getDetectedColor();
+
+                if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
+                    intakeMotor.stop();
+                    intakeServos.transferPosition();
                     setPathState(7);
+                } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
+                    intakeMotor.stop();
+                    setPathState(-1); // Alternative path for missing submersible block
                 }
+
                 break;
 
             case 7:
-                if (!follower.isBusy()){
-                    follower.followPath(BlockFin2,0.8,true);
-                    setPathState(8);
-                }
+                follower.followPath(MidPathInverser,1,true);
+                setPathState(8);
                 break;
 
             case 8:
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
-                    viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-                    setPathState(9);
+                if (!follower.isBusy()){
+                    intakeMotor.outtake();
+                    if (pathTimer.getElapsedTimeSeconds()>0.5){
+                        intakeMotor.stop();
+                        setPathState(9);
+                    }
                 }
                 break;
 
-
             case 9:
-                if (pathTimer.getElapsedTimeSeconds()> 0.3){
-                    follower.followPath(ClipPath2, 0.8, true);
-                    setPathState(10);
-                }
+                follower.followPath(MidPath2,1,true);
+                setPathState(10);
                 break;
 
             case 10:
-                if (pathTimer.getElapsedTimeSeconds()>0.6){
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
+                if (!follower.isBusy()){
+                    intakeMotor.intake();
+                    intakeServos.intakePosition();
                     setPathState(11);
                 }
                 break;
 
             case 11:
-                if (!follower.isBusy()){
-                    clawServo.openPosition();
+                colorAndDistance.update();
+                detectedColor = colorAndDistance.getDetectedColor();
+
+                if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
+                    intakeMotor.stop();
+                    intakeServos.transferPosition();
                     setPathState(12);
+                } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
+                    intakeMotor.stop();
+                    setPathState(-1); // Alternative path for missing submersible block
                 }
                 break;
 
-            case 12:
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
-                    viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-                    follower.followPath(ClipPath5,0.8,true);
-                    setPathState(13);
-                }
-                break;
 
-            case 13:
-                if (!follower.isBusy()){
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
-                    setPathState(14);
-                }
-                break;
 
-            case 14:
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
-                    clawServo.openPosition();
-                    setPathState(-1);
-                }
-                break;
+
 
 
 

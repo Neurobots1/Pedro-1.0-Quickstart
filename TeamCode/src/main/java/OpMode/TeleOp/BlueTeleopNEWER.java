@@ -21,6 +21,7 @@ import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
 import OpMode.Subsystems.GamePieceDetection;
+import OpMode.Subsystems.HandServo;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServosNEW;
 import OpMode.Subsystems.LinkageController;
@@ -75,6 +76,8 @@ public class BlueTeleopNEWER extends OpMode {
     private DcMotor extendoMotor;
     private ColorSensor colorSensor;
     private ColorAndDistance colorAndDistance;
+
+    private HandServo handServo;
 
 
     private boolean hasRumbled = false;
@@ -144,6 +147,10 @@ public class BlueTeleopNEWER extends OpMode {
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
         bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
         bucketServos.transferPosition();
+
+        //Initialize Hand
+        handServo.closedPosition();
+
     }
 
     @Override
@@ -162,7 +169,7 @@ public class BlueTeleopNEWER extends OpMode {
                         intakeState = IntakeState.INTAKE_EXTEND;
                     }
 
-                    if (gamepad1.left_bumper) {
+                    if (gamepad1.dpad_left) {
                         intakeMotor.outtake();
                     }
                     break;
@@ -175,7 +182,7 @@ public class BlueTeleopNEWER extends OpMode {
                         intakeTimer.reset();
                         intakeState = IntakeState.INTAKE_WAITFORBLOCK;
                     }
-                    if (gamepad1.left_bumper) {
+                    if (gamepad1.dpad_left) {
                         intakeMotor.outtake();
                     }
 
@@ -192,7 +199,7 @@ public class BlueTeleopNEWER extends OpMode {
                         intakeTimer.reset();
                         intakeState = IntakeState.INTAKE_RETRACT;
                     }
-                    if (gamepad1.left_bumper) {
+                    if (gamepad1.dpad_left) {
                         intakeMotor.outtake();
                     }
 
@@ -205,7 +212,7 @@ public class BlueTeleopNEWER extends OpMode {
                     if (gamepad1.right_bumper) {
                         intakeTimer.reset();
                         intakeState = IntakeState.OUTAKE_HUMAIN;
-                    } else if (gamepad1.left_bumper) {
+                    } else if (gamepad1.dpad_left) {
                         intakeTimer.reset();
                         intakeState = IntakeState.OUTAKE_BLOCK;
 

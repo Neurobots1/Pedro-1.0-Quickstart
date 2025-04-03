@@ -22,6 +22,7 @@ import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
+import OpMode.Subsystems.IntakeServosNEW;
 import OpMode.Subsystems.LinkageController;
 import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
@@ -46,7 +47,7 @@ public class AutonomousSpec extends OpMode {
     // Servos
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
-    private IntakeServos intakeServos; // IntakeBoolean subsystem instance
+    private IntakeServosNEW intakeServos; // IntakeBoolean subsystem instance
     private ClawServo clawServo;
     private Servo bucketServoRight;
     private Servo bucketServoLeft;
@@ -74,7 +75,7 @@ public class AutonomousSpec extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(8, 56, Math.toRadians(180));
-    private final Pose scorePose1 = new Pose(8, 80, Math.toRadians(270));
+    private final Pose scorePose = new Pose(35, 76, Math.toRadians(180));
     private final Pose blockPose1 = new Pose(8, 80, Math.toRadians(270));
     private final Pose blockPush1 = new Pose(8, 80, Math.toRadians(270));
     private final Pose blockPose2 = new Pose(8, 80, Math.toRadians(270));
@@ -102,9 +103,9 @@ public class AutonomousSpec extends OpMode {
         pathChain1 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(8.000, 56),
-                        new Point(37, 76)
+                        new Point(scorePose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         // First score pose curve to first block
         pathChain2 = follower.pathBuilder()
@@ -509,7 +510,7 @@ public class AutonomousSpec extends OpMode {
 
         intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
-        intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
+        intakeServos = new IntakeServosNEW(intakeServoRight , intakeServoLeft);
         intakeServos.transferPosition(); // Set intake servos to transfer position
 
         bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");
