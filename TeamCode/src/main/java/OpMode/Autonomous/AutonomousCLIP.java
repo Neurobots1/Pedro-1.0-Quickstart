@@ -81,9 +81,12 @@ public class AutonomousCLIP extends OpMode {
 
     private final Pose startPose = new Pose(9, 57, Math.toRadians(180));
     private final Pose PrehumanPose = new Pose(20, 30, Math.toRadians(0));
-    private final Pose HumanPose = new Pose(10, 27, Math.toRadians(0));
-    private final Pose ClipPose1 = new Pose(35, 75, Math.toRadians(180));
-    private final Pose BlocPose1 = new Pose(72, 31, Math.toRadians(0));
+    private final Pose HumanPose = new Pose(7.5, 27, Math.toRadians(0));
+    private final Pose ClipPose1 = new Pose(35.5, 75, Math.toRadians(180));
+    private final Pose BlocPose1 = new Pose(55, 33, Math.toRadians(180));
+    private final Pose BlocFin1 = new Pose(20, 14, Math.toRadians(180));
+    private final Pose BlocPose2 = new Pose(66, 18, Math.toRadians(0));
+    private final Pose BlocPose3 = new Pose(66, 9, Math.toRadians(0));
     private final Pose ClipPose2 = new Pose(38, 73, Math.toRadians(180));
     private final Pose ClipPose3 = new Pose(38, 70, Math.toRadians(180));
     private final Pose ClipPose4 = new Pose(60, 97, Math.toRadians(180));
@@ -97,9 +100,11 @@ public class AutonomousCLIP extends OpMode {
 
 
 
+
+
     /* Paths and PathChains */
     private Path scorePreload, park;
-    private PathChain startPath, FirstClip , ClipPath2 , ClipPath3 , ClipPath4 , ClipPath5 , ClipPath6 , ClipPath7 , ClipPath8 , ClipPath9 , PrehumanPath;
+    private PathChain startPath, FirstClip , ClipPath2 , ClipPath3 , ClipPath4 , ClipPath5 , BlockPath1 , BlockFin1 , BlockHumain , BlockPath2, BlockMid2 ,BlockFin2 , BlockPath3 , ClipPath9 , PrehumanPath;
 
 
     public void buildPaths() {
@@ -110,7 +115,7 @@ public class AutonomousCLIP extends OpMode {
                         new Point(ClipPose1)
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setZeroPowerAccelerationMultiplier(1)
+                .setZeroPowerAccelerationMultiplier(0.5)
                 .build();
 
         FirstClip = follower.pathBuilder()
@@ -153,7 +158,7 @@ public class AutonomousCLIP extends OpMode {
         ClipPath4 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(PrehumanPose),
-                        new Point(8, 30)
+                        new Point(6.5, 30)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0),Math.toRadians(-10))
                 .setZeroPowerAccelerationMultiplier(1)
@@ -161,7 +166,71 @@ public class AutonomousCLIP extends OpMode {
 
         ClipPath5 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(8, 28),
+                        new Point(6.5, 28),
+                        new Point(ClipPose3)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(-10),Math.toRadians(176))
+                .setZeroPowerAccelerationMultiplier(1)
+                .build();
+
+        BlockPath1 = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        new Point(ClipPose1),
+                        new Point(1, 39),
+                        new Point(BlocPose1)
+                ))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setZeroPowerAccelerationMultiplier(1)
+                .build();
+
+        BlockFin1 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(BlocPose1),
+                        new Point(BlocFin1)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(180))
+                .setZeroPowerAccelerationMultiplier(1)
+                .build();
+
+        BlockHumain = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(BlocFin1),
+                        new Point(PrehumanPose)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(0))
+                .setZeroPowerAccelerationMultiplier(1)
+                .build();
+
+        BlockPath2 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(BlocFin1),
+                        new Point(BlocPose1)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(180))
+                .setZeroPowerAccelerationMultiplier(1)
+                .build();
+
+        BlockMid2 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(BlocPose1),
+                        new Point(BlocPose2)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(180))
+                .setZeroPowerAccelerationMultiplier(0.5)
+                .build();
+
+        BlockFin2 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(BlocPose2),
+                        new Point(BlocFin1)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(180))
+                .setZeroPowerAccelerationMultiplier(0.5)
+                .build();
+
+        BlockPath3 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(6.5, 28),
                         new Point(ClipPose3)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(-10),Math.toRadians(176))
@@ -181,7 +250,7 @@ public class AutonomousCLIP extends OpMode {
         switch (pathState) {
             case 0:  // Move to scoring position 1
                 viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-                follower.followPath(startPath, 0.8, true);
+                follower.followPath(startPath, 0.7, true);
                 setPathState(1);
                 break;
 
@@ -201,7 +270,7 @@ public class AutonomousCLIP extends OpMode {
 
             case 3:
                 if (pathTimer.getElapsedTimeSeconds()> 0.8){
-                    follower.followPath(FirstClip, 0.8, true);
+                    follower.followPath(BlockPath1, 0.8, true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     setPathState(4);
                 }
@@ -209,36 +278,35 @@ public class AutonomousCLIP extends OpMode {
 
             case 4:
                 if (!follower.isBusy()){
-                    follower.followPath(PrehumanPath, 0.4, true);
+                    follower.followPath(BlockFin1, 0.8, true);
                     setPathState(5);
                 }
                 break;
 
             case 5:
                 if (!follower.isBusy()){
-                    clawServo.closedPosition();
+                    follower.followPath(BlockPath2, 0.8, true);
                     setPathState(6);
                 }
                 break;
 
             case 6:
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
-                    viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-                    follower.followPath(ClipPath2,0.8,true);
+                if (!follower.isBusy()){
+                    follower.followPath(BlockMid2,0.8,true);
                     setPathState(7);
                 }
                 break;
 
             case 7:
                 if (!follower.isBusy()){
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
+                    follower.followPath(BlockFin2,0.8,true);
                     setPathState(8);
                 }
                 break;
 
             case 8:
                 if (pathTimer.getElapsedTimeSeconds()>0.5){
-                    clawServo.openPosition();
+                    viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                     setPathState(9);
                 }
                 break;
@@ -246,22 +314,21 @@ public class AutonomousCLIP extends OpMode {
 
             case 9:
                 if (pathTimer.getElapsedTimeSeconds()> 0.3){
-                    viperSlides.setTarget(ViperSlides.Target.GROUND);
-                    follower.followPath(ClipPath3, 0.8, true);
+                    follower.followPath(ClipPath2, 0.8, true);
                     setPathState(10);
                 }
                 break;
 
             case 10:
-                if (!follower.isBusy()){
-                    follower.followPath(ClipPath4, 0.4, true);
+                if (pathTimer.getElapsedTimeSeconds()>0.6){
+                    viperSlides.setTarget(ViperSlides.Target.LOW);
                     setPathState(11);
                 }
                 break;
 
             case 11:
                 if (!follower.isBusy()){
-                    clawServo.closedPosition();
+                    clawServo.openPosition();
                     setPathState(12);
                 }
                 break;
