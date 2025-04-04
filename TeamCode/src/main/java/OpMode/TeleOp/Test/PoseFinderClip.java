@@ -11,7 +11,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
-@TeleOp(name = "PoseFinder", group = "Active")
+@TeleOp(name = "PoseFinderClip", group = "Active")
 public class PoseFinderClip extends OpMode {
 
     private Follower follower;

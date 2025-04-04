@@ -81,7 +81,7 @@ public class AutonomousCLIP extends OpMode {
 
     private final Pose startPose = new Pose(9, 57, Math.toRadians(180));
     private final Pose ClipPose1 = new Pose(35, 71, Math.toRadians(180));
-    private final Pose MidPose = new Pose(23, 18, Math.toRadians(14));
+    private final Pose MidPose = new Pose(25, 35, Math.toRadians(-25));
     private final Pose MidPoseInverse = new Pose(23,18,Math.toRadians(180));
 
 
@@ -114,8 +114,8 @@ public class AutonomousCLIP extends OpMode {
                         new Point(ClipPose1),
                         new Point(MidPose)
                 ))
-                .setConstantHeadingInterpolation(Math.toRadians(9))
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(-25))
+                .setZeroPowerAccelerationMultiplier(1)
                 .build();
 
         MidPathInverser = follower.pathBuilder()
@@ -184,7 +184,7 @@ public class AutonomousCLIP extends OpMode {
                 break;
 
             case 5:
-                if (pathTimer.getElapsedTimeSeconds()>0.25){
+                if (pathTimer.getElapsedTimeSeconds()>0.6){
                     intakeServos.intakePosition();
                     setPathState(6);
                 }
@@ -194,7 +194,7 @@ public class AutonomousCLIP extends OpMode {
                 colorAndDistance.update();
                 String detectedColor = colorAndDistance.getDetectedColor();
 
-                if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
+                if (detectedColor.equals("Red")||detectedColor.equals("Blue")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
                     setPathState(7);
@@ -237,7 +237,7 @@ public class AutonomousCLIP extends OpMode {
                 colorAndDistance.update();
                 detectedColor = colorAndDistance.getDetectedColor();
 
-                if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
+                if (detectedColor.equals("Red")||detectedColor.equals("Blue")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
                     setPathState(12);
