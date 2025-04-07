@@ -149,6 +149,7 @@ public class BlueTeleopNEWER extends OpMode {
         bucketServos.transferPosition();
 
         //Initialize Hand
+        handServo = new HandServo(hardwareMap.get(Servo.class, "HandServo"));
         handServo.closedPosition();
 
     }
@@ -157,222 +158,222 @@ public class BlueTeleopNEWER extends OpMode {
     public void loop() {
 
 
-            switch (intakeState) {
+        switch (intakeState) {
 
 
-                case INTAKE_START:
-                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+            case INTAKE_START:
+                linkageController.setPosition(LinkageController.Position.RETRACTED);
+                intakeMotor.stop();
+                intakeServos.transferPosition();
+                intakeTimer.reset();
+                if (gamepad1.dpad_up) {
+                    intakeState = IntakeState.INTAKE_EXTEND;
+                }
+
+                if (gamepad1.dpad_left) {
+                    intakeMotor.outtake();
+                }
+                break;
+
+            case INTAKE_EXTEND:
+                linkageController.setPosition(LinkageController.Position.EXTENDED);
+                if (intakeTimer.seconds() > 1) {
+                    intakeMotor.intake();
+                    intakeServos.intakePosition();
+                    intakeTimer.reset();
+                    intakeState = IntakeState.INTAKE_WAITFORBLOCK;
+                }
+                if (gamepad1.dpad_left) {
+                    intakeMotor.outtake();
+                }
+
+                break;
+
+            case INTAKE_WAITFORBLOCK:
+                colorAndDistance.update();
+
+                String detectedColor = colorAndDistance.getDetectedColor();
+
+                if (detectedColor.equals("Blue") || detectedColor.equals("Yellow")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
                     intakeTimer.reset();
-                    if (gamepad1.dpad_up) {
-                        intakeState = IntakeState.INTAKE_EXTEND;
-                    }
-
-                    if (gamepad1.dpad_left) {
-                        intakeMotor.outtake();
-                    }
-                    break;
-
-                case INTAKE_EXTEND:
-                    linkageController.setPosition(LinkageController.Position.EXTENDED);
-                    if (intakeTimer.seconds() > 1) {
-                        intakeMotor.intake();
-                        intakeServos.intakePosition();
-                        intakeTimer.reset();
-                        intakeState = IntakeState.INTAKE_WAITFORBLOCK;
-                    }
-                    if (gamepad1.dpad_left) {
-                        intakeMotor.outtake();
-                    }
-
-                    break;
-
-                case INTAKE_WAITFORBLOCK:
-                    colorAndDistance.update();
-
-                    String detectedColor = colorAndDistance.getDetectedColor();
-
-                    if (detectedColor.equals("Blue") || detectedColor.equals("Yellow")) {
-                        intakeMotor.stop();
-                        intakeServos.transferPosition();
-                        intakeTimer.reset();
-                        intakeState = IntakeState.INTAKE_RETRACT;
-                    }
-                    if (gamepad1.dpad_left) {
-                        intakeMotor.outtake();
-                    }
+                    intakeState = IntakeState.INTAKE_RETRACT;
+                }
+                if (gamepad1.dpad_left) {
+                    intakeMotor.outtake();
+                }
 
 
-                    break;
+                break;
 
-                case INTAKE_RETRACT:
-                    linkageController.setPosition(LinkageController.Position.RETRACTED);
+            case INTAKE_RETRACT:
+                linkageController.setPosition(LinkageController.Position.RETRACTED);
 
-                    if (gamepad1.right_bumper) {
-                        intakeTimer.reset();
-                        intakeState = IntakeState.OUTAKE_HUMAIN;
-                    } else if (gamepad1.dpad_left) {
-                        intakeTimer.reset();
-                        intakeState = IntakeState.OUTAKE_BLOCK;
+                if (gamepad1.right_bumper) {
+                    intakeTimer.reset();
+                    intakeState = IntakeState.OUTAKE_HUMAIN;
+                } else if (gamepad1.dpad_left) {
+                    intakeTimer.reset();
+                    intakeState = IntakeState.OUTAKE_BLOCK;
 
-                    }
+                }
 
-                    if (gamepad1.dpad_up) {
-                        intakeState = IntakeState.INTAKE_EXTEND;
-                    }
+                if (gamepad1.dpad_up) {
+                    intakeState = IntakeState.INTAKE_EXTEND;
+                }
 
-                    break;
+                break;
 
-                case OUTAKE_HUMAIN:
-                    colorAndDistance.update();
-                    if (intakeTimer.seconds() < 0.75) {
-                        intakeMotor.outtake();
-                    }
+            case OUTAKE_HUMAIN:
+                colorAndDistance.update();
+                if (intakeTimer.seconds() < 0.75) {
+                    intakeMotor.outtake();
+                }
 
-                    if (intakeTimer.seconds() > 0.75) {
-                        intakeState = IntakeState.INTAKE_START;
-                    }
-
-
-                    break;
-
-                case OUTAKE_BLOCK:
-                    if (intakeTimer.seconds() < 1.5) {
-                        intakeMotor.intake();
-
-                    }
-
-                    if (intakeTimer.seconds() > 1.5) {
-                        intakeState = IntakeState.INTAKE_START;
-
-                    }
+                if (intakeTimer.seconds() > 0.75) {
+                    intakeState = IntakeState.INTAKE_START;
+                }
 
 
-                    break;
+                break;
 
-                default:
-                    // should never be reached, as intakeState should never be null
+            case OUTAKE_BLOCK:
+                if (intakeTimer.seconds() < 1.5) {
+                    intakeMotor.intake();
+
+                }
+
+                if (intakeTimer.seconds() > 1.5) {
                     intakeState = IntakeState.INTAKE_START;
 
-            }
+                }
 
-            if (gamepad1.dpad_down && intakeState != IntakeState.INTAKE_START) {
+
+                break;
+
+            default:
+                // should never be reached, as intakeState should never be null
                 intakeState = IntakeState.INTAKE_START;
-            }
-            // Measure loop time
-            double loopTime = loopTimer.milliseconds();
-            loopTimer.reset();
 
-            // TeleOp movement
-            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
-            follower.update();
+        }
 
-            // Update Color Sensor
-            colorAndDistance.update();
+        if (gamepad1.dpad_down && intakeState != IntakeState.INTAKE_START) {
+            intakeState = IntakeState.INTAKE_START;
+        }
+        // Measure loop time
+        double loopTime = loopTimer.milliseconds();
+        loopTimer.reset();
 
-            String detectedColor = colorAndDistance.getDetectedColor();
+        // TeleOp movement
+        follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
+        follower.update();
 
-            // Rumble for Blue Detection
-            if ((detectedColor.equals("Blue") && !hasRumbled)) {
-                gamepad1.rumble(1000);
-                hasRumbled = true;
-            }
-            if (!detectedColor.equals("Blue") && !detectedColor.equals("Yellow")) {
-                hasRumbled = false;
-            }
+        // Update Color Sensor
+        colorAndDistance.update();
 
-            if (viperSlides.getSlidePositionRight() > 1300) {
-                if (gamepad1.right_trigger > 0.1) {
-                    bucketServos.depositPosition(); // Move bucket to deposit position if right trigger is pressed and slides are down
-                } else {
-                    bucketServos.transferPosition();   // Otherwise, set bucket transfer position
-                }
+        String detectedColor = colorAndDistance.getDetectedColor();
+
+        // Rumble for Blue Detection
+        if ((detectedColor.equals("Blue") && !hasRumbled)) {
+            gamepad1.rumble(1000);
+            hasRumbled = true;
+        }
+        if (!detectedColor.equals("Blue") && !detectedColor.equals("Yellow")) {
+            hasRumbled = false;
+        }
+
+        if (viperSlides.getSlidePositionRight() > 1300) {
+            if (gamepad1.right_trigger > 0.1) {
+                bucketServos.depositPosition(); // Move bucket to deposit position if right trigger is pressed and slides are down
             } else {
-                bucketServos.transferPosition();       // If the slide position is not less than -1950, set bucket to transfer position
+                bucketServos.transferPosition();   // Otherwise, set bucket transfer position
+            }
+        } else {
+            bucketServos.transferPosition();       // If the slide position is not less than -1950, set bucket to transfer position
+        }
+
+        currentLeftTriggerState = gamepad1.left_trigger > 0.5;  // Detect if the left trigger is pressed
+        if (currentLeftTriggerState && !previousLeftTriggerState) {  // Rising edge
+            // Toggle claw position on rising edge
+            if (isClawOpen) {
+                clawServo.closedPosition();  // Close the claw
+            } else {
+                clawServo.openPosition();  // Open the claw
+            }
+            // Flip the claw state
+            isClawOpen = !isClawOpen;
+        }
+        previousLeftTriggerState = currentLeftTriggerState;
+
+
+        linkageController.checkForAmperageSpike();
+        linkageController.update();
+
+        // Viper Slide Control (Predefined Targets)
+        viperSlides.update();
+
+        if (viperSlides.isLimitSwitchPressed() && !wasLimitSwitchPressed) {
+            viperSlides.resetPosition();
+        }
+
+        wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
+
+        if (gamepad1.y) {
+            viperSlides.setTarget(ViperSlides.Target.HIGH);
+        }
+        if (gamepad1.a && bucketServos.isTransferPosition() && isClawOpen) {
+            viperSlides.setTarget(ViperSlides.Target.GROUND);
+        }
+        if (gamepad1.b && bucketServos.isTransferPosition()) {
+            viperSlides.setTarget(ViperSlides.Target.LOW);
+        }
+        if (gamepad1.x && bucketServos.isTransferPosition()) {
+            viperSlides.setTarget(ViperSlides.Target.MEDIUM);
+
+        }
+
+        if (gamepad1.touchpad) {
+            viperSlides.setTarget(ViperSlides.Target.LEVEL1);
+        }
+
+        // Home Slides
+        if (gamepad1.options) {
+            viperSlides.setPIDEnabled(false);
+
+            while (!viperSlides.isLimitSwitchPressed()) {
+                viperSlides.setSlidePower(-1.0);
             }
 
-            currentLeftTriggerState = gamepad1.left_trigger > 0.5;  // Detect if the left trigger is pressed
-            if (currentLeftTriggerState && !previousLeftTriggerState) {  // Rising edge
-                // Toggle claw position on rising edge
-                if (isClawOpen) {
-                    clawServo.closedPosition();  // Close the claw
-                } else {
-                    clawServo.openPosition();  // Open the claw
-                }
-                // Flip the claw state
-                isClawOpen = !isClawOpen;
-            }
-            previousLeftTriggerState = currentLeftTriggerState;
+            viperSlides.setSlidePower(0);
+            viperSlides.resetPosition();
+            viperSlides.setPIDEnabled(true);
+        }
 
+        if (gamepad1.back) {
+            Pose currentPose = follower.getPose();
+            Pose newPose = new Pose(currentPose.getX(), currentPose.getY(), 0);
+            follower.setPose(newPose);
+        }
 
-            linkageController.checkForAmperageSpike();
-            linkageController.update();
-
-            // Viper Slide Control (Predefined Targets)
-            viperSlides.update();
-
-            if (viperSlides.isLimitSwitchPressed() && !wasLimitSwitchPressed) {
-                viperSlides.resetPosition();
-            }
-
-            wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
-
-            if (gamepad1.y) {
-                viperSlides.setTarget(ViperSlides.Target.HIGH);
-            }
-            if (gamepad1.a && bucketServos.isTransferPosition() && isClawOpen) {
-                viperSlides.setTarget(ViperSlides.Target.GROUND);
-            }
-            if (gamepad1.b && bucketServos.isTransferPosition()) {
-                viperSlides.setTarget(ViperSlides.Target.LOW);
-            }
-            if (gamepad1.x && bucketServos.isTransferPosition()) {
-                viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-
-            }
-
-            if (gamepad1.touchpad) {
-                viperSlides.setTarget(ViperSlides.Target.LEVEL1);
-            }
-
-            // Home Slides
-            if (gamepad1.options) {
-                viperSlides.setPIDEnabled(false);
-
-                while (!viperSlides.isLimitSwitchPressed()) {
-                    viperSlides.setSlidePower(-1.0);
-                }
-
-                viperSlides.setSlidePower(0);
-                viperSlides.resetPosition();
-                viperSlides.setPIDEnabled(true);
-            }
-
-            if (gamepad1.back) {
-                Pose currentPose = follower.getPose();
-                Pose newPose = new Pose(currentPose.getX(), currentPose.getY(), 0);
-                follower.setPose(newPose);
-            }
-
-            // Telemetry for debugging and visualization
-            telemetry.addData("Loop Time (ms)", loopTime);  // Show the loop time in ms
-            telemetry.addData("Slide Position Left", viperSlides.getSlidePositionLeft());
-            telemetry.addData("Slide Position Right", viperSlides.getSlidePositionRight());
-            telemetry.addData("Slide Target", viperSlides.getTarget());
-            telemetry.addData("Detected Color", colorAndDistance.getDetectedColor());
-            //
-            telemetry.addData("Current Position", linkageController.getCurrentPosition());
-            telemetry.addData("Target Position", linkageController.getTargetPosition());
-            telemetry.addData("At Target", linkageController.isAtTarget());
-            telemetry.addData("Is Extended", linkageController.isExtended());
-            telemetry.addData("Is Retracted", linkageController.isRetracted());
-            /* Telemetry Outputs of our Follower */
-            telemetry.addData("X", follower.getPose().getX());
-            telemetry.addData("Y", follower.getPose().getY());
-            telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
-            telemetry.addData("intake State", intakeState);
-            telemetry.update();
+        // Telemetry for debugging and visualization
+        telemetry.addData("Loop Time (ms)", loopTime);  // Show the loop time in ms
+        telemetry.addData("Slide Position Left", viperSlides.getSlidePositionLeft());
+        telemetry.addData("Slide Position Right", viperSlides.getSlidePositionRight());
+        telemetry.addData("Slide Target", viperSlides.getTarget());
+        telemetry.addData("Detected Color", colorAndDistance.getDetectedColor());
+        //
+        telemetry.addData("Current Position", linkageController.getCurrentPosition());
+        telemetry.addData("Target Position", linkageController.getTargetPosition());
+        telemetry.addData("At Target", linkageController.isAtTarget());
+        telemetry.addData("Is Extended", linkageController.isExtended());
+        telemetry.addData("Is Retracted", linkageController.isRetracted());
+        /* Telemetry Outputs of our Follower */
+        telemetry.addData("X", follower.getPose().getX());
+        telemetry.addData("Y", follower.getPose().getY());
+        telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("intake State", intakeState);
+        telemetry.update();
 
     }
 }

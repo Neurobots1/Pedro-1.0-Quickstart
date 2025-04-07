@@ -1,4 +1,4 @@
-package OpMode.Autonomous;
+package Unused;
 
 
 import com.pedropathing.follower.Follower;
@@ -27,6 +27,7 @@ import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+@Deprecated
 @Autonomous(name = "AutonomousSpec5", group = "Autonomous")
 public class AutonomousSpec5 extends OpMode {
 

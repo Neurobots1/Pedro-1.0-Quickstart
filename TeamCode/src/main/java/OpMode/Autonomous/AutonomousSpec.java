@@ -79,6 +79,9 @@ public class AutonomousSpec extends OpMode {
 
     private final Pose endPose = new Pose(12,20, Math.toRadians(0));
 
+    public static Pose finalPose =new Pose();
+
+
 
     //Control Points
     private final Pose parkControlPose = new Pose(64, 134);
