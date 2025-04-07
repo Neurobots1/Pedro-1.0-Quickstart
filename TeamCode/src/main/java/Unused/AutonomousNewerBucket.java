@@ -32,7 +32,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Deprecated
-@Autonomous(name = "AutonomousNewerBucket", group = "Autonomous")
+@Autonomous(name = "AutonomousNewerBucket", group = "")
 public class AutonomousNewerBucket extends OpMode {
 
     // Viper Slide Variables
