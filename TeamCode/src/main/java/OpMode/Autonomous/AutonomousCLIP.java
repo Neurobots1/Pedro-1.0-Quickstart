@@ -81,8 +81,12 @@ public class AutonomousCLIP extends OpMode {
 
     private final Pose startPose = new Pose(9, 57, Math.toRadians(180));
     private final Pose ClipPose1 = new Pose(35.5, 71, Math.toRadians(180));
-    private final Pose MidPose = new Pose(25, 35, Math.toRadians(-30));
+    private final Pose MidPose1 = new Pose(28, 39, Math.toRadians(-58));
     private final Pose MidPoseInverse = new Pose(23,18,Math.toRadians(180));
+    private final Pose MidPose2 = new Pose(28,29,Math.toRadians(-55));
+    private final Pose MidPose2Inverse = new Pose(28,29,Math.toRadians(0));
+    private final Pose MidPose3 = new Pose(34,25,Math.toRadians(-78));
+    private final Pose MidPose3Inverse = new Pose(23,18,Math.toRadians(180));
 
 
     public static Pose finalPose =new Pose();
@@ -112,27 +116,27 @@ public class AutonomousCLIP extends OpMode {
         MidPath1 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(ClipPose1),
-                        new Point(MidPose)
+                        new Point(MidPose1)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(-33))
+                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(-58))
                 .setZeroPowerAccelerationMultiplier(0.5)
                 .build();
 
         MidPathInverser = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(MidPose),
+                        new Point(MidPose1),
                         new Point(MidPoseInverse)
                 ))
-                .setLinearHeadingInterpolation(follower.getTotalHeading(),Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(-58),Math.toRadians(0))
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
         MidPath2 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(MidPoseInverse),
-                        new Point(MidPose)
+                        new Point(MidPose2)
                         ))
-                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(0),Math.toRadians(-55))
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
