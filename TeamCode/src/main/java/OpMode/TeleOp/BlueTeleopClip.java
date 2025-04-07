@@ -196,7 +196,7 @@ public class BlueTeleopClip extends OpMode {
 
                 String detectedColor = colorAndDistance.getDetectedColor();
 
-                if (detectedColor.equals("Blue") || detectedColor.equals("Yellow")){
+                if (detectedColor.equals("Blue") /*|| detectedColor.equals("Yellow") */){
                     intakeMotor.stop();
                     intakeServos.transferPosition();
                     intakeTimer.reset();
@@ -354,8 +354,6 @@ public class BlueTeleopClip extends OpMode {
         previousLeftTriggerState = currentLeftTriggerState;
 
 
-
-
         linkageController.checkForAmperageSpike();
         linkageController.update();
 
@@ -374,10 +372,10 @@ public class BlueTeleopClip extends OpMode {
         if (gamepad1.a && bucketServos.isTransferPosition() && isClawOpen) {
             viperSlides.setTarget(ViperSlides.Target.GROUND);
         }
-        if (gamepad1.x && bucketServos.isTransferPosition()) {
+        if (gamepad1.b && bucketServos.isTransferPosition()) {
             viperSlides.setTarget(ViperSlides.Target.LOW);
         }
-        if (gamepad1.b && bucketServos.isTransferPosition()) {
+        if (gamepad1.x && bucketServos.isTransferPosition()) {
             viperSlides.setTarget(ViperSlides.Target.HIGH);
 
         }
