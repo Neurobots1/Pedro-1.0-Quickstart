@@ -80,8 +80,8 @@ public class AutonomousCLIP extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(9, 57, Math.toRadians(180));
-    private final Pose ClipPose1 = new Pose(35, 71, Math.toRadians(180));
-    private final Pose MidPose = new Pose(25, 35, Math.toRadians(-25));
+    private final Pose ClipPose1 = new Pose(35.5, 71, Math.toRadians(180));
+    private final Pose MidPose = new Pose(25, 35, Math.toRadians(-30));
     private final Pose MidPoseInverse = new Pose(23,18,Math.toRadians(180));
 
 
@@ -114,8 +114,8 @@ public class AutonomousCLIP extends OpMode {
                         new Point(ClipPose1),
                         new Point(MidPose)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(-25))
-                .setZeroPowerAccelerationMultiplier(1)
+                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(-33))
+                .setZeroPowerAccelerationMultiplier(0.5)
                 .build();
 
         MidPathInverser = follower.pathBuilder()
@@ -151,7 +151,7 @@ public class AutonomousCLIP extends OpMode {
         switch (pathState) {
             case 0:  // Move to scoring position 1
                 viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-                follower.followPath(startPath, 0.7, true);
+                follower.followPath(startPath, 0.5, true);
                 setPathState(1);
                 break;
 
@@ -170,7 +170,7 @@ public class AutonomousCLIP extends OpMode {
                 break;
 
             case 3:
-                follower.followPath(MidPath1,0.8,true);
+                follower.followPath(MidPath1,0.6,true);
                 viperSlides.setTarget(ViperSlides.Target.GROUND);
                 setPathState(4);
                 break;
@@ -178,13 +178,13 @@ public class AutonomousCLIP extends OpMode {
             case 4:
                 if (!follower.isBusy()){
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
-                    intakeMotor.intake();
                     setPathState(5);
                 }
                 break;
 
             case 5:
                 if (pathTimer.getElapsedTimeSeconds()>0.6){
+                    intakeMotor.intake();
                     intakeServos.intakePosition();
                     setPathState(6);
                 }
@@ -206,46 +206,53 @@ public class AutonomousCLIP extends OpMode {
                 break;
 
             case 7:
-                follower.followPath(MidPathInverser,1,true);
+                follower.followPath(MidPathInverser,0.8,true);
                 setPathState(8);
                 break;
 
             case 8:
-                if (!follower.isBusy()){
+                if (pathTimer.getElapsedTimeSeconds()>1.3){
                     intakeMotor.outtake();
-                    if (pathTimer.getElapsedTimeSeconds()>0.5){
-                        intakeMotor.stop();
-                        setPathState(9);
-                    }
+                    setPathState(9);
                 }
                 break;
 
             case 9:
-                follower.followPath(MidPath2,1,true);
-                setPathState(10);
-                break;
-
-            case 10:
-                if (!follower.isBusy()){
-                    intakeMotor.intake();
-                    intakeServos.intakePosition();
-                    setPathState(11);
+                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                    intakeMotor.stop();
+                    setPathState(10);
                 }
                 break;
 
+            case 10:
+                follower.followPath(MidPath2,0.7,true);
+                setPathState(11);
+                break;
+
             case 11:
+                if (!follower.isBusy()){
+                    intakeMotor.intake();
+                    intakeServos.intakePosition();
+                    setPathState(12);
+                }
+                break;
+
+            case 12:
                 colorAndDistance.update();
                 detectedColor = colorAndDistance.getDetectedColor();
 
                 if (detectedColor.equals("Red")||detectedColor.equals("Blue")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
-                    setPathState(12);
+                    setPathState(13);
                 } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
                     setPathState(-1); // Alternative path for missing submersible block
                 }
                 break;
+
+            case 13:
+
 
 
 
