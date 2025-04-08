@@ -20,6 +20,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
+import OpMode.Subsystems.GamePieceDetection;
+import OpMode.Subsystems.HandServo;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServosNEW;
 import OpMode.Subsystems.LinkageController;
@@ -40,7 +42,8 @@ public class RedTeleopNEWER extends OpMode {
 
         INTAKE_WAITFORBLOCK
 
-    };
+    }
+
 
     IntakeState intakeState = IntakeState.INTAKE_START;
     ElapsedTime intakeTimer = new ElapsedTime();
@@ -51,7 +54,7 @@ public class RedTeleopNEWER extends OpMode {
     private ViperSlides viperSlides;
     // PedroPathing Teleop
     private Follower follower;
-    private final Pose startPose = new Pose(finalPose.getX(), finalPose.getY(),finalPose.getHeading());
+    private final Pose startPose = new Pose(finalPose.getX(), finalPose.getY(), finalPose.getHeading());
     private FtcDashboard dashboard;
 
     // REV Touch Sensor (Limit Switch)
@@ -73,6 +76,8 @@ public class RedTeleopNEWER extends OpMode {
     private DcMotor extendoMotor;
     private ColorSensor colorSensor;
     private ColorAndDistance colorAndDistance;
+
+    private HandServo handServo;
 
 
     private boolean hasRumbled = false;
@@ -142,37 +147,43 @@ public class RedTeleopNEWER extends OpMode {
         bucketServoLeft = hardwareMap.get(Servo.class, "BucketServoLeft");
         bucketServos = new BucketServos(bucketServoRight, bucketServoLeft);
         bucketServos.transferPosition();
+
+        //Initialize Hand
+        handServo = new HandServo(hardwareMap.get(Servo.class, "HandServo"));
+        handServo.closedPosition();
+
     }
 
     @Override
     public void loop() {
 
+
         switch (intakeState) {
 
 
             case INTAKE_START:
-               linkageController.setPosition(LinkageController.Position.RETRACTED);
-               intakeMotor.stop();
-               intakeServos.transferPosition();
-               intakeTimer.reset();
-               if (gamepad1.dpad_up) {
-                   intakeState = IntakeState.INTAKE_EXTEND;
-               }
+                linkageController.setPosition(LinkageController.Position.RETRACTED);
+                intakeMotor.stop();
+                intakeServos.transferPosition();
+                intakeTimer.reset();
+                if (gamepad1.dpad_up) {
+                    intakeState = IntakeState.INTAKE_EXTEND;
+                }
 
-               if (gamepad1.left_bumper){
-                   intakeMotor.outtake();
-               }
+                if (gamepad1.dpad_left) {
+                    intakeMotor.outtake();
+                }
                 break;
 
             case INTAKE_EXTEND:
                 linkageController.setPosition(LinkageController.Position.EXTENDED);
-                if (intakeTimer.seconds()>1){
+                if (intakeTimer.seconds() > 1) {
                     intakeMotor.intake();
                     intakeServos.intakePosition();
                     intakeTimer.reset();
                     intakeState = IntakeState.INTAKE_WAITFORBLOCK;
                 }
-                if (gamepad1.left_bumper){
+                if (gamepad1.dpad_left) {
                     intakeMotor.outtake();
                 }
 
@@ -183,13 +194,13 @@ public class RedTeleopNEWER extends OpMode {
 
                 String detectedColor = colorAndDistance.getDetectedColor();
 
-                if (detectedColor.equals("Red") || detectedColor.equals("Yellow")){
+                if (detectedColor.equals("Red") || detectedColor.equals("Yellow")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
                     intakeTimer.reset();
                     intakeState = IntakeState.INTAKE_RETRACT;
                 }
-                if (gamepad1.left_bumper){
+                if (gamepad1.dpad_left) {
                     intakeMotor.outtake();
                 }
 
@@ -199,7 +210,7 @@ public class RedTeleopNEWER extends OpMode {
             case INTAKE_RETRACT:
                 linkageController.setPosition(LinkageController.Position.RETRACTED);
 
-                if (gamepad1.right_bumper){
+                if (gamepad1.right_bumper) {
                     intakeTimer.reset();
                     intakeState = IntakeState.OUTAKE_HUMAIN;
                 } else if (gamepad1.left_bumper) {
@@ -216,26 +227,24 @@ public class RedTeleopNEWER extends OpMode {
 
             case OUTAKE_HUMAIN:
                 colorAndDistance.update();
-                if (intakeTimer.seconds()<1.5 ){
-                   intakeMotor.outtake();
+                if (intakeTimer.seconds() < 0.75) {
+                    intakeMotor.outtake();
                 }
 
-                if (intakeTimer.seconds()>1.5){
+                if (intakeTimer.seconds() > 0.75) {
                     intakeState = IntakeState.INTAKE_START;
                 }
-
-
 
 
                 break;
 
             case OUTAKE_BLOCK:
-                if (intakeTimer.seconds()<1.5){
+                if (intakeTimer.seconds() < 1.5) {
                     intakeMotor.intake();
 
                 }
 
-                if (intakeTimer.seconds()>1.5){
+                if (intakeTimer.seconds() > 1.5) {
                     intakeState = IntakeState.INTAKE_START;
 
                 }
@@ -265,7 +274,7 @@ public class RedTeleopNEWER extends OpMode {
 
         String detectedColor = colorAndDistance.getDetectedColor();
 
-        // Rumble for Red Detection
+        // Rumble for Blue Detection
         if ((detectedColor.equals("Red") && !hasRumbled)) {
             gamepad1.rumble(1000);
             hasRumbled = true;
@@ -298,8 +307,6 @@ public class RedTeleopNEWER extends OpMode {
         previousLeftTriggerState = currentLeftTriggerState;
 
 
-
-
         linkageController.checkForAmperageSpike();
         linkageController.update();
 
@@ -326,7 +333,7 @@ public class RedTeleopNEWER extends OpMode {
 
         }
 
-        if (gamepad1.touchpad){
+        if (gamepad1.touchpad) {
             viperSlides.setTarget(ViperSlides.Target.LEVEL1);
         }
 
@@ -367,5 +374,6 @@ public class RedTeleopNEWER extends OpMode {
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
         telemetry.addData("intake State", intakeState);
         telemetry.update();
+
     }
-    }
+}
