@@ -213,7 +213,7 @@ public class BlueTeleopNEWER extends OpMode {
                 if (gamepad1.right_bumper) {
                     intakeTimer.reset();
                     intakeState = IntakeState.OUTAKE_HUMAIN;
-                } else if (gamepad1.dpad_left) {
+                } else if (gamepad1.left_bumper) {
                     intakeTimer.reset();
                     intakeState = IntakeState.OUTAKE_BLOCK;
 
