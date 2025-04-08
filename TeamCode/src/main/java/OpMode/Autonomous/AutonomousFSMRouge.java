@@ -31,8 +31,8 @@ import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "AutonomousFSM", group = "Autonomous")
-public class AutonomousFSM extends OpMode {
+@Autonomous(name = "AutonomousFSMRouge", group = "Autonomous")
+public class AutonomousFSMRouge extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -189,7 +189,7 @@ public class AutonomousFSM extends OpMode {
                 .addPath(new BezierLine(
                         new Point(blockIntake1),
                         new Point(blocIntake2)
-                ))
+                        ))
                 .setLinearHeadingInterpolation(blockIntake1.getHeading(),blocIntake2.getHeading())
                 .setZeroPowerAccelerationMultiplier(2.5)
                 .build();
@@ -199,7 +199,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(bucketPose),
                         new Point(68,113),
                         new Point(blockIntake1)
-                ))
+                        ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
                 .setZeroPowerAccelerationMultiplier(5)
                 .build();
@@ -555,7 +555,7 @@ public class AutonomousFSM extends OpMode {
                 colorAndDistance.update();
                 String detectedColor = colorAndDistance.getDetectedColor();
 
-                if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
+                if (detectedColor.equals("Yellow")||detectedColor.equals("Red")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
                     follower.followPath(toBucket, 0.8, true);
@@ -665,7 +665,7 @@ public class AutonomousFSM extends OpMode {
                 break;
 
 
-            /** ----------- ALTERNATIVE PATHS AFTER MISSING SUBMERSIBLE BLOCK--------**/
+                /** ----------- ALTERNATIVE PATHS AFTER MISSING SUBMERSIBLE BLOCK--------**/
 
 
             case 57: //AltenativePath after missing submersible block
@@ -678,7 +678,7 @@ public class AutonomousFSM extends OpMode {
                 colorAndDistance.update();
                 detectedColor = colorAndDistance.getDetectedColor();
 
-                if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
+                if (detectedColor.equals("Yellow")||detectedColor.equals("Red")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
                     handServo.openPosition();
@@ -832,7 +832,7 @@ public class AutonomousFSM extends OpMode {
         } */
 
         // Update the previous state of the limit switch
-        // wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
+         // wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
     }
 
 
