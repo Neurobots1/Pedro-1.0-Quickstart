@@ -28,7 +28,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Deprecated
-@Autonomous(name = "AutonomousSpec5", group = "")
+@Autonomous(name = "AutonomousSpec5", group = "Unused")
 public class AutonomousSpec5 extends OpMode {
 
     // Viper Slide Variables

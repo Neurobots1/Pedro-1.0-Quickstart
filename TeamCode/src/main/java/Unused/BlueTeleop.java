@@ -27,7 +27,7 @@ import com.pedropathing.localization.Pose;
 
 @Config
 @Deprecated
-@TeleOp(name = "BlueTeleop", group = "")
+@TeleOp(name = "BlueTeleop", group = "Unused")
 public class BlueTeleop extends OpMode {
 
     // Viper Slide Variables

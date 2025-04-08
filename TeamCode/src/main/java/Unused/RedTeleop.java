@@ -26,7 +26,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 
 @Deprecated
-@TeleOp(name = "RedTeleop", group = "Active")
+@TeleOp(name = "RedTeleop", group = "Unused")
 public class RedTeleop extends OpMode {
 
     // Viper Slide Variables
