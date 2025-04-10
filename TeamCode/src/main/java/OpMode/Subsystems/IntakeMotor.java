@@ -22,8 +22,8 @@ public class IntakeMotor {
     }
 
     // Method to run the motor at half speed to keep intaked pieces inside
-    public void keepIntaking() {
-        intakeMotor.setPower(0.5);  // Run motor at half speed to keep pieces inside
+    public void slowOuttake() {
+        intakeMotor.setPower(0.3);  // Run motor at half speed to keep pieces inside
     }
 
     // Method to stop the intake motor

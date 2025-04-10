@@ -89,8 +89,8 @@ public class AutonomousFSM extends OpMode {
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
     private final Pose bucketPose = new Pose(13, 128, Math.toRadians(315));
     private final Pose blockPose1 = new Pose(20, 119, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(20, 130 , Math.toRadians(0));
-    private final Pose blockPose3 = new Pose(30, 119, Math.toRadians(59));
+    private final Pose blockPose2 = new Pose(21, 127 , Math.toRadians(0));
+    private final Pose blockPose3 = new Pose(32, 119, Math.toRadians(59));
 
     private final Pose blockIntake1 = new Pose(60, 97, Math.toRadians(-90));
 
@@ -522,7 +522,7 @@ public class AutonomousFSM extends OpMode {
             case 32:  // Wait 2 seconds before lowering slides
                 if (pathTimer.getElapsedTimeSeconds()>1.4) {
                     bucketServos.transferPosition();
-                    follower.followPath(toSubmersible, 1, false);
+                    follower.followPath(toSubmersible, 1, true);
                     setPathState(38);
                 }
                 break;
@@ -551,7 +551,7 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 45:
-                if (pathTimer.getElapsedTimeSeconds()>1) {
+                if (pathTimer.getElapsedTimeSeconds()>0.75) {
                     intakeServos.intakePosition();
                     follower.followPath(submersiblePath, 0.7, true);
                     setPathState(56);
@@ -592,12 +592,20 @@ public class AutonomousFSM extends OpMode {
             case 48:
                 if (pathTimer.getElapsedTimeSeconds()>0.1){
                     intakeServos.transferPosition();
+                    setPathState(203);
+                }
+                break;
+
+            case 203:
+                intakeMotor.slowOuttake();
+                if (pathTimer.getElapsedTimeSeconds()>0.1){
+                    intakeMotor.stop();
                     setPathState(49);
                 }
                 break;
 
             case 49:
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                if (pathTimer.getElapsedTimeSeconds()>0.6){
                     intakeMotor.intake();
                     setPathState(50);
                 }
@@ -735,6 +743,10 @@ public class AutonomousFSM extends OpMode {
 
             case 60://ToBucket Alternatif
                 follower.followPath(toBucketAlternative);
+                setPathState(218);
+                break;
+
+            case 218:
                 if (!follower.isBusy()) {
                     setPathState(51);
                 }

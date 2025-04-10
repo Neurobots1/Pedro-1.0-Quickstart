@@ -36,7 +36,7 @@ public class FConstants {
         FollowerConstants.useSecondaryTranslationalPID = false;
         FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0); // Not being used, @see useSecondaryTranslationalPID
 
-        FollowerConstants.headingPIDFCoefficients.setCoefficients(2 ,0,0.1,0);
+        FollowerConstants.headingPIDFCoefficients.setCoefficients(1.5 ,0,0.1,0);
         FollowerConstants.useSecondaryHeadingPID = false;
         FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(2,0,0.1,0); // Not being used, @see useSecondaryHeadingPID
 
@@ -48,7 +48,7 @@ public class FConstants {
         FollowerConstants.maxPower = 1;
         FollowerConstants.centripetalScaling = 0.000365;
 
-        FollowerConstants.pathEndTimeoutConstraint = 100;
+        FollowerConstants.pathEndTimeoutConstraint = 50;
         FollowerConstants.pathEndTValueConstraint = 0.95;
         FollowerConstants.pathEndVelocityConstraint = 0.1;
         FollowerConstants.pathEndTranslationalConstraint = 0.1;
