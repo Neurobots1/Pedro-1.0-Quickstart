@@ -1,6 +1,9 @@
 package OpMode.Autonomous;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -20,6 +23,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
@@ -31,6 +36,7 @@ import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+@Config
 @Autonomous(name = "AutonomousFSM", group = "Autonomous")
 public class AutonomousFSM extends OpMode {
 
@@ -38,6 +44,7 @@ public class AutonomousFSM extends OpMode {
     public static double p = 0.01, i = 0, d = 0.0;
     public static double f = 0.1;
     private ViperSlides viperSlides;
+    private Telemetry telemetryA;
 
     private Follower follower;
 
@@ -81,9 +88,9 @@ public class AutonomousFSM extends OpMode {
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
     private final Pose bucketPose = new Pose(13, 128, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(20, 120, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(20, 128 , Math.toRadians(0));
-    private final Pose blockPose3 = new Pose(32, 120, Math.toRadians(59));
+    private final Pose blockPose1 = new Pose(20, 119, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(20, 130 , Math.toRadians(0));
+    private final Pose blockPose3 = new Pose(30, 119, Math.toRadians(59));
 
     private final Pose blockIntake1 = new Pose(60, 97, Math.toRadians(-90));
 
@@ -112,7 +119,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(startPose.getHeading(),bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
         blockPath1= follower.pathBuilder()
@@ -121,7 +128,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blockPose1)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(),blockPose1.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
 
@@ -131,7 +138,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(blockPose1.getHeading(), bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
         blockPath2 = follower.pathBuilder()
@@ -140,7 +147,7 @@ public class AutonomousFSM extends OpMode {
                         new Point(blockPose2)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(), blockPose2.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
 
@@ -295,7 +302,7 @@ public class AutonomousFSM extends OpMode {
             case 2:  // Transfer position & extend linkage for intake
                 if (pathTimer.getElapsedTimeSeconds() > 1.3) {
                     bucketServos.transferPosition();
-                    follower.followPath(blockPath1);
+                    follower.followPath(blockPath1,0.8,true);
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
                     setPathState(3);
                 }
@@ -486,7 +493,7 @@ public class AutonomousFSM extends OpMode {
                 break;
 
             case 28:  // Intake block into bucket
-                if (pathTimer.getElapsedTimeSeconds() > 0.8) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.6) {
                     intakeMotor.intake();
                     setPathState(29);
                 }
@@ -763,6 +770,9 @@ public class AutonomousFSM extends OpMode {
         );
 
         viperSlides.resetPosition();
+        telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        telemetryA.update();
 
 
 
@@ -823,6 +833,7 @@ public class AutonomousFSM extends OpMode {
         viperSlides.update();
         linkageController.checkForAmperageSpike();
         linkageController.update();
+        follower.telemetryDebug(telemetryA);
 
 
 

@@ -19,6 +19,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
@@ -39,6 +42,7 @@ public class AutonomousBucket extends OpMode {
     private ViperSlides viperSlides;
 
     private Follower follower;
+    private Telemetry telemetryA;
 
     // REV Touch Sensor (Limit Switch)
     private TouchSensor limitSwitch;
@@ -555,6 +559,7 @@ public class AutonomousBucket extends OpMode {
         clawServo.openPosition();
 
         linkageController.zeroMotor();
+        telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
 
 
@@ -592,6 +597,9 @@ public class AutonomousBucket extends OpMode {
         viperSlides.update();
         linkageController.checkForAmperageSpike();
         linkageController.update();
+        follower.telemetryDebug(telemetryA);
+
+        telemetryA.update();
 
 
 

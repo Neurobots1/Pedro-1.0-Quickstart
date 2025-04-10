@@ -170,8 +170,12 @@ public class BlueTeleopNEWER extends OpMode {
                     intakeState = IntakeState.INTAKE_EXTEND;
                 }
 
-                if (gamepad1.dpad_left) {
+                if (gamepad1.right_bumper) {
                     intakeMotor.outtake();
+                }
+
+                if (gamepad1.left_bumper){
+                    intakeMotor.intake();
                 }
                 break;
 
@@ -183,8 +187,12 @@ public class BlueTeleopNEWER extends OpMode {
                     intakeTimer.reset();
                     intakeState = IntakeState.INTAKE_WAITFORBLOCK;
                 }
-                if (gamepad1.dpad_left) {
+                if (gamepad1.right_bumper) {
                     intakeMotor.outtake();
+                }
+
+                if (gamepad1.left_bumper){
+                    intakeMotor.intake();
                 }
 
                 break;
@@ -200,11 +208,13 @@ public class BlueTeleopNEWER extends OpMode {
                     intakeTimer.reset();
                     intakeState = IntakeState.INTAKE_RETRACT;
                 }
-                if (gamepad1.dpad_left) {
+                if (gamepad1.right_bumper) {
                     intakeMotor.outtake();
                 }
 
-
+                if (gamepad1.left_bumper){
+                    intakeMotor.intake();
+                }
                 break;
 
             case INTAKE_RETRACT:
@@ -234,8 +244,6 @@ public class BlueTeleopNEWER extends OpMode {
                 if (intakeTimer.seconds() > 0.75) {
                     intakeState = IntakeState.INTAKE_START;
                 }
-
-
                 break;
 
             case OUTAKE_BLOCK:
@@ -248,8 +256,6 @@ public class BlueTeleopNEWER extends OpMode {
                     intakeState = IntakeState.INTAKE_START;
 
                 }
-
-
                 break;
 
             default:
@@ -333,9 +339,9 @@ public class BlueTeleopNEWER extends OpMode {
 
         }
 
-        if (gamepad1.touchpad) {
+        /*   if (gamepad1.touchpad) {
             viperSlides.setTarget(ViperSlides.Target.LEVEL1);
-        }
+        }   */
 
         // Home Slides
         if (gamepad1.options) {
@@ -368,12 +374,12 @@ public class BlueTeleopNEWER extends OpMode {
         telemetry.addData("At Target", linkageController.isAtTarget());
         telemetry.addData("Is Extended", linkageController.isExtended());
         telemetry.addData("Is Retracted", linkageController.isRetracted());
+
         /* Telemetry Outputs of our Follower */
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
         telemetry.addData("intake State", intakeState);
         telemetry.update();
-
     }
 }
