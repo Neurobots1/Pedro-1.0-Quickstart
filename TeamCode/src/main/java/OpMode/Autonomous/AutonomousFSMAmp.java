@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit; // ✅ Import for current
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -37,8 +38,8 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
-@Autonomous(name = "AutonomousFSM", group = "Autonomous")
-public class AutonomousFSM extends OpMode {
+@Autonomous(name = "AutonomousFSMAmp", group = "Autonomous")
+public class AutonomousFSMAmp extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -71,7 +72,6 @@ public class AutonomousFSM extends OpMode {
     // IntakeBoolean Motor and Color Sensor
     private DcMotorEx intakemotor;
     private IntakeMotor intakeMotor;
-
     // Loop Timer
     private ElapsedTime loopTimer;
 
@@ -793,7 +793,9 @@ public class AutonomousFSM extends OpMode {
         handServo = new HandServo(hardwareMap.get(Servo.class, "HandServo"));
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServosNEW(intakeServoRight , intakeServoLeft);
-        intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
+        intakemotor = hardwareMap.get(DcMotorEx.class, "intakemotor");
+        intakeMotor = new IntakeMotor(intakemotor);
+
         colorAndDistance = new ColorAndDistance(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
         intakeServos.transferPosition(); // Set intake servos to transfer position
         //Linkage
@@ -835,12 +837,19 @@ public class AutonomousFSM extends OpMode {
 
     @Override
     public void loop() {
+        double currentAmperage = intakemotor.getCurrent(CurrentUnit.AMPS);
+
+        if (currentAmperage > 5.5){
+            intakeMotor.outtake();
+        }
+
         follower.update();
         autonomousPathUpdate();
         telemetry.addData("Path State", pathState);
         telemetry.addData("Position", follower.getPose().toString());
         telemetry.addData("Path Timer", pathTimer.getElapsedTimeSeconds());
         telemetry.addData("OpMode Timer", pathTimer.getElapsedTimeSeconds());
+        telemetry.addData("Intake Motor Amperage (A)", intakemotor.getCurrent(CurrentUnit.AMPS));
         telemetry.update();
         viperSlides.update();
         linkageController.checkForAmperageSpike();

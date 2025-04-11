@@ -82,9 +82,9 @@ public class AutonomousCLIP extends OpMode {
     private final Pose startPose = new Pose(9, 57, Math.toRadians(180));
     private final Pose ClipPose1 = new Pose(35.5, 71, Math.toRadians(180));
     private final Pose MidPose1 = new Pose(28, 39, Math.toRadians(-58));
-    private final Pose MidPoseInverse = new Pose(23,18,Math.toRadians(180));
+    private final Pose MidPoseInverse = new Pose(23,18,Math.toRadians(58));
     private final Pose MidPose2 = new Pose(28,29,Math.toRadians(-55));
-    private final Pose MidPose2Inverse = new Pose(28,29,Math.toRadians(0));
+    private final Pose MidPose2Inverse = new Pose(28,29,Math.toRadians(55));
     private final Pose MidPose3 = new Pose(34,25,Math.toRadians(-78));
     private final Pose MidPose3Inverse = new Pose(23,18,Math.toRadians(180));
 
@@ -100,7 +100,7 @@ public class AutonomousCLIP extends OpMode {
 
     /* Paths and PathChains */
     private Path scorePreload, park;
-    private PathChain startPath, MidPath1, MidPathInverser, MidPath2;
+    private PathChain startPath, MidPath1, MidPathInverser, MidPath2, MidPath2Inverse;
 
     public void buildPaths() {
 
@@ -137,6 +137,15 @@ public class AutonomousCLIP extends OpMode {
                         new Point(MidPose2)
                         ))
                 .setLinearHeadingInterpolation(Math.toRadians(0),Math.toRadians(-55))
+                .setZeroPowerAccelerationMultiplier(1.5)
+                .build();
+
+        MidPath2Inverse = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(MidPose2),
+                        new Point(MidPose2Inverse)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(-55),Math.toRadians(55))
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
@@ -251,11 +260,13 @@ public class AutonomousCLIP extends OpMode {
                     setPathState(13);
                 } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
-                    setPathState(-1); // Alternative path for missing submersible block
+                    setPathState(13); // Alternative path for missing submersible block
                 }
                 break;
 
             case 13:
+                follower.followPath(MidPath2Inverse, 0.7, true);
+
 
 
 
