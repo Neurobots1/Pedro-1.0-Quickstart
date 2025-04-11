@@ -88,8 +88,8 @@ public class AutonomousFSMAmp extends OpMode {
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
     private final Pose bucketPose = new Pose(13, 128, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(20, 119, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(21, 127 , Math.toRadians(0));
+    private final Pose blockPose1 = new Pose(20, 118, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(21, 126 , Math.toRadians(0));
     private final Pose blockPose3 = new Pose(32, 119, Math.toRadians(59));
 
     private final Pose blockIntake1 = new Pose(60, 97, Math.toRadians(-90));
