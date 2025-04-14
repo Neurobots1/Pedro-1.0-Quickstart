@@ -661,6 +661,7 @@ public class AutonomousNewerBucket extends OpMode {
         viperSlides.update();
         linkageController.checkForAmperageSpike();
         linkageController.update();
+        colorAndDistance.update();
 
 
 
