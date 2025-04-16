@@ -284,7 +284,6 @@ public class AutonomousCLIP extends OpMode {
 
 
 
-
             /** ---------------- ALTERNATIVE PATHS ---------------- **/
 
 

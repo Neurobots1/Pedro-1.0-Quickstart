@@ -28,7 +28,7 @@ import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "AutonomousSpec", group = "Autonomous")
+@Autonomous(name = "AutonomousOliver", group = "Autonomous")
 public class AutonomousOliverTest extends OpMode {
 
     // Viper Slide Variables
