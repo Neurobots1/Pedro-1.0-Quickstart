@@ -393,52 +393,43 @@ public class AutonomousSpec extends OpMode {
 
               case 15: //
                 if (!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 3.7 && pathTimer.getElapsedTimeSeconds() < 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3.7) {
                         clawServo.closedPosition();
-                    }
-                    if (pathTimer.getElapsedTimeSeconds() > 4 && pathTimer.getElapsedTimeSeconds() < 4.2) {
-                        viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                         setPathState(16);
                     }
-
-
-
-
-
                 }
                 break;
 
+
             case 16:
-
                 follower.followPath(scorePath3, 0.85, true);
-                pathTimer.resetTimer();
-                setPathState(17);
-
-
+                if (pathTimer.getElapsedTimeSeconds()>0.3){
+                    viperSlides.setTarget(ViperSlides.Target.MEDIUM);
+                    setPathState(17);
+                }
                 break;
 
             case 17: //
                 if (!follower.isBusy()) {
-
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
-
-                    if (pathTimer.getElapsedTimeSeconds() > 3.7) {
-                        clawServo.openPosition();
-                        setPathState(18);
+                    if (pathTimer.getElapsedTimeSeconds()>0.75) {
+                        viperSlides.setTarget(ViperSlides.Target.LOW);
                     }
-
                 }
                 break;
 
-            case 18:
+            case 31:
+                if (pathTimer.getElapsedTimeSeconds() > 3.7) {
+                    clawServo.openPosition();
+                    setPathState(18);
+                }
+                break;
 
+
+            case 18:
                     follower.followPath(endPath,1, true);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     pathTimer.resetTimer();
                     setPathState(-1);
-
-
-
                 break;
 
 
@@ -549,5 +540,6 @@ public class AutonomousSpec extends OpMode {
     /** We do not use this because everything should automatically disable **/
     @Override
     public void stop() {
+        finalPose= new Pose(follower.getPose().getX(),follower.getPose().getY(),follower.getPose().getHeading()).copy();
     }
 }

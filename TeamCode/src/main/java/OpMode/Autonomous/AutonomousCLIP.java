@@ -266,6 +266,15 @@ public class AutonomousCLIP extends OpMode {
 
             case 13:
                 follower.followPath(MidPath2Inverse, 0.7, true);
+                setPathState(14);
+                break;
+
+            case 14:
+                if (!follower.isBusy()){
+                    intakeServos.intakePosition();
+                    setPathState(15);
+                }
+                break;
 
 
 
