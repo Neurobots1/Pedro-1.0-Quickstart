@@ -16,7 +16,7 @@ public class HandServo {
 
     // Method to move both servos to the Transfer Position
     public void openPosition() {
-        HandServo.setPosition(0);  // Set to maximum after scaling
+        HandServo.setPosition(0.069);  // Set to maximum after scaling
     }
 
     // Method to move both servos to the IntakeBoolean Position

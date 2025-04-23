@@ -38,8 +38,8 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
-@Autonomous(name = "AutonomousFSMAmp", group = "Autonomous")
-public class AutonomousFSMAmp extends OpMode {
+@Autonomous(name = "AutonomousFSMBleu", group = "Autonomous")
+public class AutonomousFSMBleu extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -87,15 +87,18 @@ public class AutonomousFSMAmp extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
-    private final Pose bucketPose = new Pose(13, 128, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(20, 118, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(21, 126 , Math.toRadians(0));
-    private final Pose blockPose3 = new Pose(32, 119, Math.toRadians(59));
+    private final Pose bucketPose = new Pose(12, 127, Math.toRadians(315));
+    private final Pose blockPose1 = new Pose(20, 115, Math.toRadians(0));
+    private final Pose blockPose11 = new Pose(20, 121, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(21, 123, Math.toRadians(-5));
+    private final Pose blockPose22 = new Pose(21, 134, Math.toRadians(-5));
+    private final Pose blockPose3 = new Pose(34, 116, Math.toRadians(90));
+    private final Pose blockPose33 = new Pose(45, 116, Math.toRadians(90));
 
-    private final Pose blockIntake1 = new Pose(60, 97, Math.toRadians(-90));
+    private final Pose blockIntake1 = new Pose(57, 97, Math.toRadians(-90));
 
-    private final Pose blocIntake2 = new Pose(75, 97,Math.toRadians(-90));
-    private final Pose endPose = new Pose(60, 91.5, Math.toRadians(-90));
+    private final Pose blocIntake2 = new Pose(74, 96,Math.toRadians(-90));
+    private final Pose endPose = new Pose(70, 93, Math.toRadians(-90));
 
     public static Pose finalPose =new Pose();
 
@@ -108,7 +111,7 @@ public class AutonomousFSMAmp extends OpMode {
 
     /* Paths and PathChains */
     private Path scorePreload, park;
-    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative , toBucket, toBucketAlternative, toSubmersibleAlternative1, toSubmersibleReverse;
+    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative , toBucket, toBucketAlternative, toSubmersibleAlternative1, toSubmersibleReverse, BlockPath11, BlockPath22, blockPath33;
 
 
     public void buildPaths() {
@@ -131,13 +134,23 @@ public class AutonomousFSMAmp extends OpMode {
                 .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
+        BlockPath11= follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(blockPose1),
+                        new Point(blockPose11)
+                ))
+                .setLinearHeadingInterpolation(blockPose1.getHeading(),blockPose11.getHeading())
+                .setZeroPowerAccelerationMultiplier(4)
+                .build();
+
+
 
         bucketPath1 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(blockPose1),
+                        new Point(blockPose11),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(blockPose1.getHeading(), bucketPose.getHeading())
+                .setLinearHeadingInterpolation(Math.toRadians(4), bucketPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
@@ -146,27 +159,46 @@ public class AutonomousFSMAmp extends OpMode {
                         new Point(bucketPose),
                         new Point(blockPose2)
                 ))
-                .setLinearHeadingInterpolation(bucketPose.getHeading(), blockPose2.getHeading())
+                .setLinearHeadingInterpolation(bucketPose.getHeading(),blockPose2.getHeading())
+                .setZeroPowerAccelerationMultiplier(4)
+                .build();
+
+        bucketPath2 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(blockPose22),
+                        new Point(bucketPose)
+                ))
+                .setLinearHeadingInterpolation(blockPose22.getHeading(), bucketPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
 
-
-        bucketPath2 = follower.pathBuilder()
+        BlockPath22 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(blockPose2),
-                        new Point(bucketPose)
+                        new Point(blockPose22)
                 ))
-                .setLinearHeadingInterpolation(blockPose2.getHeading(), bucketPose.getHeading())
+                .setLinearHeadingInterpolation(blockPose2.getHeading(), blockPose22.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
+
+
 
         blockPath3 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(bucketPose),
                         new Point(blockPose3)
                 ))
-                .setLinearHeadingInterpolation(bucketPose.getHeading(), blockPose3.getHeading())
+                .setLinearHeadingInterpolation(bucketPose.getHeading(),blockPose3.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
+                .build();
+
+        blockPath33 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(blockPose3),
+                        new Point(blockPose33)
+                ))
+                .setLinearHeadingInterpolation(blockPose3.getHeading(),blockPose33.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
@@ -175,10 +207,10 @@ public class AutonomousFSMAmp extends OpMode {
 
         bucketPath3 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(blockPose3),
+                        new Point(blockPose33),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(blockPose3.getHeading(), bucketPose.getHeading())
+                .setLinearHeadingInterpolation(blockPose33.getHeading(), bucketPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
@@ -189,7 +221,7 @@ public class AutonomousFSMAmp extends OpMode {
                         new Point(endPose)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(), endPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1)
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
         submersiblePath = follower.pathBuilder()
@@ -208,7 +240,7 @@ public class AutonomousFSMAmp extends OpMode {
                         new Point(blockIntake1)
                 ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
-                .setZeroPowerAccelerationMultiplier(5)
+                .setZeroPowerAccelerationMultiplier(3.5)
                 .build();
 
         toBucket = follower.pathBuilder()
@@ -288,7 +320,7 @@ public class AutonomousFSMAmp extends OpMode {
         switch (pathState) {
             case 0:  // Move to scoring position 1
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
-                follower.followPath(startPath, 0.8, true);
+                follower.followPath(startPath, 1, true);
                 setPathState(1);
                 break;
 
@@ -302,7 +334,7 @@ public class AutonomousFSMAmp extends OpMode {
             case 2:  // Transfer position & extend linkage for intake
                 if (pathTimer.getElapsedTimeSeconds() > 1.3) {
                     bucketServos.transferPosition();
-                    follower.followPath(blockPath1,0.8,true);
+                    follower.followPath(blockPath1,0.9,true);
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
                     setPathState(3);
                 }
@@ -316,11 +348,17 @@ public class AutonomousFSMAmp extends OpMode {
                 }
                 break;
 
+
             case 4:  // Start intake
                 if (!follower.isBusy()) {
                     intakeServos.intakePosition();
-                    setPathState(5);
+                    setPathState(72);
                 }
+                break;
+
+            case 72:
+                follower.followPath(BlockPath11, 0.6, true);
+                setPathState(5);
                 break;
 
             case 5:  // Wait for block detection
@@ -359,14 +397,16 @@ public class AutonomousFSMAmp extends OpMode {
                 break;
 
             case 10:  // Move to bucket (slides stay up)
-                follower.followPath(bucketPath1, 0.8, true);
+                follower.followPath(bucketPath1, 0.9, true);
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
+                intakeMotor.outtake();
                 setPathState(11);
                 break;
 
             case 11:  // Deposit block
                 if (pathTimer.getElapsedTimeSeconds()>0.8) {
                     bucketServos.depositPosition();
+                    intakeMotor.stop();
                     setPathState(12);
                 }
                 break;
@@ -392,11 +432,17 @@ public class AutonomousFSMAmp extends OpMode {
                 }
                 break;
 
+
             case 14:  // Start intake
                 if (!follower.isBusy()) {
                     intakeServos.intakePosition();
-                    setPathState(15);
+                    setPathState(71);
                 }
+                break;
+
+            case 71:
+                follower.followPath(BlockPath22, 0.6, true);
+                setPathState(15);
                 break;
 
             case 15:  // Wait for block detection
@@ -435,14 +481,16 @@ public class AutonomousFSMAmp extends OpMode {
                 break;
 
             case 20:  // Move to bucket with second block (slides stay up)
-                follower.followPath(bucketPath2, 0.8, true);
+                follower.followPath(bucketPath2, 0.9, true);
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
+                intakeMotor.outtake();
                 setPathState(21);
                 break;
 
             case 21:  // Deposit second block
                 if (pathTimer.getElapsedTimeSeconds()>0.5) {
                     bucketServos.depositPosition();
+                    intakeMotor.stop();
                     setPathState(22);
                 }
                 break;
@@ -467,9 +515,16 @@ public class AutonomousFSMAmp extends OpMode {
             case 24:  // Start final intake
                 if(!follower.isBusy()) {
                     intakeServos.intakePosition();
-                    setPathState(25);
+                    setPathState(73);
                 }
                 break;
+
+            case 73:
+                follower.followPath(blockPath33, 0.6, true);
+                setPathState(25);
+                break;
+
+
 
             case 25:  // Wait for final block detection
                 colorAndDistance.update();
@@ -507,14 +562,16 @@ public class AutonomousFSMAmp extends OpMode {
                 break;
 
             case 30:  // Move to final bucket (slides stay up)
-                follower.followPath(bucketPath3, 0.8, true);
+                follower.followPath(bucketPath3, 0.9, true);
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
+                intakeMotor.outtake();
                 setPathState(31);
                 break;
 
             case 31:  // Deposit final block
-                if (pathTimer.getElapsedTimeSeconds()>0.7) {
+                if (pathTimer.getElapsedTimeSeconds()>1.4) {
                     bucketServos.depositPosition();
+                    intakeMotor.stop();
                     setPathState(32); // 33
                 }
                 break;
@@ -553,7 +610,7 @@ public class AutonomousFSMAmp extends OpMode {
             case 45:
                 if (pathTimer.getElapsedTimeSeconds()>0.75) {
                     intakeServos.intakePosition();
-                    follower.followPath(submersiblePath, 0.7, true);
+                    follower.followPath(submersiblePath, 0.9, true);
                     setPathState(56);
                 }
                 break;
@@ -565,7 +622,7 @@ public class AutonomousFSMAmp extends OpMode {
                 if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
-                    follower.followPath(toBucket, 0.8, true);
+                    follower.followPath(toBucket, 0.9, true);
                     setPathState(43);
                 } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
@@ -576,7 +633,7 @@ public class AutonomousFSMAmp extends OpMode {
 
             case 42:  // Move to end
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
+                    viperSlides.setTarget(ViperSlides.Target.GROUND);
                     setPathState(-1);
                 }
                 break;
@@ -598,7 +655,7 @@ public class AutonomousFSMAmp extends OpMode {
 
             case 203:
                 intakeMotor.slowOuttake();
-                if (pathTimer.getElapsedTimeSeconds()>0.1){
+                if (pathTimer.getElapsedTimeSeconds()>0.5){
                     intakeMotor.stop();
                     setPathState(49);
                 }
@@ -612,21 +669,22 @@ public class AutonomousFSMAmp extends OpMode {
                 break;
 
             case 50:
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                colorAndDistance.update();
+                detectedColor = colorAndDistance.getDetectedColor();
+
+                if (pathTimer.getElapsedTimeSeconds()>0.3 && colorAndDistance.getDetectedColor().equals("None")){
                     intakeMotor.stop();
                     setPathState(51);
                 }
                 break;
 
             case 51:
-                if (pathTimer.getElapsedTimeSeconds()>0.3){
                     viperSlides.setTarget(ViperSlides.Target.HIGH);
                     setPathState(52);
-                }
                 break;
 
             case 52:
-                if (pathTimer.getElapsedTimeSeconds()>1){
+                if (pathTimer.getElapsedTimeSeconds()>1.3){
                     bucketServos.depositPosition();
                     setPathState(53);
                 }
@@ -752,6 +810,7 @@ public class AutonomousFSMAmp extends OpMode {
                 }
                 break;
 
+
         }
 
 
@@ -840,6 +899,7 @@ public class AutonomousFSMAmp extends OpMode {
         double currentAmperage = intakemotor.getCurrent(CurrentUnit.AMPS);
 
         if (currentAmperage > 5.5){
+            intakeServos.transferPosition();
             intakeMotor.outtake();
         }
 

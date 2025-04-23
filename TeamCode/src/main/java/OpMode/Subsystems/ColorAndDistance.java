@@ -44,7 +44,7 @@ public class ColorAndDistance{
 
     private String determineColor(float hue, float saturation, float value) {
 
-        if (hue >= 20 && hue < 55) {
+        if (hue >= 15 && hue < 55) {
             return "Red"; // about 30
         } else if (hue >= 200 && hue < 300) {
             return "Blue"; // about 225

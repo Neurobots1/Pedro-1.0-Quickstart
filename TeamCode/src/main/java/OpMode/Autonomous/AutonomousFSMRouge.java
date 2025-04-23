@@ -1,6 +1,9 @@
 package OpMode.Autonomous;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -16,9 +19,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit; // ✅ Import for current
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
@@ -31,6 +37,7 @@ import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+@Config
 @Autonomous(name = "AutonomousFSMRouge", group = "Autonomous")
 public class AutonomousFSMRouge extends OpMode {
 
@@ -38,6 +45,7 @@ public class AutonomousFSMRouge extends OpMode {
     public static double p = 0.01, i = 0, d = 0.0;
     public static double f = 0.1;
     private ViperSlides viperSlides;
+    private Telemetry telemetryA;
 
     private Follower follower;
 
@@ -62,9 +70,8 @@ public class AutonomousFSMRouge extends OpMode {
     private BucketServos bucketServos;
 
     // IntakeBoolean Motor and Color Sensor
-    private DcMotor intakemotor;
+    private DcMotorEx intakemotor;
     private IntakeMotor intakeMotor;
-
     // Loop Timer
     private ElapsedTime loopTimer;
 
@@ -80,15 +87,18 @@ public class AutonomousFSMRouge extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
-    private final Pose bucketPose = new Pose(13, 128, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(20, 120, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(20, 128 , Math.toRadians(0));
-    private final Pose blockPose3 = new Pose(32, 120, Math.toRadians(59));
+    private final Pose bucketPose = new Pose(12, 127, Math.toRadians(315));
+    private final Pose blockPose1 = new Pose(20, 115, Math.toRadians(0));
+    private final Pose blockPose11 = new Pose(20, 121, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(21, 123, Math.toRadians(-5));
+    private final Pose blockPose22 = new Pose(21, 134, Math.toRadians(-5));
+    private final Pose blockPose3 = new Pose(34, 116, Math.toRadians(90));
+    private final Pose blockPose33 = new Pose(45, 116, Math.toRadians(90));
 
-    private final Pose blockIntake1 = new Pose(60, 97, Math.toRadians(-90));
+    private final Pose blockIntake1 = new Pose(57, 97, Math.toRadians(-90));
 
-    private final Pose blocIntake2 = new Pose(75, 97,Math.toRadians(-90));
-    private final Pose endPose = new Pose(60, 91.5, Math.toRadians(-90));
+    private final Pose blocIntake2 = new Pose(74, 96,Math.toRadians(-90));
+    private final Pose endPose = new Pose(70, 93, Math.toRadians(-90));
 
     public static Pose finalPose =new Pose();
 
@@ -101,7 +111,7 @@ public class AutonomousFSMRouge extends OpMode {
 
     /* Paths and PathChains */
     private Path scorePreload, park;
-    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative , toBucket, toBucketAlternative, toSubmersibleAlternative1, toSubmersibleReverse;
+    private PathChain startPath, blockPath1,  bucketPath1, blockPath2, blockPath2Alternative, bucketPath2, blockPath3, blockPath3Alternative,bucketPath3, submersiblePath, toSubmersible, endPath , endPathAlternative , toBucket, toBucketAlternative, toSubmersibleAlternative1, toSubmersibleReverse, BlockPath11, BlockPath22, blockPath33;
 
 
     public void buildPaths() {
@@ -112,7 +122,7 @@ public class AutonomousFSMRouge extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(startPose.getHeading(),bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
         blockPath1= follower.pathBuilder()
@@ -121,17 +131,27 @@ public class AutonomousFSMRouge extends OpMode {
                         new Point(blockPose1)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(),blockPose1.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
+
+        BlockPath11= follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(blockPose1),
+                        new Point(blockPose11)
+                ))
+                .setLinearHeadingInterpolation(blockPose1.getHeading(),blockPose11.getHeading())
+                .setZeroPowerAccelerationMultiplier(4)
+                .build();
+
 
 
         bucketPath1 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(blockPose1),
+                        new Point(blockPose11),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(blockPose1.getHeading(), bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setLinearHeadingInterpolation(Math.toRadians(4), bucketPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
         blockPath2 = follower.pathBuilder()
@@ -139,27 +159,46 @@ public class AutonomousFSMRouge extends OpMode {
                         new Point(bucketPose),
                         new Point(blockPose2)
                 ))
-                .setLinearHeadingInterpolation(bucketPose.getHeading(), blockPose2.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setLinearHeadingInterpolation(bucketPose.getHeading(),blockPose2.getHeading())
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
-
-
 
         bucketPath2 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(blockPose2),
+                        new Point(blockPose22),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(blockPose2.getHeading(), bucketPose.getHeading())
+                .setLinearHeadingInterpolation(blockPose22.getHeading(), bucketPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(4)
+                .build();
+
+
+        BlockPath22 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(blockPose2),
+                        new Point(blockPose22)
+                ))
+                .setLinearHeadingInterpolation(blockPose2.getHeading(), blockPose22.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
+
+
 
         blockPath3 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(bucketPose),
                         new Point(blockPose3)
                 ))
-                .setLinearHeadingInterpolation(bucketPose.getHeading(), blockPose3.getHeading())
+                .setLinearHeadingInterpolation(bucketPose.getHeading(),blockPose3.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
+                .build();
+
+        blockPath33 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(blockPose3),
+                        new Point(blockPose33)
+                ))
+                .setLinearHeadingInterpolation(blockPose3.getHeading(),blockPose33.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
@@ -168,10 +207,10 @@ public class AutonomousFSMRouge extends OpMode {
 
         bucketPath3 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(blockPose3),
+                        new Point(blockPose33),
                         new Point(bucketPose)
                 ))
-                .setLinearHeadingInterpolation(blockPose3.getHeading(), bucketPose.getHeading())
+                .setLinearHeadingInterpolation(blockPose33.getHeading(), bucketPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
 
@@ -182,14 +221,14 @@ public class AutonomousFSMRouge extends OpMode {
                         new Point(endPose)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(), endPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1)
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
         submersiblePath = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(blockIntake1),
                         new Point(blocIntake2)
-                        ))
+                ))
                 .setLinearHeadingInterpolation(blockIntake1.getHeading(),blocIntake2.getHeading())
                 .setZeroPowerAccelerationMultiplier(2.5)
                 .build();
@@ -199,9 +238,9 @@ public class AutonomousFSMRouge extends OpMode {
                         new Point(bucketPose),
                         new Point(68,113),
                         new Point(blockIntake1)
-                        ))
+                ))
                 .setLinearHeadingInterpolation(follower.getTotalHeading(),blockIntake1.getHeading())
-                .setZeroPowerAccelerationMultiplier(5)
+                .setZeroPowerAccelerationMultiplier(3.5)
                 .build();
 
         toBucket = follower.pathBuilder()
@@ -281,7 +320,7 @@ public class AutonomousFSMRouge extends OpMode {
         switch (pathState) {
             case 0:  // Move to scoring position 1
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
-                follower.followPath(startPath, 0.8, true);
+                follower.followPath(startPath, 1, true);
                 setPathState(1);
                 break;
 
@@ -295,7 +334,7 @@ public class AutonomousFSMRouge extends OpMode {
             case 2:  // Transfer position & extend linkage for intake
                 if (pathTimer.getElapsedTimeSeconds() > 1.3) {
                     bucketServos.transferPosition();
-                    follower.followPath(blockPath1);
+                    follower.followPath(blockPath1,0.9,true);
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
                     setPathState(3);
                 }
@@ -309,11 +348,17 @@ public class AutonomousFSMRouge extends OpMode {
                 }
                 break;
 
+
             case 4:  // Start intake
                 if (!follower.isBusy()) {
                     intakeServos.intakePosition();
-                    setPathState(5);
+                    setPathState(72);
                 }
+                break;
+
+            case 72:
+                follower.followPath(BlockPath11, 0.6, true);
+                setPathState(5);
                 break;
 
             case 5:  // Wait for block detection
@@ -352,7 +397,7 @@ public class AutonomousFSMRouge extends OpMode {
                 break;
 
             case 10:  // Move to bucket (slides stay up)
-                follower.followPath(bucketPath1, 0.8, true);
+                follower.followPath(bucketPath1, 0.9, true);
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
                 setPathState(11);
                 break;
@@ -385,11 +430,17 @@ public class AutonomousFSMRouge extends OpMode {
                 }
                 break;
 
+
             case 14:  // Start intake
                 if (!follower.isBusy()) {
                     intakeServos.intakePosition();
-                    setPathState(15);
+                    setPathState(71);
                 }
+                break;
+
+            case 71:
+                follower.followPath(BlockPath22, 0.6, true);
+                setPathState(15);
                 break;
 
             case 15:  // Wait for block detection
@@ -428,7 +479,7 @@ public class AutonomousFSMRouge extends OpMode {
                 break;
 
             case 20:  // Move to bucket with second block (slides stay up)
-                follower.followPath(bucketPath2, 0.8, true);
+                follower.followPath(bucketPath2, 0.9, true);
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
                 setPathState(21);
                 break;
@@ -460,9 +511,16 @@ public class AutonomousFSMRouge extends OpMode {
             case 24:  // Start final intake
                 if(!follower.isBusy()) {
                     intakeServos.intakePosition();
-                    setPathState(25);
+                    setPathState(73);
                 }
                 break;
+
+            case 73:
+                follower.followPath(blockPath33, 0.6, true);
+                setPathState(25);
+                break;
+
+
 
             case 25:  // Wait for final block detection
                 colorAndDistance.update();
@@ -486,7 +544,7 @@ public class AutonomousFSMRouge extends OpMode {
                 break;
 
             case 28:  // Intake block into bucket
-                if (pathTimer.getElapsedTimeSeconds() > 0.8) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.6) {
                     intakeMotor.intake();
                     setPathState(29);
                 }
@@ -500,13 +558,13 @@ public class AutonomousFSMRouge extends OpMode {
                 break;
 
             case 30:  // Move to final bucket (slides stay up)
-                follower.followPath(bucketPath3, 0.8, true);
+                follower.followPath(bucketPath3, 0.9, true);
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
                 setPathState(31);
                 break;
 
             case 31:  // Deposit final block
-                if (pathTimer.getElapsedTimeSeconds()>0.7) {
+                if (pathTimer.getElapsedTimeSeconds()>1.4) {
                     bucketServos.depositPosition();
                     setPathState(32); // 33
                 }
@@ -515,7 +573,7 @@ public class AutonomousFSMRouge extends OpMode {
             case 32:  // Wait 2 seconds before lowering slides
                 if (pathTimer.getElapsedTimeSeconds()>1.4) {
                     bucketServos.transferPosition();
-                    follower.followPath(toSubmersible, 1, false);
+                    follower.followPath(toSubmersible, 1, true);
                     setPathState(38);
                 }
                 break;
@@ -544,9 +602,9 @@ public class AutonomousFSMRouge extends OpMode {
                 break;
 
             case 45:
-                if (pathTimer.getElapsedTimeSeconds()>1) {
+                if (pathTimer.getElapsedTimeSeconds()>0.75) {
                     intakeServos.intakePosition();
-                    follower.followPath(submersiblePath, 0.7, true);
+                    follower.followPath(submersiblePath, 0.9, true);
                     setPathState(56);
                 }
                 break;
@@ -558,7 +616,7 @@ public class AutonomousFSMRouge extends OpMode {
                 if (detectedColor.equals("Yellow")||detectedColor.equals("Red")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
-                    follower.followPath(toBucket, 0.8, true);
+                    follower.followPath(toBucket, 0.9, true);
                     setPathState(43);
                 } else if (pathTimer.getElapsedTimeSeconds() > 3 && colorAndDistance.getDetectedColor().equals("None")) {
                     intakeMotor.stop();
@@ -569,7 +627,7 @@ public class AutonomousFSMRouge extends OpMode {
 
             case 42:  // Move to end
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
-                    viperSlides.setTarget(ViperSlides.Target.LOW);
+                    viperSlides.setTarget(ViperSlides.Target.GROUND);
                     setPathState(-1);
                 }
                 break;
@@ -585,33 +643,42 @@ public class AutonomousFSMRouge extends OpMode {
             case 48:
                 if (pathTimer.getElapsedTimeSeconds()>0.1){
                     intakeServos.transferPosition();
+                    setPathState(203);
+                }
+                break;
+
+            case 203:
+                intakeMotor.slowOuttake();
+                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                    intakeMotor.stop();
                     setPathState(49);
                 }
                 break;
 
             case 49:
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                if (pathTimer.getElapsedTimeSeconds()>0.6){
                     intakeMotor.intake();
                     setPathState(50);
                 }
                 break;
 
             case 50:
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                colorAndDistance.update();
+                detectedColor = colorAndDistance.getDetectedColor();
+
+                if ( colorAndDistance.getDetectedColor().equals("None") && pathTimer.getElapsedTimeSeconds()>0.2){
                     intakeMotor.stop();
                     setPathState(51);
                 }
                 break;
 
             case 51:
-                if (pathTimer.getElapsedTimeSeconds()>0.3){
-                    viperSlides.setTarget(ViperSlides.Target.HIGH);
-                    setPathState(52);
-                }
+                viperSlides.setTarget(ViperSlides.Target.HIGH);
+                setPathState(52);
                 break;
 
             case 52:
-                if (pathTimer.getElapsedTimeSeconds()>1){
+                if (pathTimer.getElapsedTimeSeconds()>1.3){
                     bucketServos.depositPosition();
                     setPathState(53);
                 }
@@ -665,7 +732,7 @@ public class AutonomousFSMRouge extends OpMode {
                 break;
 
 
-                /** ----------- ALTERNATIVE PATHS AFTER MISSING SUBMERSIBLE BLOCK--------**/
+            /** ----------- ALTERNATIVE PATHS AFTER MISSING SUBMERSIBLE BLOCK--------**/
 
 
             case 57: //AltenativePath after missing submersible block
@@ -678,7 +745,7 @@ public class AutonomousFSMRouge extends OpMode {
                 colorAndDistance.update();
                 detectedColor = colorAndDistance.getDetectedColor();
 
-                if (detectedColor.equals("Yellow")||detectedColor.equals("Red")) {
+                if (detectedColor.equals("Yellow")||detectedColor.equals("Blue")) {
                     intakeMotor.stop();
                     intakeServos.transferPosition();
                     handServo.openPosition();
@@ -728,10 +795,15 @@ public class AutonomousFSMRouge extends OpMode {
 
             case 60://ToBucket Alternatif
                 follower.followPath(toBucketAlternative);
+                setPathState(218);
+                break;
+
+            case 218:
                 if (!follower.isBusy()) {
                     setPathState(51);
                 }
                 break;
+
 
         }
 
@@ -763,6 +835,9 @@ public class AutonomousFSMRouge extends OpMode {
         );
 
         viperSlides.resetPosition();
+        telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        telemetryA.update();
 
 
 
@@ -771,7 +846,9 @@ public class AutonomousFSMRouge extends OpMode {
         handServo = new HandServo(hardwareMap.get(Servo.class, "HandServo"));
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServosNEW(intakeServoRight , intakeServoLeft);
-        intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
+        intakemotor = hardwareMap.get(DcMotorEx.class, "intakemotor");
+        intakeMotor = new IntakeMotor(intakemotor);
+
         colorAndDistance = new ColorAndDistance(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
         intakeServos.transferPosition(); // Set intake servos to transfer position
         //Linkage
@@ -813,16 +890,25 @@ public class AutonomousFSMRouge extends OpMode {
 
     @Override
     public void loop() {
+        double currentAmperage = intakemotor.getCurrent(CurrentUnit.AMPS);
+
+        if (currentAmperage > 5.5){
+            intakeServos.transferPosition();
+            intakeMotor.outtake();
+        }
+
         follower.update();
         autonomousPathUpdate();
         telemetry.addData("Path State", pathState);
         telemetry.addData("Position", follower.getPose().toString());
         telemetry.addData("Path Timer", pathTimer.getElapsedTimeSeconds());
         telemetry.addData("OpMode Timer", pathTimer.getElapsedTimeSeconds());
+        telemetry.addData("Intake Motor Amperage (A)", intakemotor.getCurrent(CurrentUnit.AMPS));
         telemetry.update();
         viperSlides.update();
         linkageController.checkForAmperageSpike();
         linkageController.update();
+        follower.telemetryDebug(telemetryA);
 
 
 
@@ -832,7 +918,7 @@ public class AutonomousFSMRouge extends OpMode {
         } */
 
         // Update the previous state of the limit switch
-         // wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
+        // wasLimitSwitchPressed = viperSlides.isLimitSwitchPressed();
     }
 
 

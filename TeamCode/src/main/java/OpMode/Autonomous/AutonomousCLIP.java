@@ -164,7 +164,7 @@ public class AutonomousCLIP extends OpMode {
         switch (pathState) {
             case 0:  // Move to scoring position 1
                 viperSlides.setTarget(ViperSlides.Target.MEDIUM);
-                follower.followPath(startPath, 0.5, true);
+                follower.followPath(startPath, 0.8, true);
                 setPathState(1);
                 break;
 

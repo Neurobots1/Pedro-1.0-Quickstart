@@ -1,4 +1,4 @@
-package OpMode.Autonomous;
+package Unused;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -37,6 +37,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
+@Deprecated
 @Autonomous(name = "AutonomousFSM", group = "Autonomous")
 public class AutonomousFSM extends OpMode {
 
@@ -87,15 +88,15 @@ public class AutonomousFSM extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
-    private final Pose bucketPose = new Pose(11, 122, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(20, 114, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(20, 124 , Math.toRadians(0));
-    private final Pose blockPose3 = new Pose(28, 116, Math.toRadians(51));
+    private final Pose bucketPose = new Pose(10, 128, Math.toRadians(315));
+    private final Pose blockPose1 = new Pose(21, 116, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(21, 125, Math.toRadians(0));
+    private final Pose blockPose3 = new Pose(29, 117, Math.toRadians(50));
 
-    private final Pose blockIntake1 = new Pose(51, 96, Math.toRadians(-90));
+    private final Pose blockIntake1 = new Pose(57, 97, Math.toRadians(-90));
 
-    private final Pose blocIntake2 = new Pose(69, 96,Math.toRadians(-90));
-    private final Pose endPose = new Pose(51, 93, Math.toRadians(-90));
+    private final Pose blocIntake2 = new Pose(74, 96,Math.toRadians(-90));
+    private final Pose endPose = new Pose(49, 93, Math.toRadians(-90));
 
     public static Pose finalPose =new Pose();
 

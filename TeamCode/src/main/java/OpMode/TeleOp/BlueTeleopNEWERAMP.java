@@ -1,6 +1,6 @@
 package OpMode.TeleOp;
 
-import static OpMode.Autonomous.AutonomousFSM.finalPose;
+import static Unused.AutonomousFSM.finalPose;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -82,7 +82,13 @@ public class BlueTeleopNEWERAMP extends OpMode {
 
     private boolean previousLeftTriggerState = false;
     private boolean currentLeftTriggerState = false;
+
+    private boolean previousHandState = false;
+
+    private boolean currentHandState = false;
     private boolean isClawOpen = true;
+
+    private boolean isHandOpen = false;
 
     @Override
     public void init() {
@@ -287,6 +293,18 @@ public class BlueTeleopNEWERAMP extends OpMode {
             Pose newPose = new Pose(currentPose.getX(), currentPose.getY(), 0);
             follower.setPose(newPose);
         }
+
+        currentHandState = gamepad1.touchpad;
+        if (currentHandState && !previousHandState) {
+            if (isHandOpen) {
+                handServo.openPosition();
+            } else {
+                handServo.closedPosition();
+            }
+            isHandOpen = !isHandOpen;
+        }
+        previousHandState = currentHandState;
+
 
         // ✅ Telemetry showing intake motor current
         telemetry.addData("Intake Motor Amperage (A)", intakemotor.getCurrent(CurrentUnit.AMPS));
