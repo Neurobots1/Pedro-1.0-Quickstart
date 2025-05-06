@@ -29,6 +29,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
+import OpMode.Subsystems.FlapServo;
 import OpMode.Subsystems.HandServo;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServosNEW;
@@ -59,6 +60,9 @@ public class AutonomousFSMBleu extends OpMode {
     private IntakeServosNEW intakeServos; // IntakeBoolean subsystem instance
     private ClawServo clawServo;
     private HandServo handServo;
+
+    private FlapServo flapServo;
+
 
 
 
@@ -92,8 +96,8 @@ public class AutonomousFSMBleu extends OpMode {
     private final Pose blockPose11 = new Pose(20, 121, Math.toRadians(0));
     private final Pose blockPose2 = new Pose(21, 123, Math.toRadians(-5));
     private final Pose blockPose22 = new Pose(21, 134, Math.toRadians(-5));
-    private final Pose blockPose3 = new Pose(34, 116, Math.toRadians(90));
-    private final Pose blockPose33 = new Pose(45, 116, Math.toRadians(90));
+    private final Pose blockPose3 = new Pose(35.5, 116, Math.toRadians(90));
+    private final Pose blockPose33 = new Pose(46.5, 116, Math.toRadians(90));
 
     private final Pose blockIntake1 = new Pose(57, 97, Math.toRadians(-90));
 
@@ -122,7 +126,7 @@ public class AutonomousFSMBleu extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(startPose.getHeading(),bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(4)
+                .setZeroPowerAccelerationMultiplier(1)
                 .build();
 
         blockPath1= follower.pathBuilder()
@@ -151,7 +155,7 @@ public class AutonomousFSMBleu extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(4), bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(4)
+                .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
         blockPath2 = follower.pathBuilder()
@@ -169,7 +173,7 @@ public class AutonomousFSMBleu extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(blockPose22.getHeading(), bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(4)
+                .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
 
@@ -179,7 +183,7 @@ public class AutonomousFSMBleu extends OpMode {
                         new Point(blockPose22)
                 ))
                 .setLinearHeadingInterpolation(blockPose2.getHeading(), blockPose22.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
 
@@ -190,7 +194,7 @@ public class AutonomousFSMBleu extends OpMode {
                         new Point(blockPose3)
                 ))
                 .setLinearHeadingInterpolation(bucketPose.getHeading(),blockPose3.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(2)
                 .build();
 
         blockPath33 = follower.pathBuilder()
@@ -199,7 +203,7 @@ public class AutonomousFSMBleu extends OpMode {
                         new Point(blockPose33)
                 ))
                 .setLinearHeadingInterpolation(blockPose3.getHeading(),blockPose33.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
 
@@ -211,7 +215,7 @@ public class AutonomousFSMBleu extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(blockPose33.getHeading(), bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
         endPath = follower.pathBuilder()
@@ -230,7 +234,7 @@ public class AutonomousFSMBleu extends OpMode {
                         new Point(blocIntake2)
                 ))
                 .setLinearHeadingInterpolation(blockIntake1.getHeading(),blocIntake2.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.5)
+                .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
         toSubmersible = follower.pathBuilder()
@@ -249,7 +253,7 @@ public class AutonomousFSMBleu extends OpMode {
                         new Point(bucketPose)
                 ))
                 .setLinearHeadingInterpolation(blocIntake2.getHeading(),bucketPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
+                .setZeroPowerAccelerationMultiplier(2)
                 .build();
 
 
@@ -601,14 +605,14 @@ public class AutonomousFSMBleu extends OpMode {
                 break;
 
             case 44:
-                if (pathTimer.getElapsedTimeSeconds()>1.1){
+                if (pathTimer.getElapsedTimeSeconds()>0.5){
                     linkageController.setPosition(LinkageController.Position.EXTENDED);
                     setPathState(45);
                 }
                 break;
 
             case 45:
-                if (pathTimer.getElapsedTimeSeconds()>0.75) {
+                if (pathTimer.getElapsedTimeSeconds()>0.4) {
                     intakeServos.intakePosition();
                     follower.followPath(submersiblePath, 0.9, true);
                     setPathState(56);
@@ -684,7 +688,7 @@ public class AutonomousFSMBleu extends OpMode {
                 break;
 
             case 52:
-                if (pathTimer.getElapsedTimeSeconds()>1.3){
+                if (pathTimer.getElapsedTimeSeconds()>1){
                     bucketServos.depositPosition();
                     setPathState(53);
                 }
@@ -901,6 +905,7 @@ public class AutonomousFSMBleu extends OpMode {
         if (currentAmperage > 5.5){
             intakeServos.transferPosition();
             intakeMotor.outtake();
+            intakeMotor.stop();
         }
 
         follower.update();

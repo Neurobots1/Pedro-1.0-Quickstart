@@ -24,7 +24,7 @@ public class AprilTagPoseTelemetryOpMode extends OpMode {
 
     private AprilTagLocalizer aprilTagLocalizer;
     private Follower follower;
-    private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
+    private final Pose startPose = new Pose(137, 40, Math.toRadians(90));
 
     @Override
     public void init() {

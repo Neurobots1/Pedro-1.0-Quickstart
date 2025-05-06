@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package OpMode.Tuning;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -30,6 +30,7 @@ public class ServoTester extends OpMode {
         servoNames.add("BucketServoRight");
         servoNames.add("BucketServoLeft");
         servoNames.add("ClawServo");
+        servoNames.add("FlapServo");
 
         updateSelectedServo(); // Set the initial servo
     }
