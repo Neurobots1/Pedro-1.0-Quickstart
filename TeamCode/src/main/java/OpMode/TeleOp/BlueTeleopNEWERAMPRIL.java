@@ -341,8 +341,10 @@ public class BlueTeleopNEWERAMPRIL extends OpMode {
 
         AprilTagLocalizer.AprilTagPose pose = aprilTagLocalizer.getPose();
 
+        List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
+
         Pose currentPose = follower.getPose();
-        if (aprilTagProcessor.getFreshDetections().equals(true)) {
+        if (!detections.isEmpty()){
             Pose updatedPose = new Pose(
                     aprilTagLocalizer.pedroPose.getX(),
                     aprilTagLocalizer.pedroPose.getY(),
@@ -354,7 +356,6 @@ public class BlueTeleopNEWERAMPRIL extends OpMode {
 
         // ✅ Telemetry showing intake motor current
         telemetry.addData("Intake Motor Amperage (A)", intakemotor.getCurrent(CurrentUnit.AMPS));
-
         telemetry.addData("Loop Time (ms)", loopTime);
         telemetry.addData("Slide Position Left", viperSlides.getSlidePositionLeft());
         telemetry.addData("Slide Position Right", viperSlides.getSlidePositionRight());
