@@ -25,7 +25,7 @@ public class IntakeServosNEW {
 
     // Method to move both servos to the IntakeBoolean Position
     public void transferPosition() {
-        IntakeServoRight.setPosition(0.1);  // Set to minimum after scaling
+        IntakeServoRight.setPosition(0.05);  // Set to minimum after scaling
         //IntakeServoLeft.setPosition(0.0);   // Set to minimum after scaling
     }
 

@@ -1,6 +1,6 @@
 package OpMode.TeleOp.Test;
 
-import static OpMode.Autonomous.AutonomousFSM.finalPose;
+import static Unused.AutonomousFSM.finalPose;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -24,7 +24,6 @@ import OpMode.Autonomous.Localizers.AprilTagLocalizer;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
-import OpMode.Subsystems.GamePieceDetection;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServosNEW;
 import OpMode.Subsystems.LinkageController;

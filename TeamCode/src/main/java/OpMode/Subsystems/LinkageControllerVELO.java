@@ -4,9 +4,10 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-public class LinkageController {
+public class LinkageControllerVELO {
 
     public enum Position {
         RETRACTED(-75),
@@ -33,12 +34,16 @@ public class LinkageController {
     private double p = 0.005; // Proportional gain
     private double i = 0.0; // Integral gain
     private double d = 0.0; // Derivative gain
+    private double previousVelocity = 0.0; // previous velocity in ticks/second
+    private double currentVelocity = 0.0; // current velocity in ticks/second
+    private static final double VELOCITY_DECREASE_THRESHOLD = 0; // modifier for velocity deceleration
+
     private static final double AMPERAGE_THRESHOLD = 0.5; // Amperage threshold for spike detection (adjust as needed)
     private static final double DRIVE_PAST_RETRACTED_POSITION = -0.2; // Power to drive past retracted position (negative to retract)
     public boolean isZeroing = false; // Flag for zeroing process
     public boolean hasZeroed = false; // Flag to track if zeroing is complete
 
-    public LinkageController(HardwareMap hardwareMap, String motorName, double p, double i, double d) {
+    public LinkageControllerVELO(HardwareMap hardwareMap, String motorName, double p, double i, double d) {
         this.p = p;
         this.i = i;
         this.d = d;
@@ -68,19 +73,43 @@ public class LinkageController {
 
     // Update method to control the motor with PID
     public void update() {
-        // Check for amperage spike first
-        checkForAmperageSpike();
-
-        // If PID control is enabled and the zeroing process is complete
         if (isPIDEnabled && hasZeroed) {
             int currentPos = extendoMotor.getCurrentPosition();
-            double pid = pidController.calculate(currentPos, targetPosition);
+
+            currentVelocity = extendoMotor.getVelocity(); // get velocity in ticks per second
+
+            // Stop the motor immediately if velocity is zero
+            if (Math.abs(currentVelocity) < 0.01) {  // Threshold for "zero" velocity
+                extendoMotor.setPower(0);  // Stop the motor if velocity is zero
+                return;  // Exit the update method to prevent further PID control
+            }
+
+            // Check if velocity changes abruptly (optional additional check)
+            if (Math.abs(currentVelocity - previousVelocity) > VELOCITY_DECREASE_THRESHOLD) {
+                // Optionally adjust PID output or take some action here
+                pidController.setPID(p * 0.5, i * 0.5, d * 0.5); // Reduce gains if needed
+            }
+
+            // Store the current velocity for the next cycle
+            previousVelocity = currentVelocity;
+
+            // Calculate PID output
+            double pidOutput = pidController.calculate(currentPos, targetPosition);
+
+            // Use a feed-forward term based on target position and gravity compensation
             double ff = Math.cos(Math.toRadians(targetPosition / ticksPerDegree)) * f;
-            double power = pid + ff;
-            power *= 0.3; // Scale the power to 50% of its calculated value
+
+            // Combine PID output with feed-forward term
+            double power = pidOutput + ff;
+
+            // Scale power to limit motor speed (optional)
+            power = Math.max(Math.min(power, 1.0), -1.0); // Ensure power is between -1 and 1
+
+            // Set motor power
             extendoMotor.setPower(power);
         } else {
-            extendoMotor.setPower(0); // Stop motor when PID is disabled or zeroing is not complete
+            // If PID is disabled or zeroing is not complete, stop the motor
+            extendoMotor.setPower(0);
         }
     }
 

@@ -1,12 +1,13 @@
 package OpMode.TeleOp;
 
-import static OpMode.Autonomous.AutonomousFSM.finalPose;
+import static Unused.AutonomousFSM.finalPose;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
+import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -20,6 +21,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
+import OpMode.Subsystems.FlapServo;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServosNEW;
 import OpMode.Subsystems.LinkageController;
@@ -44,13 +46,12 @@ public class BlueTeleopClip extends OpMode {
 
     public enum SlideState {
         IDLE,
-        TRANSFER,
+        Drop,
         BlockInBucket,
         BucketScoring,
         Descending,
-        ClawClosed,
+        FlapClosed,
         SlideMID,
-        SlideClip
     }
 
     IntakeState intakeState = IntakeState.INTAKE_START;
@@ -74,6 +75,7 @@ public class BlueTeleopClip extends OpMode {
     // Servos
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
+    private Timer SlideTimer;
     private IntakeServosNEW intakeServos;
     private ClawServo clawServo;
     private Servo bucketServoRight;
@@ -85,24 +87,35 @@ public class BlueTeleopClip extends OpMode {
     private IntakeMotor intakeMotor;
     private DcMotor extendoMotor;
     private ColorSensor colorSensor;
-    private ColorAndDistance colorAndDistance;
+    private ColorAndDistance colorAndDistance;;
 
+    private FlapServo flapServo;
+
+    private Servo FlapServo;
 
     private boolean hasRumbled = false;
     private ElapsedTime loopTimer;
+
     private LinkageController linkageController;
     boolean waitingForExtension = false;
 
     // Left Trigger Rising Edge Detection
-    private boolean previousLeftTriggerState = false;
-    private boolean currentLeftTriggerState = false;
+    private boolean previousRightTriggerState = false;
+    private boolean currentRightTriggerState = false;
     private boolean isClawOpen = true;
+
+    private boolean isFlapOpen = false;
+
+    private boolean previousFlapState = false;
+
+    private boolean currentFlapState = false;
 
     @Override
     public void init() {
 
         // Initialize the loop timer
         loopTimer = new ElapsedTime();
+        SlideTimer = new Timer();
         intakeTimer.reset();
 
         //startPose
@@ -136,6 +149,10 @@ public class BlueTeleopClip extends OpMode {
         // Initialize motors and sensors
         intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
 
+        FlapServo = hardwareMap.get(Servo.class, "FlapServo");
+        flapServo = new FlapServo(FlapServo);
+
+
         // Initialize intake servos
         intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
@@ -160,6 +177,27 @@ public class BlueTeleopClip extends OpMode {
     @Override
     public void loop() {
 
+        currentRightTriggerState = gamepad1.right_trigger > 0.5;  // Detect if the left trigger is pressed
+        if (currentRightTriggerState && !previousRightTriggerState) {  // Rising edge
+            // Toggle claw position on rising edge
+            if (isFlapOpen) {
+                flapServo.FlapClose();  // Close the claw
+            } else {
+                flapServo.FlapOpen();  // Open the claw
+            }
+            // Flip the claw state
+            isFlapOpen = !isFlapOpen;
+        }
+        previousRightTriggerState = currentRightTriggerState;
+
+        if (gamepad1.y){
+            slideState = SlideState.BlockInBucket;
+        }
+
+        if (gamepad1.a && bucketServos.isTransferPosition()) {
+            slideState = SlideState.SlideMID;
+        }
+
         switch (intakeState) {
 
 
@@ -175,6 +213,7 @@ public class BlueTeleopClip extends OpMode {
                if (gamepad1.left_bumper){
                    intakeMotor.outtake();
                }
+
                 break;
 
             case INTAKE_EXTEND:
@@ -196,15 +235,20 @@ public class BlueTeleopClip extends OpMode {
 
                 String detectedColor = colorAndDistance.getDetectedColor();
 
-                if (detectedColor.equals("Blue") /*|| detectedColor.equals("Yellow") */){
+                if (detectedColor.equals("Blue" ) || detectedColor.equals("Yellow") ){
                     intakeMotor.stop();
                     intakeServos.transferPosition();
                     intakeTimer.reset();
                     intakeState = IntakeState.INTAKE_RETRACT;
                 }
-                if (gamepad1.left_bumper){
+                if (gamepad1.right_bumper) {
                     intakeMotor.outtake();
                 }
+
+                if (gamepad1.left_bumper){
+                    intakeMotor.intake();
+                }
+
 
 
                 break;
@@ -266,35 +310,41 @@ public class BlueTeleopClip extends OpMode {
 
             case IDLE :
 
-                viperSlides.setTarget(ViperSlides.Target.GROUND);
-                bucketServos.transferPosition();
 
                 break;
-
-            case TRANSFER :
-
 
 
             case BlockInBucket:
                 viperSlides.setTarget(ViperSlides.Target.HIGH);
-
+                if (viperSlides.getSlidePositionRight() > 1000){
+                    slideState = SlideState.BucketScoring;
+                    bucketServos.depositPosition();
+                }
                 break;
+
             case BucketScoring:
-
-
-
+                if (gamepad1.right_trigger > 0.5){
+                    isFlapOpen = true;
+                    SlideTimer.resetTimer();
+                    slideState = SlideState.Descending;
+                    // flapServo.FlapOpen();
+                }
                 break;
+
             case Descending:
 
+            if (SlideTimer.getElapsedTimeSeconds()>1){
+                slideState = SlideState.FlapClosed;
+            }
                 break;
-            case ClawClosed:
+            case FlapClosed:
+            isFlapOpen = false;
+            bucketServos.transferPosition();
 
                 break;
             case SlideMID:
-
-                break;
-            case SlideClip:
-
+            viperSlides.setTarget(ViperSlides.Target.GROUND);
+            slideState = SlideState.IDLE;
                 break;
 
             default:
@@ -322,36 +372,9 @@ public class BlueTeleopClip extends OpMode {
         String detectedColor = colorAndDistance.getDetectedColor();
 
         // Rumble for Blue Detection
-        if ((detectedColor.equals("Blue") && !hasRumbled)) {
-            gamepad1.rumble(1000);
-            hasRumbled = true;
-        }
-        if (!detectedColor.equals("Blue") && !detectedColor.equals("Yellow")) {
-            hasRumbled = false;
-        }
 
-        if (viperSlides.getSlidePositionRight() > 1300) {
-            if (gamepad1.right_trigger > 0.1) {
-                bucketServos.depositPosition(); // Move bucket to deposit position if right trigger is pressed and slides are down
-            } else {
-                bucketServos.transferPosition();   // Otherwise, set bucket transfer position
-            }
-        } else {
-            bucketServos.transferPosition();       // If the slide position is not less than -1950, set bucket to transfer position
-        }
 
-        currentLeftTriggerState = gamepad1.left_trigger > 0.5;  // Detect if the left trigger is pressed
-        if (currentLeftTriggerState && !previousLeftTriggerState) {  // Rising edge
-            // Toggle claw position on rising edge
-            if (isClawOpen) {
-                clawServo.closedPosition();  // Close the claw
-            } else {
-                clawServo.openPosition();  // Open the claw
-            }
-            // Flip the claw state
-            isClawOpen = !isClawOpen;
-        }
-        previousLeftTriggerState = currentLeftTriggerState;
+
 
 
         linkageController.checkForAmperageSpike();
@@ -403,6 +426,19 @@ public class BlueTeleopClip extends OpMode {
             follower.setPose(newPose);
         }
 
+        currentFlapState = gamepad1.left_trigger > 0.5;
+        if (currentFlapState && !previousFlapState) {
+            isFlapOpen = !isFlapOpen;
+        }
+        previousFlapState = currentFlapState;
+
+        if (isFlapOpen){
+            flapServo.FlapOpen();
+        } else {
+            flapServo.FlapClose();
+        }
+
+
         // Telemetry for debugging and visualization
         telemetry.addData("Loop Time (ms)", loopTime);  // Show the loop time in ms
         telemetry.addData("Slide Position Left", viperSlides.getSlidePositionLeft());
@@ -420,6 +456,7 @@ public class BlueTeleopClip extends OpMode {
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
         telemetry.addData("intake State", intakeState);
+        telemetry.addData("slide state", slideState);
         telemetry.update();
     }
     }

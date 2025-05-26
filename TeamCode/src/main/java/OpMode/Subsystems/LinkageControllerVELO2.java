@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-public class LinkageController {
+public class LinkageControllerVELO2 {
 
     public enum Position {
         RETRACTED(-75),
@@ -38,7 +38,7 @@ public class LinkageController {
     public boolean isZeroing = false; // Flag for zeroing process
     public boolean hasZeroed = false; // Flag to track if zeroing is complete
 
-    public LinkageController(HardwareMap hardwareMap, String motorName, double p, double i, double d) {
+    public LinkageControllerVELO2(HardwareMap hardwareMap, String motorName, double p, double i, double d) {
         this.p = p;
         this.i = i;
         this.d = d;

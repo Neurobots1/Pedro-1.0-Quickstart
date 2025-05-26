@@ -1,6 +1,6 @@
 package OpMode.TeleOp;
 
-import static OpMode.Autonomous.AutonomousFSM.finalPose;
+import static Unused.AutonomousFSM.finalPose;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -20,7 +20,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
-import OpMode.Subsystems.GamePieceDetection;
 import OpMode.Subsystems.HandServo;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServosNEW;

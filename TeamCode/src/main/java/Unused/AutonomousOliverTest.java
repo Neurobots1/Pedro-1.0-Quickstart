@@ -1,11 +1,10 @@
-package OpMode.Autonomous;
+package Unused;
 
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
@@ -22,12 +21,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.IntakeMotor;
-import OpMode.Subsystems.IntakeServos;
+import OpMode.Subsystems.IntakeServosNEW;
 import OpMode.Subsystems.LinkageController;
 import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+
+@Deprecated
 @Autonomous(name = "AutonomousOliver", group = "Autonomous")
 public class AutonomousOliverTest extends OpMode {
 
@@ -47,7 +48,7 @@ public class AutonomousOliverTest extends OpMode {
     // Servos
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
-    private IntakeServos intakeServos; // IntakeBoolean subsystem instance
+    private IntakeServosNEW intakeServos;
     private ClawServo clawServo;
     private Servo bucketServoRight;
     private Servo bucketServoLeft;
@@ -87,7 +88,7 @@ public class AutonomousOliverTest extends OpMode {
                                 new Point(38.000, 77.000, Point.CARTESIAN)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         public static PathChain line2 = builder
@@ -99,7 +100,7 @@ public class AutonomousOliverTest extends OpMode {
                                 new Point(58.000, 25.000, Point.CARTESIAN)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         public static PathChain line3 = builder
@@ -109,7 +110,7 @@ public class AutonomousOliverTest extends OpMode {
                                 new Point(20.000, 25.000, Point.CARTESIAN)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         public static PathChain line4 = builder
@@ -120,7 +121,7 @@ public class AutonomousOliverTest extends OpMode {
                                 new Point(58.000, 16.000, Point.CARTESIAN)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         public static PathChain line5 = builder
@@ -130,7 +131,7 @@ public class AutonomousOliverTest extends OpMode {
                                 new Point(20.000, 16.000, Point.CARTESIAN)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         public static PathChain line6 = builder
@@ -140,7 +141,7 @@ public class AutonomousOliverTest extends OpMode {
                                 new Point(14.000, 34.000, Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
 
         public static PathChain line7 = builder
@@ -150,7 +151,7 @@ public class AutonomousOliverTest extends OpMode {
                                 new Point(8.000, 34.000, Point.CARTESIAN)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         public static PathChain line8 = builder
@@ -243,7 +244,7 @@ public class AutonomousOliverTest extends OpMode {
                 setPathState(1);
                 break;
             case 1:
-                if(!follower.atParametricEnd()) {
+                if(!follower.isBusy()) {
                     viperSlides.setTarget(ViperSlides.Target.LOW);
                     setPathState(2);
                 }
@@ -257,97 +258,116 @@ public class AutonomousOliverTest extends OpMode {
                     follower.followPath(line2,false);
                     setPathState(4);
                 }
+                break;
             case 4:
                 if(pathTimer.getElapsedTimeSeconds() >0.5) {
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     setPathState(5);
                 }
+                break;
             case 5:
                 if(pathTimer.getElapsedTimeSeconds() >0.5) {
                     follower.followPath(line3,false);
                     setPathState(6);
                 }
+                break;
             case 6:
                 if(!follower.isBusy()) {
                     follower.followPath(line4,false);
                     setPathState(7);
                 }
+                break;
             case 7:
                 if(!follower.isBusy()) {
                     follower.followPath(line5,false);
                     setPathState(8);
                 }
+                break;
             case 8:
                 if(!follower.isBusy()) {
                     follower.followPath(line6);
                     setPathState(9);
                 }
+                break;
             case 9:
                 if(!follower.isBusy()) {
                     follower.followPath(line7);
                     setPathState(10);
                 }
+                break;
             case 10:
                 if(!follower.isBusy()) {
                     clawServo.closedPosition();
                     setPathState(11);
                 }
+                break;
             case 11:
                 if(pathTimer.getElapsedTimeSeconds() >0.5) {
                     follower.followPath(line8);
                     setPathState(12);
                 }
+                break;
             case 12:
                 if(pathTimer.getElapsedTimeSeconds() >0.5) {
                     viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                     setPathState(13);
                 }
+                break;
             case 13:
                 if(!follower.isBusy()) {
                     viperSlides.setTarget(ViperSlides.Target.LOW);
                     setPathState(14);
                 }
+                break;
             case 14:
                 if(pathTimer.getElapsedTimeSeconds() >0.5) {
                     clawServo.openPosition();
                     setPathState(15);
                 }
+                break;
             case 15:
                 if(pathTimer.getElapsedTimeSeconds() >0.5) {
                     follower.followPath(line9);
                     viperSlides.setTarget(ViperSlides.Target.GROUND);
                     setPathState(16);
                 }
+                break;
             case 16:
                 if(!follower.isBusy()) {
                     follower.followPath(line10);
                     setPathState(17);
                 }
+                break;
             case 17:
                 if(!follower.isBusy()) {
                     clawServo.closedPosition();
                     setPathState(18);
                 }
+                break;
             case 18:
                 if(pathTimer.getElapsedTimeSeconds() >0.5) {
                     follower.followPath(line11);
                     setPathState(19);
                 }
+                break;
             case 19:
                 if(pathTimer.getElapsedTimeSeconds() >0.5) {
                     viperSlides.setTarget(ViperSlides.Target.MEDIUM);
                     setPathState(20);
                 }
+                break;
             case 20:
                 if(!follower.isBusy()) {
                     viperSlides.setTarget(ViperSlides.Target.LOW);
                     setPathState(21);
                 }
+                break;
             case 21:
                 if(pathTimer.getElapsedTimeSeconds() >0.5) {
                     clawServo.openPosition();
                     setPathState(22);
                 }
+                break;
             case 22:
                 if(pathTimer.getElapsedTimeSeconds() >0.5) {
                     follower.followPath(line12);
@@ -404,7 +424,7 @@ public class AutonomousOliverTest extends OpMode {
 
         intakeServoRight = hardwareMap.get(Servo.class, "IntakeServoRight");
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
-        intakeServos = new IntakeServos(intakeServoRight , intakeServoLeft);
+        intakeServos = new IntakeServosNEW(intakeServoRight , intakeServoLeft);
         intakeServos.transferPosition(); // Set intake servos to transfer position
 
         bucketServoRight = hardwareMap.get(Servo.class, "BucketServoRight");

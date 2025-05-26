@@ -1,4 +1,4 @@
-package OpMode.Autonomous;
+package Unused;
 
 
 import com.pedropathing.follower.Follower;
@@ -22,7 +22,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
@@ -31,10 +30,11 @@ import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServos;
 import OpMode.Subsystems.LinkageController;
 import OpMode.Subsystems.ViperSlides;
-import OpMode.TeleOp.BlueTeleopNEWERAMP;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+
+@Deprecated
 @Autonomous(name = "AutonomousBucket", group = "Autonomous")
 public class AutonomousBucket extends OpMode {
 

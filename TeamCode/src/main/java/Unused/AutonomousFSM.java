@@ -1,4 +1,4 @@
-package OpMode.Autonomous;
+package Unused;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -19,7 +19,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit; // ✅ Import for current
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -38,8 +37,9 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
-@Autonomous(name = "AutonomousFSMAmp", group = "Autonomous")
-public class AutonomousFSMAmp extends OpMode {
+@Deprecated
+@Autonomous(name = "AutonomousFSM", group = "Autonomous")
+public class AutonomousFSM extends OpMode {
 
     // Viper Slide Variables
     public static double p = 0.01, i = 0, d = 0.0;
@@ -72,6 +72,7 @@ public class AutonomousFSMAmp extends OpMode {
     // IntakeBoolean Motor and Color Sensor
     private DcMotorEx intakemotor;
     private IntakeMotor intakeMotor;
+
     // Loop Timer
     private ElapsedTime loopTimer;
 
@@ -87,15 +88,15 @@ public class AutonomousFSMAmp extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(7, 104, Math.toRadians(270));
-    private final Pose bucketPose = new Pose(13, 128, Math.toRadians(315));
-    private final Pose blockPose1 = new Pose(20, 118, Math.toRadians(0));
-    private final Pose blockPose2 = new Pose(21, 126 , Math.toRadians(0));
-    private final Pose blockPose3 = new Pose(32, 119, Math.toRadians(59));
+    private final Pose bucketPose = new Pose(10, 128, Math.toRadians(315));
+    private final Pose blockPose1 = new Pose(21, 116, Math.toRadians(0));
+    private final Pose blockPose2 = new Pose(21, 125, Math.toRadians(0));
+    private final Pose blockPose3 = new Pose(29, 117, Math.toRadians(50));
 
-    private final Pose blockIntake1 = new Pose(60, 97, Math.toRadians(-90));
+    private final Pose blockIntake1 = new Pose(57, 97, Math.toRadians(-90));
 
-    private final Pose blocIntake2 = new Pose(75, 97,Math.toRadians(-90));
-    private final Pose endPose = new Pose(60, 91.5, Math.toRadians(-90));
+    private final Pose blocIntake2 = new Pose(74, 96,Math.toRadians(-90));
+    private final Pose endPose = new Pose(49, 93, Math.toRadians(-90));
 
     public static Pose finalPose =new Pose();
 
@@ -793,9 +794,7 @@ public class AutonomousFSMAmp extends OpMode {
         handServo = new HandServo(hardwareMap.get(Servo.class, "HandServo"));
         intakeServoLeft = hardwareMap.get(Servo.class, "IntakeServoLeft");
         intakeServos = new IntakeServosNEW(intakeServoRight , intakeServoLeft);
-        intakemotor = hardwareMap.get(DcMotorEx.class, "intakemotor");
-        intakeMotor = new IntakeMotor(intakemotor);
-
+        intakeMotor = new IntakeMotor(hardwareMap.get(DcMotor.class, "intakemotor"));
         colorAndDistance = new ColorAndDistance(hardwareMap.get(RevColorSensorV3.class, "colorSensor"));
         intakeServos.transferPosition(); // Set intake servos to transfer position
         //Linkage
@@ -837,19 +836,12 @@ public class AutonomousFSMAmp extends OpMode {
 
     @Override
     public void loop() {
-        double currentAmperage = intakemotor.getCurrent(CurrentUnit.AMPS);
-
-        if (currentAmperage > 5.5){
-            intakeMotor.outtake();
-        }
-
         follower.update();
         autonomousPathUpdate();
         telemetry.addData("Path State", pathState);
         telemetry.addData("Position", follower.getPose().toString());
         telemetry.addData("Path Timer", pathTimer.getElapsedTimeSeconds());
         telemetry.addData("OpMode Timer", pathTimer.getElapsedTimeSeconds());
-        telemetry.addData("Intake Motor Amperage (A)", intakemotor.getCurrent(CurrentUnit.AMPS));
         telemetry.update();
         viperSlides.update();
         linkageController.checkForAmperageSpike();

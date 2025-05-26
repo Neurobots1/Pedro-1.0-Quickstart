@@ -1,6 +1,6 @@
 package OpMode.TeleOp;
 
-import static OpMode.Autonomous.AutonomousFSM.finalPose;
+import static Unused.AutonomousFSM.finalPose;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -21,6 +21,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import OpMode.Subsystems.BucketServos;
 import OpMode.Subsystems.ClawServo;
 import OpMode.Subsystems.ColorAndDistance;
+import OpMode.Subsystems.FlapServo;
 import OpMode.Subsystems.HandServo;
 import OpMode.Subsystems.IntakeMotor;
 import OpMode.Subsystems.IntakeServosNEW;
@@ -28,6 +29,18 @@ import OpMode.Subsystems.LinkageController;
 import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import com.pedropathing.localization.Pose;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import java.util.List;
 
 @Config
 @TeleOp(name = "BlueTeleopNEWERAMP", group = "0")
@@ -51,7 +64,7 @@ public class BlueTeleopNEWERAMP extends OpMode {
     private ViperSlides viperSlides;
 
     private Follower follower;
-    private final Pose startPose = new Pose(finalPose.getX(), finalPose.getY(), finalPose.getHeading());
+    private final Pose startPose = new Pose(finalPose.getX(), finalPose.getY(), Math.toRadians(-90));
     private FtcDashboard dashboard;
 
     private TouchSensor limitSwitch;
@@ -60,6 +73,9 @@ public class BlueTeleopNEWERAMP extends OpMode {
     private Servo intakeServoRight;
     private Servo intakeServoLeft;
     private IntakeServosNEW intakeServos;
+    private AprilTagProcessor aprilTagProcessor;
+
+    private FlapServo flapServo;
     private ClawServo clawServo;
     private Servo bucketServoRight;
     private Servo bucketServoLeft;
@@ -82,7 +98,18 @@ public class BlueTeleopNEWERAMP extends OpMode {
 
     private boolean previousLeftTriggerState = false;
     private boolean currentLeftTriggerState = false;
+
+    private boolean previousHandState = false;
+
+    private boolean currentHandState = false;
     private boolean isClawOpen = true;
+
+    private boolean isHandOpen = true;
+
+    private boolean previousFlapState = false;
+
+    private boolean currentFlapState = false;
+
 
     @Override
     public void init() {
@@ -269,7 +296,7 @@ public class BlueTeleopNEWERAMP extends OpMode {
 
         if (gamepad1.y) viperSlides.setTarget(ViperSlides.Target.HIGH);
         if (gamepad1.a && bucketServos.isTransferPosition() && isClawOpen) viperSlides.setTarget(ViperSlides.Target.GROUND);
-        if (gamepad1.b && bucketServos.isTransferPosition()) viperSlides.setTarget(ViperSlides.Target.LOW);
+        if (gamepad1.b && bucketServos.isTransferPosition() ) viperSlides.setTarget(ViperSlides.Target.LOW);
         if (gamepad1.x && bucketServos.isTransferPosition()) viperSlides.setTarget(ViperSlides.Target.MEDIUM);
 
         if (gamepad1.options) {
@@ -287,6 +314,18 @@ public class BlueTeleopNEWERAMP extends OpMode {
             Pose newPose = new Pose(currentPose.getX(), currentPose.getY(), 0);
             follower.setPose(newPose);
         }
+
+        currentHandState = gamepad1.touchpad;
+        if (currentHandState && !previousHandState) {
+            if (isHandOpen) {
+                handServo.openPosition();
+            } else {
+                handServo.closedPosition();
+            }
+            isHandOpen = !isHandOpen;
+        }
+        previousHandState = currentHandState;
+
 
         // ✅ Telemetry showing intake motor current
         telemetry.addData("Intake Motor Amperage (A)", intakemotor.getCurrent(CurrentUnit.AMPS));

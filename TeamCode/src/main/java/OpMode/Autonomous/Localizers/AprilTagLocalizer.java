@@ -11,12 +11,12 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-
 import java.util.List;
 
 /**
  * Independent AprilTag Localizer that calculates and returns its own pose based on AprilTag detections.
  */
+
 public class AprilTagLocalizer {
 
     private static final boolean USE_WEBCAM = true;
@@ -48,10 +48,10 @@ public class AprilTagLocalizer {
      * to +/-90 degrees if it's vertical, or 180 degrees if it's upside-down.
      */
     private AprilTagPose currentPose = new AprilTagPose(0, 0, 0);  // Default pose: origin (0,0) and 0 rotation
-
-    private Position cameraPosition = new Position(DistanceUnit.INCH, 0, 0, 5.25
-            , 0);  // Adjust position as needed
-    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES, -45,0 , -90,0);
+    public Pose pedroPose, originalPose;
+    private Position cameraPosition = new Position(DistanceUnit.INCH, 6.16, -5.97, 5.16, 0);  // Adjust position as needed
+    // droite 153.645mm arriere 151.791mm hauteur=113,861mm+9
+    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES, -45, 90 , -90,0);
 
     /**
      * Constructor for the AprilTag Localizer.
@@ -86,14 +86,15 @@ public class AprilTagLocalizer {
         if (!detections.isEmpty()) {
             AprilTagDetection detection = detections.get(0);
 
-            Pose temp = new Pose(
+            originalPose = new Pose(
                     detection.robotPose.getPosition().x,
                     detection.robotPose.getPosition().y,
-                    detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS),
+                    detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES),
                     false
-            ).getAsPedroCoordinates();
+            );
 
-            currentPose = new AprilTagPose(temp.getX(), temp.getY(), temp.getHeading());
+            pedroPose = originalPose.getAsPedroCoordinates();
+
 
         }
     }
