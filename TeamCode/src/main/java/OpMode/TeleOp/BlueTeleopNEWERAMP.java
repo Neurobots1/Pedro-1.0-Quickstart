@@ -1,6 +1,6 @@
 package OpMode.TeleOp;
 
-import static Unused.AutonomousFSM.finalPose;
+import static OpMode.Autonomous.AutonomousFSM.finalPose;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -29,18 +29,8 @@ import OpMode.Subsystems.LinkageController;
 import OpMode.Subsystems.ViperSlides;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import com.pedropathing.localization.Pose;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import java.util.List;
 
 @Config
 @TeleOp(name = "BlueTeleopNEWERAMP", group = "0")

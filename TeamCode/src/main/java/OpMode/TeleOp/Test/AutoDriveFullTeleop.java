@@ -1,6 +1,6 @@
 package OpMode.TeleOp.Test;
 
-import static Unused.AutonomousFSM.finalPose;
+import static OpMode.Autonomous.AutonomousFSM.finalPose;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;

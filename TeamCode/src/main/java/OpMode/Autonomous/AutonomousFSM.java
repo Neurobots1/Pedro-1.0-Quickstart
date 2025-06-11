@@ -1,4 +1,4 @@
-package Unused;
+package OpMode.Autonomous;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -37,7 +37,6 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config
-@Deprecated
 @Autonomous(name = "AutonomousFSM", group = "Autonomous")
 public class AutonomousFSM extends OpMode {
 
