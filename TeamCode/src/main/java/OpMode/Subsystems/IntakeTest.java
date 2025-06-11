@@ -5,9 +5,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class IntakeTest {
     private DcMotorEx intakeMotor;
     private Servo intakeServoRight;
+    private final Telemetry telemetry;
+    public IntakeTest(Telemetry telemetry){this.telemetry = telemetry;}
 
 
     public void setup(HardwareMap hardwareMap) {
